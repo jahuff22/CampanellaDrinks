@@ -1,18 +1,9 @@
-const testUserPreferences = {
-    strength: 3,
-    sweetness: 4,
-    sourness: 5,
-    bitterness: 2,
-    thickness: 3,
-    rarity: 6
-};
-
 function calculateDistance(userPreferences, drink) {
   let sum = 0;
 
   for (const trait of traits) {
     const difference = userPreferences[trait] - drink.scores[trait];
-    const weightedDifference = difference * drink.weights[trait];
+    const weightedDifference = difference * (drink.weights[trait]/10);
 
     sum += weightedDifference ** 2;
   }
@@ -30,6 +21,44 @@ function recommendDrinks(userPreferences, numberOfRecommendations = 3) {
     .slice(0, numberOfRecommendations);
 }
 
-console.log(recommendDrinks(testUserPreferences));
+function getUserPreferencesFromForm() {
+  const userPreferences = {};
 
-console.log("JavaScript is connected");
+  for (const trait of traits) {
+    const input = document.getElementById(trait);
+    userPreferences[trait] = Number(input.value);
+  }
+
+  return userPreferences;
+}
+
+function displayResults(recommendations) {
+  const resultsDiv = document.getElementById("results");
+
+  resultsDiv.innerHTML = "";
+
+  for (const drink of recommendations) {
+    const drinkElement = document.createElement("div");
+
+    drinkElement.innerHTML = `
+      <h3>${drink.name}</h3>
+      <p><strong>Match score:</strong> ${drink.distance.toFixed(2)}</p>
+      <p><strong>Description:</strong> ${drink.description}</p>
+      <p><strong>Ingredients:</strong> ${drink.ingredients}</p>
+      <hr>
+    `;
+
+    resultsDiv.appendChild(drinkElement);
+  }
+}
+
+const quizForm = document.getElementById("quiz-form");
+
+quizForm.addEventListener("submit", function(event) {
+  event.preventDefault();
+
+  const userPreferences = getUserPreferencesFromForm();
+  const recommendations = recommendDrinks(userPreferences, 3);
+
+  displayResults(recommendations);
+});

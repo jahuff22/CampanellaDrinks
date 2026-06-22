@@ -2,11 +2,53 @@
 <html>
 <head>
   <title>Campanella Drinks</title>
-  <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
   <h1>Campanella Drinks</h1>
-  <p>Testing the website.</p>
+
+  <form id="quiz-form">
+    <label>
+      Strength:
+      <input type="number" id="strength" min="1" max="7" value="4" required>
+    </label>
+    <br><br>
+
+    <label>
+      Sweetness:
+      <input type="number" id="sweetness" min="1" max="7" value="4" required>
+    </label>
+    <br><br>
+
+    <label>
+      Sourness:
+      <input type="number" id="sourness" min="1" max="7" value="4" required>
+    </label>
+    <br><br>
+
+    <label>
+      Bitterness:
+      <input type="number" id="bitterness" min="1" max="7" value="4" required>
+    </label>
+    <br><br>
+
+    <label>
+      Thickness:
+      <input type="number" id="thickness" min="1" max="7" value="4" required>
+    </label>
+    <br><br>
+
+    <label>
+      Rarity:
+      <input type="number" id="rarity" min="1" max="7" value="4" required>
+    </label>
+    <br><br>
+
+    <button type="submit">Recommend Drinks</button>
+  </form>
+
+  <h2>Results</h2>
+  <div id="results"></div>
 
   <script src="drinks.js"></script>
   <script src="script.js"></script>
