@@ -1,10 +1,10 @@
 const testUserPreferences = {
     strength: 3,
-    sweetness: 6,
-    sourness: 2,
-    bitterness: 3,
+    sweetness: 4,
+    sourness: 5,
+    bitterness: 2,
     thickness: 3,
-    rarity: 5
+    rarity: 6
 };
 
 function calculateDistance(userPreferences, drink) {
