@@ -1,3 +1,51 @@
+function createSliders() {
+  const sliderContainer = document.getElementById("slider-container");
+
+  for (const trait of traits) {
+    const text = questionText[trait];
+
+    const sliderBlock = document.createElement("div");
+    sliderBlock.className = "slider-block";
+
+    sliderBlock.innerHTML = `
+      <p class="question-prompt">${text.prompt}</p>
+
+      <div class="slider-labels">
+        <span>${text.low}</span>
+        <span>${text.high}</span>
+      </div>
+
+      <div class="number-labels">
+        <span>1</span>
+        <span>2</span>
+        <span>3</span>
+        <span>4</span>
+        <span>5</span>
+        <span>6</span>
+        <span>7</span>
+      </div>
+
+      <input
+        type="range"
+        id="${trait}"
+        min="1"
+        max="7"
+        value="4"
+        step="1"
+      >
+    `;
+
+    sliderContainer.appendChild(sliderBlock);
+
+    const slider = document.getElementById(trait);
+    const valueDisplay = document.getElementById(`${trait}-value`);
+
+    slider.addEventListener("input", function() {
+      valueDisplay.textContent = slider.value;
+    });
+  }
+}
+
 function calculateDistance(userPreferences, drink) {
   let sum = 0;
 
@@ -51,6 +99,8 @@ function displayResults(recommendations) {
     resultsDiv.appendChild(drinkElement);
   }
 }
+
+createSliders();
 
 const quizForm = document.getElementById("quiz-form");
 
