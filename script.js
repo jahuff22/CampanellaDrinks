@@ -51,12 +51,11 @@ function calculateDistance(userPreferences, drink) {
 
   for (const trait of traits) {
     const difference = userPreferences[trait] - drink.scores[trait];
-    const weightedDifference = difference * (drink.weights[trait]/10);
 
-    sum += weightedDifference ** 2;
+    sum += (difference ** 2) * (drink.weights[trait]/10);
   }
 
-  return Math.sqrt(sum);
+  return sum;
 }
 
 function recommendDrinks(userPreferences, numberOfRecommendations = 3) {
