@@ -12,7 +12,7 @@ const drinks = [
         name: "Margarita",
         liquor: "Tequila",
         scores: {
-            strength: 4,
+            strength: 3,
             sweetness: 3,
             sourness: 4,
             bitterness: 1,
@@ -22,7 +22,7 @@ const drinks = [
         weights: {
             strength: 4,
             sweetness: 5,
-            sourness: 7,
+            sourness: 9,
             bitterness: 0,
             thickness: 2,
             rarity: 1
@@ -42,7 +42,7 @@ const drinks = [
             rarity: 1
         },
         weights: {
-            strength: 9,
+            strength: 10,
             sweetness: 5,
             sourness: 0,
             bitterness: 7,
@@ -100,9 +100,9 @@ const drinks = [
         name: "Whiskey Sour",
         liquor: "Whiskey",
         scores: {
-            strength: 4,
-            sweetness: 4,
-            sourness: 4,
+            strength: 3,
+            sweetness: 3,
+            sourness: 10,
             bitterness: 1,
             thickness: 4,
             rarity: 1
@@ -126,7 +126,7 @@ const drinks = [
             sweetness: 3,
             sourness: 4,
             bitterness: 1,
-            thickness: 3,
+            thickness: 2,
             rarity: 1
         },
         weights: {
@@ -188,7 +188,7 @@ const drinks = [
         name: "Red Sangria",
         liquor: "Red wine",
         scores: {
-            strength: 3,
+            strength: 2,
             sweetness: 3,
             sourness: 2,
             bitterness: 1,
@@ -210,7 +210,7 @@ const drinks = [
         name: "Martini",
         liquor: "Gin",
         scores: {
-            strength: 6,
+            strength: 7,
             sweetness: 1,
             sourness: 1,
             bitterness: 1,
@@ -236,7 +236,7 @@ const drinks = [
             sweetness: 1,
             sourness: 3,
             bitterness: 1,
-            thickness: 5,
+            thickness: 4,
             rarity: 2
         },
         weights: {
@@ -254,11 +254,11 @@ const drinks = [
         name: "Negroni",
         liquor: "Gin",
         scores: {
-            strength: 4,
+            strength: 5,
             sweetness: 3,
             sourness: 1,
             bitterness: 7,
-            thickness: 4,
+            thickness: 3,
             rarity: 1
         },
         weights: {
@@ -299,7 +299,7 @@ const drinks = [
         liquor: "Aperol",
         scores: {
             strength: 2,
-            sweetness: 4,
+            sweetness: 3,
             sourness: 1,
             bitterness: 3,
             thickness: 1,
@@ -350,7 +350,7 @@ const drinks = [
             rarity: 1
         },
         weights: {
-            strength: 8,
+            strength: 9,
             sweetness: 5,
             sourness: 0,
             bitterness: 5,
@@ -372,7 +372,7 @@ const drinks = [
             rarity: 3
         },
         weights: {
-            strength: 9,
+            strength: 10,
             sweetness: 4,
             sourness: 0,
             bitterness: 6,
@@ -386,7 +386,7 @@ const drinks = [
         name: "Mint Julep",
         liquor: "Bourbon",
         scores: {
-            strength: 6,
+            strength: 7,
             sweetness: 4,
             sourness: 1,
             bitterness: 1,
@@ -394,7 +394,7 @@ const drinks = [
             rarity: 1
         },
         weights: {
-            strength: 8,
+            strength: 10,
             sweetness: 5,
             sourness: 0,
             bitterness: 0,
@@ -409,16 +409,16 @@ const drinks = [
         liquor: "White rum",
         scores: {
             strength: 3,
-            sweetness: 5,
-            sourness: 6,
+            sweetness: 4,
+            sourness: 4,
             bitterness: 1,
             thickness: 2,
             rarity: 1
         },
         weights: {
             strength: 4,
-            sweetness: 6,
-            sourness: 8,
+            sweetness: 8,
+            sourness: 9,
             bitterness: 0,
             thickness: 2,
             rarity: 1
@@ -499,7 +499,7 @@ const drinks = [
             strength: 3,
             sweetness: 5,
             sourness: 1,
-            bitterness: 3,
+            bitterness: 2,
             thickness: 4,
             rarity: 1
         },
@@ -508,7 +508,7 @@ const drinks = [
             sweetness: 5,
             sourness: 0,
             bitterness: 5,
-            thickness: 4,
+            thickness: 9,
             rarity: 1
         },
         description: "A modern classic that shakes vodka, coffee liqueur, and espresso into a foamy cocktail.",
@@ -541,7 +541,7 @@ const drinks = [
         liquor: "Gin",
         scores: {
             strength: 2,
-            sweetness: 4,
+            sweetness: 3,
             sourness: 4,
             bitterness: 1,
             thickness: 2,
@@ -610,7 +610,7 @@ const drinks = [
             sweetness: 3,
             sourness: 2,
             bitterness: 1,
-            thickness: 1,
+            thickness: 2,
             rarity: 1
         },
         weights: {
@@ -654,7 +654,7 @@ const drinks = [
             sweetness: 3,
             sourness: 2,
             bitterness: 1,
-            thickness: 1,
+            thickness: 2,
             rarity: 1
         },
         weights: {
@@ -721,7 +721,7 @@ const drinks = [
             sourness: 5,
             bitterness: 1,
             thickness: 2,
-            rarity: 5
+            rarity: 4
         },
         weights: {
             strength: 4,
@@ -826,11 +826,11 @@ const drinks = [
         name: "Lemon Meringue Pie",
         liquor: "BESPOKE",
         scores: {
-            strength: 2,
-            sweetness: 6,
+            strength: 3,
+            sweetness: 5,
             sourness: 4,
             bitterness: 1,
-            thickness: 5,
+            thickness: 4,
             rarity: 6
         },
         weights: {
@@ -849,8 +849,8 @@ const drinks = [
         liquor: "BESPOKE",
         scores: {
             strength: 3,
-            sweetness: 6,
-            sourness: 5,
+            sweetness: 4,
+            sourness: 4,
             bitterness: 1,
             thickness: 4,
             rarity: 5
@@ -870,10 +870,10 @@ const drinks = [
         name: "The Conference",
         liquor: "BESPOKE",
         scores: {
-            strength: 7,
-            sweetness: 2,
+            strength: 6,
+            sweetness: 3,
             sourness: 1,
-            bitterness: 4,
+            bitterness: 2,
             thickness: 3,
             rarity: 6
         },
@@ -936,7 +936,7 @@ const drinks = [
         name: "Cinnamon Girl",
         liquor: "BESPOKE",
         scores: {
-            strength: 5,
+            strength: 3,
             sweetness: 3,
             sourness: 4,
             bitterness: 1,
@@ -960,7 +960,7 @@ const drinks = [
         scores: {
             strength: 3,
             sweetness: 3,
-            sourness: 5,
+            sourness: 4,
             bitterness: 1,
             thickness: 3,
             rarity: 5
@@ -980,10 +980,10 @@ const drinks = [
         name: "Le CouCou",
         liquor: "BESPOKE",
         scores: {
-            strength: 5,
-            sweetness: 4,
+            strength: 2,
+            sweetness: 3,
             sourness: 2,
-            bitterness: 2,
+            bitterness: 1,
             thickness: 3,
             rarity: 7
         },
@@ -1002,9 +1002,9 @@ const drinks = [
         name: "Mezcal Margarita",
         liquor: "BESPOKE",
         scores: {
-            strength: 4,
+            strength: 3,
             sweetness: 3,
-            sourness: 5,
+            sourness: 4,
             bitterness: 1,
             thickness: 2,
             rarity: 3
