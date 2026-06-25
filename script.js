@@ -173,6 +173,16 @@ function displayResults(scaledRecommendations, standardRecommendations) {
   }
 }
 
+function displayResults(scaledRecommendations) {
+  const resultsDiv = document.getElementById("results");
+
+  resultsDiv.innerHTML = "";
+
+  for (const drink of scaledRecommendations) {
+    resultsDiv.appendChild(createDrinkResultElement(drink));
+  }
+}
+
 const scaledDrinks = getScaledDrinks();
 
 createSliders();
@@ -187,5 +197,5 @@ quizForm.addEventListener("submit", function(event) {
   const scaledRecommendations = recommendDrinks(userPreferences, scaledDrinks, 3);
   const standardRecommendations = recommendDrinks(userPreferences, drinks, 3);
 
-  displayResults(scaledRecommendations, standardRecommendations);
+  displayResults(scaledRecommendations);
 });
