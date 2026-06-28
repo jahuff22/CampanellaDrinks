@@ -738,7 +738,7 @@ const drinks = [
         name: "Corpse Reviver #2",
         liquor: "Gin",
         scores: {
-            strength: 4,
+            strength: 5,
             sweetness: 4,
             sourness: 5,
             bitterness: 1,

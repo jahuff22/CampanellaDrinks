@@ -52,6 +52,11 @@ function getScaledDrinks() {
 function createSliders() {
   const sliderContainer = document.getElementById("slider-container");
 
+  const importanceHeader = document.createElement("div");
+  importanceHeader.className = "importance-header";
+  importanceHeader.textContent = "this is very important";
+  sliderContainer.appendChild(importanceHeader);
+
   for (const trait of traits) {
     const text = questionText[trait];
 
@@ -59,63 +64,87 @@ function createSliders() {
     sliderBlock.className = "slider-block";
 
     sliderBlock.innerHTML = `
-      <p class="question-prompt">${text.prompt}</p>
+      <div class="slider-content">
+        <p class="question-prompt">${text.prompt}</p>
 
-      <div class="slider-labels">
-        <span>${text.low}</span>
-        <span>${text.high}</span>
+        <div class="slider-labels">
+          <span>${text.low}</span>
+          <span>${text.high}</span>
+        </div>
+
+        <div class="number-labels">
+          <span>1</span>
+          <span>2</span>
+          <span>3</span>
+          <span>4</span>
+          <span>5</span>
+          <span>6</span>
+          <span>7</span>
+        </div>
+
+        <input
+          type="range"
+          id="${trait}"
+          min="1"
+          max="7"
+          value="4"
+          step="1"
+        >
       </div>
 
-      <div class="number-labels">
-        <span>1</span>
-        <span>2</span>
-        <span>3</span>
-        <span>4</span>
-        <span>5</span>
-        <span>6</span>
-        <span>7</span>
-      </div>
-
-      <input
-        type="range"
-        id="${trait}"
-        min="1"
-        max="7"
-        value="4"
-        step="1"
-      >
+      <button
+        class="importance-button"
+        type="button"
+        id="${trait}-important"
+        aria-pressed="false"
+        aria-label="Mark ${trait} as very important"
+      ></button>
     `;
 
     sliderContainer.appendChild(sliderBlock);
 
     const slider = document.getElementById(trait);
     const valueDisplay = document.getElementById(`${trait}-value`);
+    const importanceButton = document.getElementById(`${trait}-important`);
 
     slider.addEventListener("input", function() {
       if (valueDisplay) {
         valueDisplay.textContent = slider.value;
       }
     });
+
+    importanceButton.addEventListener("click", function() {
+      const isPressed = importanceButton.getAttribute("aria-pressed") === "true";
+      importanceButton.setAttribute("aria-pressed", String(!isPressed));
+    });
   }
 }
 
-function calculateDistance(userPreferences, drink) {
+function calculateDistance(userPreferences, importantTraits, drink) {
   let sum = 0;
 
   for (const trait of traits) {
     const difference = userPreferences[trait] - drink.scores[trait];
 
-    sum += (difference ** 2) * (drink.weights[trait] / 10);
+    let matchValue = difference ** 2;
+    if (trait === "thickness") matchValue *= 0.75;
+    else if(trait === "rarity") matchValue *= 0.5;
+
+    if (userPreferences[trait] == 1 || userPreferences[trait] == 7) matchValue *= 1.25;
+
+    if (importantTraits[trait]) matchValue *= 1.25;
+
+    sum += matchValue;
   }
 
   return sum;
 }
 
-function recommendDrinks(userPreferences, drinkList, numberOfRecommendations = 3) {
+function recommendDrinks(userPreferences, importantTraits, drinkList, numberOfRecommendations = 3) {
   return drinkList
     .map(drink => ({
       ...drink,
-      distance: calculateDistance(userPreferences, drink)
+      distance: calculateDistance(userPreferences, importantTraits, drink)
     }))
     .sort((a, b) => a.distance - b.distance)
     .slice(0, numberOfRecommendations);
@@ -132,6 +161,17 @@ function getUserPreferencesFromForm() {
   return userPreferences;
 }
 
+function getImportantTraitsFromForm() {
+  const importantTraits = {};
+
+  for (const trait of traits) {
+    const button = document.getElementById(`${trait}-important`);
+    importantTraits[trait] = button.getAttribute("aria-pressed") === "true";
+  }
+
+  return importantTraits;
+}
+
 function createDrinkResultElement(drink) {
   const drinkElement = document.createElement("div");
 
@@ -146,7 +186,7 @@ function createDrinkResultElement(drink) {
   return drinkElement;
 }
 
-function displayResults(scaledRecommendations, standardRecommendations) {
+function displayBothResults(scaledRecommendations, standardRecommendations) {
   const resultsDiv = document.getElementById("results");
 
   resultsDiv.innerHTML = "";
@@ -173,12 +213,12 @@ function displayResults(scaledRecommendations, standardRecommendations) {
   }
 }
 
-function displayResults(scaledRecommendations) {
+function displayResults(recommendations) {
   const resultsDiv = document.getElementById("results");
 
   resultsDiv.innerHTML = "";
 
-  for (const drink of scaledRecommendations) {
+  for (const drink of recommendations) {
     resultsDiv.appendChild(createDrinkResultElement(drink));
   }
 }
@@ -193,9 +233,10 @@ quizForm.addEventListener("submit", function(event) {
   event.preventDefault();
 
   const userPreferences = getUserPreferencesFromForm();
+  const importantTraits = getImportantTraitsFromForm();
 
-  const scaledRecommendations = recommendDrinks(userPreferences, scaledDrinks, 3);
-  const standardRecommendations = recommendDrinks(userPreferences, drinks, 3);
+  const scaledRecommendations = recommendDrinks(userPreferences, importantTraits, scaledDrinks, 3);
+  const standardRecommendations = recommendDrinks(userPreferences, importantTraits, drinks, 3);
 
-  displayResults(scaledRecommendations);
+  displayResults(standardRecommendations);
 });
