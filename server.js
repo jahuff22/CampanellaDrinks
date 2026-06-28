@@ -301,7 +301,16 @@ function createUsage(month) {
 }
 
 function saveUsage(usage) {
-  fs.writeFileSync(USAGE_FILE, JSON.stringify(usage, null, 2));
+  try {
+    fs.writeFileSync(USAGE_FILE, JSON.stringify(usage, null, 2));
+  } catch (error) {
+    if (error.code === "EROFS") {
+      console.warn("Could not persist AI usage on a read-only filesystem.");
+      return;
+    }
+
+    throw error;
+  }
 }
 
 function getCurrentMonth() {
