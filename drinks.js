@@ -819,8 +819,8 @@ const drinks = [
             thickness: 3,
             rarity: 7
         },
-        description: "BESPOKE",
-        ingredients: "BESPOKE"
+        description: "A stirred, spirit-forward drink; a chocolate cereal infusion removes most of the Campari's bitterness, leaving a sweeter, toasty profile with apricot.",
+        ingredients: "Rye, cocoa-puff-infused Campari, apricot liqueur"
     },
     {
         name: "Lemon Meringue Pie",
@@ -841,8 +841,8 @@ const drinks = [
             thickness: 7,
             rarity: 6
         },
-        description: "BESPOKE",
-        ingredients: "BESPOKE"
+        description: "A sweet citrus sour with torched sugar foam.",
+        ingredients: "Lemon verbena gin, limoncello, lemon, vanilla syrup, egg white, brûléed brown sugar"
     },
     {
         name: "Purple",
@@ -863,8 +863,8 @@ const drinks = [
             thickness: 4,
             rarity: 6
         },
-        description: "BESPOKE",
-        ingredients: "BESPOKE"
+        description: "A floral gin sour with a silky texture from the egg white.",
+        ingredients: "Empress gin, Cointreau, lime, crème de violette, egg white"
     },
     {
         name: "The Conference",
@@ -885,8 +885,8 @@ const drinks = [
             thickness: 3,
             rarity: 6
         },
-        description: "BESPOKE",
-        ingredients: "BESPOKE"
+        description: "A dry, spirit-forward stirred drink built on four base spirits, with an aromatic, cocoa-bitter undertone.",
+        ingredients: "Rittenhouse 100 rye, Buffalo Trace bourbon, calvados, Hine H cognac, demerara syrup, Angostura bitters, Bittermens xocolatl mole bitters, lemon and orange twist"
     },
     {
         name: "Creamy Tiki",
@@ -907,8 +907,8 @@ const drinks = [
             thickness: 6,
             rarity: 3
         },
-        description: "BESPOKE",
-        ingredients: "BESPOKE"
+        description: "A rich tiki-style drink with coconut cream, balanced by apricot and citrus.",
+        ingredients: "Lemon, coconut cream, apricot liqueur, black blended rum, lightly aged rum"
     },
     {
         name: "Rum Flip",
@@ -929,8 +929,8 @@ const drinks = [
             thickness: 9,
             rarity: 3
         },
-        description: "BESPOKE",
-        ingredients: "BESPOKE"
+        description: "A whole-egg flip with a thick, smooth texture.",
+        ingredients: "Whole egg, demerara syrup, blended aged rum"
     },
     {
         name: "Cinnamon Girl",
@@ -951,8 +951,8 @@ const drinks = [
             thickness: 3,
             rarity: 4
         },
-        description: "BESPOKE",
-        ingredients: "BESPOKE"
+        description: "A spiced agave-and-rum sour with muddled orange and cinnamon.",
+        ingredients: "Orange wedges, reposado tequila, Smith & Cross rum, lime, cinnamon syrup, demerara syrup, orange bitters"
     },
     {
         name: "Cucumber Thai",
@@ -973,8 +973,8 @@ const drinks = [
             thickness: 3,
             rarity: 5
         },
-        description: "BESPOKE",
-        ingredients: "BESPOKE"
+        description: "A cucumber-and-elderflower gin sour with a chili-driven heat.",
+        ingredients: "Gin, St-Germain, lime, cucumber, simple syrup, egg white, Thai chiles"
     },
     {
         name: "Le CouCou",
@@ -995,8 +995,8 @@ const drinks = [
             thickness: 4,
             rarity: 7
         },
-        description: "BESPOKE",
-        ingredients: "BESPOKE"
+        description: "A clarified milk punch; smooth and light-bodied despite a high spirit content.",
+        ingredients: "Calvados, rye, clairin, maple syrup, pineapple, black or red tea, milk"
     },
     {
         name: "Mezcal Margarita",
@@ -1017,7 +1017,7 @@ const drinks = [
             thickness: 2,
             rarity: 3
         },
-        description: "BESPOKE",
-        ingredients: "BESPOKE"
+        description: "A smoky variation on the Margarita.",
+        ingredients: "Mezcal, lime, orange liqueur, agave syrup"
     }
 ];
