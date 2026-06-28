@@ -11,10 +11,18 @@
   <form id="quiz-form">
     <div id="slider-container"></div>
 
+    <div class="qualitative-section">
+      <label for="qualitative-input">
+        Optional: Anything else we should know? (eg. I love ginger, I don't drink gin, I am allergic to mint)
+      </label>
+      <textarea id="qualitative-input" rows="4"></textarea>
+    </div>
+
     <button type="submit">Recommend Drinks</button>
   </form>
 
   <h2>Results</h2>
+  <div id="ai-notice" class="ai-notice" hidden></div>
   <div id="results"></div>
 
   <script src="drinks.js"></script>

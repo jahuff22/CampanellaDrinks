@@ -140,12 +140,215 @@ function calculateDistance(userPreferences, importantTraits, drink) {
   return sum;
 }
 
-function recommendDrinks(userPreferences, importantTraits, drinkList, numberOfRecommendations = 3) {
+function getQualitativeInputFromForm() {
+  return document.getElementById("qualitative-input").value.trim();
+}
+
+async function parseQualitativeInput(text) {
+  if (!text) {
+    return {
+      preferences: {
+        remove: [],
+        like: []
+      },
+      notice: ""
+    };
+  }
+
+  try {
+    const response = await fetch("/api/parse-preferences", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ text })
+    });
+
+    const data = await response.json();
+
+    if (data.code === "AI_USAGE_LIMIT_REACHED") {
+      return {
+        preferences: parseQualitativeInputLocally(text),
+        notice: "AI usage limit reached"
+      };
+    }
+
+    if (!response.ok) {
+      return {
+        preferences: parseQualitativeInputLocally(text),
+        notice: "AI preferences unavailable, using basic text matching."
+      };
+    }
+
+    return {
+      preferences: normalizeQualitativePreferences(data.preferences),
+      notice: ""
+    };
+  } catch (error) {
+    return {
+      preferences: parseQualitativeInputLocally(text),
+      notice: "AI preferences unavailable, using basic text matching."
+    };
+  }
+}
+
+function parseQualitativeInputLocally(text) {
+  const normalizedText = normalizeSearchText(text);
+  const knownTerms = getKnownPreferenceTerms();
+  const remove = getTermsNearPreferenceWords(normalizedText, knownTerms, [
+    "allergic",
+    "allergy",
+    "avoid",
+    "dislike",
+    "don't like",
+    "do not like",
+    "don't drink",
+    "do not drink",
+    "hate",
+    "no",
+    "not"
+  ]);
+  const like = getTermsNearPreferenceWords(normalizedText, knownTerms, [
+    "like",
+    "love",
+    "want",
+    "prefer",
+    "enjoy"
+  ]).filter(term => !remove.includes(term));
+
+  return {
+    remove,
+    like
+  };
+}
+
+function getKnownPreferenceTerms() {
+  const conceptTerms = [
+    "spicy",
+    "smoky",
+    "sweet",
+    "sour",
+    "bitter",
+    "creamy",
+    "citrus",
+    "fruity",
+    "herbal",
+    "strong",
+    "light",
+    "coffee",
+    "ginger"
+  ];
+  const drinkTerms = drinks.flatMap(drink => {
+    return [
+      drink.name,
+      drink.liquor,
+      ...drink.ingredients.split(/[,.]|\bor\b|\band\b/gi)
+    ];
+  });
+
+  return [...conceptTerms, ...drinkTerms]
+    .map(normalizeSearchText)
+    .filter(term => term && term !== "bespoke")
+    .filter((term, index, terms) => terms.indexOf(term) === index)
+    .sort((a, b) => b.length - a.length);
+}
+
+function getTermsNearPreferenceWords(text, knownTerms, preferenceWords) {
+  const matches = [];
+
+  for (const term of knownTerms) {
+    const termIndex = text.indexOf(term);
+    if (termIndex === -1) continue;
+
+    const nearbyText = text.slice(Math.max(0, termIndex - 35), termIndex + term.length + 35);
+    const hasPreferenceWord = preferenceWords.some(word => {
+      return new RegExp(`\\b${escapeRegExp(word)}\\b`).test(nearbyText);
+    });
+
+    if (hasPreferenceWord && !matches.includes(term)) {
+      matches.push(term);
+    }
+  }
+
+  return matches;
+}
+
+function normalizeQualitativePreferences(preferences) {
+  return {
+    remove: Array.isArray(preferences?.remove) ? preferences.remove : [],
+    like: Array.isArray(preferences?.like) ? preferences.like : []
+  };
+}
+
+function drinkMatchesTerm(drink, term) {
+  const searchableText = [
+    drink.name,
+    drink.liquor,
+    drink.description,
+    drink.ingredients
+  ].join(" ").toLowerCase();
+  const expandedTerms = expandPreferenceTerm(term);
+
+  return expandedTerms.some(expandedTerm => searchableText.includes(expandedTerm));
+}
+
+function hasMatchingTerm(drink, terms) {
+  return terms.some(term => drinkMatchesTerm(drink, term));
+}
+
+function expandPreferenceTerm(term) {
+  const normalizedTerm = normalizeSearchText(term);
+  const conceptMatches = {
+    spicy: ["spicy", "jalapeno", "habanero", "chili", "cayenne", "hot sauce", "horseradish", "black pepper", "ginger beer"],
+    smoky: ["smoky", "mezcal", "smoked", "charred"],
+    creamy: ["creamy", "cream", "coconut", "egg white", "whole egg"],
+    citrus: ["citrus", "lime", "lemon", "orange", "grapefruit"],
+    fruity: ["fruity", "fruit", "pineapple", "apple", "berries", "grapefruit", "orange"],
+    herbal: ["herbal", "mint", "basil", "rosemary", "thyme", "sage", "chartreuse"],
+    bitter: ["bitter", "bitters", "campari", "aperol", "amaro"],
+    coffee: ["coffee", "espresso"]
+  };
+
+  return conceptMatches[normalizedTerm] || [normalizedTerm];
+}
+
+function normalizeSearchText(text) {
+  return String(text)
+    .toLowerCase()
+    .replace(/[^a-z0-9 '&-]/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function escapeRegExp(text) {
+  return text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+function recommendDrinks(
+  userPreferences,
+  importantTraits,
+  drinkList,
+  qualitativePreferences = { remove: [], like: [] },
+  numberOfRecommendations = 3
+) {
   return drinkList
-    .map(drink => ({
-      ...drink,
-      distance: calculateDistance(userPreferences, importantTraits, drink)
-    }))
+    .map(drink => {
+      if (hasMatchingTerm(drink, qualitativePreferences.remove)) {
+        return null;
+      }
+
+      let distance = calculateDistance(userPreferences, importantTraits, drink);
+
+      if (hasMatchingTerm(drink, qualitativePreferences.like)) {
+        distance *= 2 / 3;
+      }
+
+      return {
+        ...drink,
+        distance
+      };
+    })
+    .filter(Boolean)
     .sort((a, b) => a.distance - b.distance)
     .slice(0, numberOfRecommendations);
 }
@@ -223,20 +426,30 @@ function displayResults(recommendations) {
   }
 }
 
+function displayNotice(message) {
+  const noticeElement = document.getElementById("ai-notice");
+  noticeElement.textContent = message;
+  noticeElement.hidden = !message;
+}
+
 const scaledDrinks = getScaledDrinks();
 
 createSliders();
 
 const quizForm = document.getElementById("quiz-form");
 
-quizForm.addEventListener("submit", function(event) {
+quizForm.addEventListener("submit", async function(event) {
   event.preventDefault();
 
   const userPreferences = getUserPreferencesFromForm();
   const importantTraits = getImportantTraitsFromForm();
+  const qualitativeText = getQualitativeInputFromForm();
+  const qualitativeResult = await parseQualitativeInput(qualitativeText);
+  const qualitativePreferences = qualitativeResult.preferences;
 
-  const scaledRecommendations = recommendDrinks(userPreferences, importantTraits, scaledDrinks, 3);
-  const standardRecommendations = recommendDrinks(userPreferences, importantTraits, drinks, 3);
+  const scaledRecommendations = recommendDrinks(userPreferences, importantTraits, scaledDrinks, qualitativePreferences, 3);
+  const standardRecommendations = recommendDrinks(userPreferences, importantTraits, drinks, qualitativePreferences, 3);
 
+  displayNotice(qualitativeResult.notice);
   displayResults(standardRecommendations);
 });

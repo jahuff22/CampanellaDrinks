@@ -88,6 +88,39 @@ button {
   cursor: pointer;
 }
 
+.qualitative-section {
+  display: grid;
+  gap: 6px;
+  margin: 18px 0;
+}
+
+.qualitative-section label {
+  font-size: 14px;
+  font-weight: bold;
+  line-height: 1.35;
+}
+
+.qualitative-section textarea {
+  box-sizing: border-box;
+  width: 100%;
+  min-height: 86px;
+  padding: 9px 10px;
+  border: 1px solid #777;
+  border-radius: 6px;
+  font: inherit;
+  resize: vertical;
+}
+
+.ai-notice {
+  margin: 0 0 14px 0;
+  padding: 9px 10px;
+  border: 1px solid #9d7c1d;
+  border-radius: 6px;
+  background: #fff7d6;
+  color: #5e4500;
+  font-size: 14px;
+}
+
 .importance-button {
   width: 28px;
   height: 28px;
