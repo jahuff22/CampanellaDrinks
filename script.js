@@ -286,10 +286,11 @@ function drinkMatchesTerm(drink, term) {
     drink.liquor,
     drink.description,
     drink.ingredients
-  ].join(" ").toLowerCase();
+  ].join(" ");
   const expandedTerms = expandPreferenceTerm(term);
+  const normalizedSearchableText = normalizeSearchText(searchableText);
 
-  return expandedTerms.some(expandedTerm => searchableText.includes(expandedTerm));
+  return expandedTerms.some(expandedTerm => normalizedSearchableText.includes(expandedTerm));
 }
 
 function hasMatchingTerm(drink, terms) {
@@ -306,7 +307,18 @@ function expandPreferenceTerm(term) {
     fruity: ["fruity", "fruit", "pineapple", "apple", "berries", "grapefruit", "orange"],
     herbal: ["herbal", "mint", "basil", "rosemary", "thyme", "sage", "chartreuse"],
     bitter: ["bitter", "bitters", "campari", "aperol", "amaro"],
-    coffee: ["coffee", "espresso"]
+    coffee: ["coffee", "espresso"],
+    whiskey: ["whiskey", "whisky", "bourbon", "rye", "scotch", "irish whiskey", "rittenhouse", "buffalo trace"],
+    whisky: ["whiskey", "whisky", "bourbon", "rye", "scotch", "irish whiskey", "rittenhouse", "buffalo trace"],
+    bourbon: ["bourbon", "buffalo trace"],
+    rye: ["rye", "rittenhouse"],
+    rum: ["rum", "rhum", "clairin", "smith & cross"],
+    gin: ["gin"],
+    tequila: ["tequila", "reposado tequila"],
+    mezcal: ["mezcal"],
+    brandy: ["brandy", "cognac", "calvados"],
+    cognac: ["cognac", "hine h"],
+    vodka: ["vodka"]
   };
 
   return conceptMatches[normalizedTerm] || [normalizedTerm];
@@ -315,6 +327,8 @@ function expandPreferenceTerm(term) {
 function normalizeSearchText(text) {
   return String(text)
     .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
     .replace(/[^a-z0-9 '&-]/g, " ")
     .replace(/\s+/g, " ")
     .trim();
