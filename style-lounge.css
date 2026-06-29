@@ -374,7 +374,7 @@ h2 {
 }
 
 #results:empty::before {
-  content: "Awaiting the house pour.";
+  content: "Awaiting response input.";
   display: block;
   padding: 26px;
   color: var(--muted);
