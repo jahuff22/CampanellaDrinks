@@ -52,11 +52,6 @@ function getScaledDrinks() {
 function createSliders() {
   const sliderContainer = document.getElementById("slider-container");
 
-  const importanceHeader = document.createElement("div");
-  importanceHeader.className = "importance-header";
-  importanceHeader.textContent = "this is very important";
-  sliderContainer.appendChild(importanceHeader);
-
   for (const trait of traits) {
     const text = questionText[trait];
 
@@ -92,13 +87,16 @@ function createSliders() {
         >
       </div>
 
-      <button
-        class="importance-button"
-        type="button"
-        id="${trait}-important"
-        aria-pressed="false"
-        aria-label="Mark ${trait} as very important"
-      ></button>
+      <div class="importance-control">
+        <span class="importance-label">Click if this is very important</span>
+        <button
+          class="importance-button"
+          type="button"
+          id="${trait}-important"
+          aria-pressed="false"
+          aria-label="Mark ${trait} as very important"
+        ></button>
+      </div>
     `;
 
     sliderContainer.appendChild(sliderBlock);

@@ -101,21 +101,9 @@ form {
   gap: 14px;
 }
 
-.importance-header {
-  justify-self: end;
-  max-width: 92px;
-  margin: 0 0 -6px auto;
-  color: var(--gold);
-  font-size: 10px;
-  font-weight: 800;
-  line-height: 1.25;
-  text-align: center;
-  text-transform: uppercase;
-}
-
 .slider-block {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 92px;
+  grid-template-columns: minmax(0, 1fr) 118px;
   gap: 18px;
   align-items: stretch;
   min-height: 118px;
@@ -241,10 +229,26 @@ input[type="range"]::-moz-range-thumb {
   box-shadow: 0 0 0 5px rgba(214, 179, 106, 0.16);
 }
 
+.importance-control {
+  display: grid;
+  gap: 10px;
+  align-content: center;
+  justify-items: center;
+  min-width: 0;
+}
+
+.importance-label {
+  max-width: 112px;
+  color: var(--gold);
+  font-size: 9px;
+  font-weight: 850;
+  line-height: 1.25;
+  text-align: center;
+  text-transform: uppercase;
+}
+
 .importance-button {
   position: relative;
-  align-self: center;
-  justify-self: center;
   width: 44px;
   height: 44px;
   padding: 0;
@@ -437,17 +441,21 @@ h2 {
     letter-spacing: 0.12em;
   }
 
-  .importance-header {
-    justify-self: start;
-    max-width: none;
-    text-align: left;
-  }
-
   .slider-block {
-    grid-template-columns: 1fr 48px;
+    grid-template-columns: minmax(0, 1fr) 64px;
     gap: 12px;
     min-height: 0;
     padding: 14px;
+  }
+
+  .importance-control {
+    gap: 8px;
+  }
+
+  .importance-label {
+    max-width: 64px;
+    font-size: 8px;
+    line-height: 1.2;
   }
 
   .importance-button {
