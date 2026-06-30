@@ -146,9 +146,8 @@ form {
 }
 
 .number-labels {
-  position: relative;
-  display: block;
-  height: 14px;
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
   margin: 0 9px;
   color: rgba(244, 239, 231, 0.5);
   font-size: 10px;
@@ -157,37 +156,7 @@ form {
 }
 
 .number-labels span {
-  position: absolute;
-  top: 0;
-  transform: translateX(-50%);
-}
-
-.number-labels span:nth-child(1) {
-  left: 0;
-}
-
-.number-labels span:nth-child(2) {
-  left: 16.6667%;
-}
-
-.number-labels span:nth-child(3) {
-  left: 33.3333%;
-}
-
-.number-labels span:nth-child(4) {
-  left: 50%;
-}
-
-.number-labels span:nth-child(5) {
-  left: 66.6667%;
-}
-
-.number-labels span:nth-child(6) {
-  left: 83.3333%;
-}
-
-.number-labels span:nth-child(7) {
-  left: 100%;
+  min-width: 0;
 }
 
 input[type="range"] {
@@ -442,20 +411,23 @@ h2 {
   }
 
   .slider-block {
-    grid-template-columns: minmax(0, 1fr) 64px;
-    gap: 12px;
+    grid-template-columns: 1fr;
+    gap: 14px;
     min-height: 0;
     padding: 14px;
   }
 
   .importance-control {
-    gap: 8px;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 12px;
+    align-items: center;
   }
 
   .importance-label {
-    max-width: 64px;
-    font-size: 8px;
-    line-height: 1.2;
+    max-width: none;
+    font-size: 10px;
+    line-height: 1.25;
+    text-align: left;
   }
 
   .importance-button {
@@ -464,12 +436,9 @@ h2 {
   }
 
   .slider-labels {
-    grid-template-columns: 1fr;
-    gap: 5px;
-  }
-
-  .slider-labels span:last-child {
-    text-align: left;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 14px;
+    font-size: 11px;
   }
 
   button[type="submit"] {
