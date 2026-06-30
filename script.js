@@ -88,7 +88,13 @@ function createSliders() {
       </div>
 
       <div class="importance-control">
-        <span class="importance-label">Click if this is very important</span>
+        <button
+          class="importance-label"
+          type="button"
+          id="${trait}-important-label"
+          aria-controls="${trait}-important"
+          aria-pressed="false"
+        >Click if this is very important</button>
         <button
           class="importance-button"
           type="button"
@@ -104,6 +110,7 @@ function createSliders() {
     const slider = document.getElementById(trait);
     const valueDisplay = document.getElementById(`${trait}-value`);
     const importanceButton = document.getElementById(`${trait}-important`);
+    const importanceLabel = document.getElementById(`${trait}-important-label`);
 
     slider.addEventListener("input", function() {
       if (valueDisplay) {
@@ -111,10 +118,15 @@ function createSliders() {
       }
     });
 
-    importanceButton.addEventListener("click", function() {
+    function toggleImportance() {
       const isPressed = importanceButton.getAttribute("aria-pressed") === "true";
-      importanceButton.setAttribute("aria-pressed", String(!isPressed));
-    });
+      const nextPressed = String(!isPressed);
+      importanceButton.setAttribute("aria-pressed", nextPressed);
+      importanceLabel.setAttribute("aria-pressed", nextPressed);
+    }
+
+    importanceButton.addEventListener("click", toggleImportance);
+    importanceLabel.addEventListener("click", toggleImportance);
   }
 }
 
