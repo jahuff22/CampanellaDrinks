@@ -130,7 +130,7 @@ form {
 
 .slider-labels {
   display: grid;
-  grid-template-columns: repeat(7, minmax(0, 1fr));
+  grid-template-columns: minmax(0, 5fr) minmax(0, 4fr) minmax(0, 5fr);
   gap: 0;
   margin: 0 9px;
   color: var(--muted);
@@ -139,12 +139,12 @@ form {
 }
 
 .slider-labels span:first-child {
-  grid-column: 1 / 4;
+  grid-column: 1;
   text-align: left;
 }
 
 .slider-labels span:last-child {
-  grid-column: 5 / 8;
+  grid-column: 3;
   text-align: right;
 }
 
