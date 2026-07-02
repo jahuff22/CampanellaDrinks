@@ -94,13 +94,13 @@ function createSliders() {
           id="${trait}-important-label"
           aria-controls="${trait}-important"
           aria-pressed="false"
-        >Click if this is very important</button>
+        >Prioritize this preference</button>
         <button
           class="importance-button"
           type="button"
           id="${trait}-important"
           aria-pressed="false"
-          aria-label="Mark ${trait} as very important"
+          aria-label="Prioritize ${trait} preference"
         ></button>
       </div>
     `;
