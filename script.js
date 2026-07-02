@@ -228,8 +228,30 @@ function parseQualitativeInputLocally(text) {
 
   return {
     remove,
-    like
+    like,
+    featurePreferences: detectFeaturePreferences(normalizedText)
   };
+}
+
+function detectFeaturePreferences(text) {
+  const featurePreferences = {
+    masculinity: null,
+    calories: null
+  };
+
+  if (/\b(manly|masculine|macho|tough|rugged)\b/.test(text)) {
+    featurePreferences.masculinity = "masculine";
+  } else if (/\b(feminine|girly|pretty|pink|floral|delicate)\b/.test(text)) {
+    featurePreferences.masculinity = "feminine";
+  }
+
+  if (/\b(low calorie|low cal|lower calorie|fewer calories|skinny|light drink|diet)\b/.test(text)) {
+    featurePreferences.calories = "low";
+  } else if (/\b(high calorie|rich|creamy|dessert|indulgent)\b/.test(text)) {
+    featurePreferences.calories = "high";
+  }
+
+  return featurePreferences;
 }
 
 function getKnownPreferenceTerms() {
@@ -286,8 +308,26 @@ function getTermsNearPreferenceWords(text, knownTerms, preferenceWords) {
 function normalizeQualitativePreferences(preferences) {
   return {
     remove: Array.isArray(preferences?.remove) ? preferences.remove : [],
-    like: Array.isArray(preferences?.like) ? preferences.like : []
+    like: Array.isArray(preferences?.like) ? preferences.like : [],
+    featurePreferences: normalizeFeaturePreferences(preferences?.featurePreferences)
   };
+}
+
+function normalizeFeaturePreferences(featurePreferences) {
+  const normalized = {
+    masculinity: null,
+    calories: null
+  };
+
+  if (featurePreferences?.masculinity === "masculine" || featurePreferences?.masculinity === "feminine") {
+    normalized.masculinity = featurePreferences.masculinity;
+  }
+
+  if (featurePreferences?.calories === "low" || featurePreferences?.calories === "medium" || featurePreferences?.calories === "high") {
+    normalized.calories = featurePreferences.calories;
+  }
+
+  return normalized;
 }
 
 function drinkMatchesTerm(drink, term) {
@@ -355,17 +395,25 @@ function recommendDrinks(
   qualitativePreferences = { remove: [], like: [] },
   numberOfRecommendations = 3
 ) {
+  const recommendationPreferences = applyQualitativePreferenceTargets(userPreferences, qualitativePreferences);
+  const recommendationImportantTraits = applyQualitativeImportanceTargets(importantTraits, qualitativePreferences);
+
   return drinkList
     .map(drink => {
-      if (hasMatchingTerm(drink, qualitativePreferences.remove)) {
+      if (
+        hasMatchingTerm(drink, qualitativePreferences.remove) ||
+        isRemovedByFeaturePreference(drink, qualitativePreferences)
+      ) {
         return null;
       }
 
-      let distance = calculateDistance(userPreferences, importantTraits, drink);
+      let distance = calculateDistance(recommendationPreferences, recommendationImportantTraits, drink);
 
       if (hasMatchingTerm(drink, qualitativePreferences.like)) {
         distance *= 2 / 3;
       }
+
+      distance *= getFeaturePreferenceMultiplier(drink, qualitativePreferences);
 
       return {
         ...drink,
@@ -375,6 +423,91 @@ function recommendDrinks(
     .filter(Boolean)
     .sort((a, b) => a.distance - b.distance)
     .slice(0, numberOfRecommendations);
+}
+
+function applyQualitativePreferenceTargets(userPreferences, qualitativePreferences) {
+  const featurePreferences = qualitativePreferences.featurePreferences || {};
+  const recommendationPreferences = { ...userPreferences };
+
+  if (featurePreferences.masculinity === "masculine") {
+    recommendationPreferences.masculinity = 7;
+  } else if (featurePreferences.masculinity === "feminine") {
+    recommendationPreferences.masculinity = 1;
+  }
+
+  if (featurePreferences.calories === "low") {
+    recommendationPreferences.calories = 1;
+  } else if (featurePreferences.calories === "medium") {
+    recommendationPreferences.calories = 4;
+  } else if (featurePreferences.calories === "high") {
+    recommendationPreferences.calories = 7;
+  }
+
+  return recommendationPreferences;
+}
+
+function applyQualitativeImportanceTargets(importantTraits, qualitativePreferences) {
+  const featurePreferences = qualitativePreferences.featurePreferences || {};
+  const recommendationImportantTraits = { ...importantTraits };
+
+  if (featurePreferences.masculinity) {
+    recommendationImportantTraits.masculinity = true;
+  }
+
+  if (featurePreferences.calories) {
+    recommendationImportantTraits.calories = true;
+  }
+
+  return recommendationImportantTraits;
+}
+
+function isRemovedByFeaturePreference(drink, qualitativePreferences) {
+  const featurePreferences = qualitativePreferences.featurePreferences || {};
+
+  if (featurePreferences.masculinity === "masculine" && drink.scores.masculinity <= 2) {
+    return true;
+  }
+
+  if (featurePreferences.masculinity === "feminine" && drink.scores.masculinity >= 6) {
+    return true;
+  }
+
+  if (featurePreferences.calories === "low" && drink.scores.calories >= 6) {
+    return true;
+  }
+
+  return false;
+}
+
+function getFeaturePreferenceMultiplier(drink, qualitativePreferences) {
+  const featurePreferences = qualitativePreferences.featurePreferences || {};
+  let multiplier = 1;
+
+  if (featurePreferences.masculinity === "masculine" && drink.scores.masculinity >= 6) {
+    multiplier *= 0.65;
+  } else if (featurePreferences.masculinity === "masculine" && drink.scores.masculinity === 5) {
+    multiplier *= 0.8;
+  }
+
+  if (featurePreferences.masculinity === "feminine" && drink.scores.masculinity <= 2) {
+    multiplier *= 0.65;
+  } else if (featurePreferences.masculinity === "feminine" && drink.scores.masculinity === 3) {
+    multiplier *= 0.8;
+  }
+
+  if (featurePreferences.calories === "low" && drink.scores.calories <= 2) {
+    multiplier *= 0.25;
+  } else if (featurePreferences.calories === "low" && drink.scores.calories === 3) {
+    multiplier *= 0.45;
+  } else if (featurePreferences.calories === "low" && drink.scores.calories >= 4) {
+    multiplier *= 1.25;
+  }
+
+  if (featurePreferences.calories === "high" && drink.scores.calories >= 6) {
+    multiplier *= 0.7;
+  }
+
+  return multiplier;
 }
 
 function getUserPreferencesFromForm() {

@@ -67,7 +67,7 @@ h1 {
 .number-labels {
   display: flex;
   justify-content: space-between;
-  padding: 0 4px;
+  padding: 0;
   margin-bottom: 0;
   font-size: 11px;
 }

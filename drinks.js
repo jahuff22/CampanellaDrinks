@@ -4,7 +4,9 @@ const traits = [
     "sourness",
     "bitterness",
     "thickness",
-    "rarity"
+    "rarity",
+    "masculinity",
+    "calories"
 ];
 
 const drinks = [
@@ -1021,3 +1023,79 @@ const drinks = [
         ingredients: "Mezcal, lime, orange liqueur, agave syrup"
     }
 ];
+
+const scoringFeatureDefaults = {
+    scores: {
+        masculinity: 4,
+        calories: 4
+    },
+    weights: {
+        masculinity: 3,
+        calories: 3
+    }
+};
+
+const scoringFeaturesByDrink = {
+    "Margarita": { scores: { masculinity: 3, calories: 4 }, weights: { masculinity: 5, calories: 5 } },
+    "Old Fashioned": { scores: { masculinity: 7, calories: 3 }, weights: { masculinity: 8, calories: 5 } },
+    "Mojito": { scores: { masculinity: 3, calories: 4 }, weights: { masculinity: 5, calories: 5 } },
+    "Gin & Tonic": { scores: { masculinity: 4, calories: 3 }, weights: { masculinity: 4, calories: 4 } },
+    "Whiskey Sour": { scores: { masculinity: 6, calories: 4 }, weights: { masculinity: 7, calories: 5 } },
+    "Sidecar": { scores: { masculinity: 5, calories: 4 }, weights: { masculinity: 5, calories: 5 } },
+    "Piña Colada": { scores: { masculinity: 1, calories: 7 }, weights: { masculinity: 9, calories: 9 } },
+    "White Sangria": { scores: { masculinity: 1, calories: 5 }, weights: { masculinity: 8, calories: 5 } },
+    "Red Sangria": { scores: { masculinity: 2, calories: 5 }, weights: { masculinity: 7, calories: 5 } },
+    "Martini": { scores: { masculinity: 6, calories: 2 }, weights: { masculinity: 6, calories: 6 } },
+    "Bloody Mary": { scores: { masculinity: 6, calories: 3 }, weights: { masculinity: 7, calories: 5 } },
+    "Negroni": { scores: { masculinity: 6, calories: 3 }, weights: { masculinity: 7, calories: 5 } },
+    "Americano": { scores: { masculinity: 4, calories: 2 }, weights: { masculinity: 4, calories: 7 } },
+    "Aperol Spritz": { scores: { masculinity: 2, calories: 3 }, weights: { masculinity: 7, calories: 6 } },
+    "Last Word": { scores: { masculinity: 4, calories: 4 }, weights: { masculinity: 4, calories: 5 } },
+    "Manhattan": { scores: { masculinity: 7, calories: 3 }, weights: { masculinity: 8, calories: 5 } },
+    "Sazerac": { scores: { masculinity: 7, calories: 3 }, weights: { masculinity: 9, calories: 5 } },
+    "Mint Julep": { scores: { masculinity: 6, calories: 4 }, weights: { masculinity: 7, calories: 5 } },
+    "Daiquiri": { scores: { masculinity: 4, calories: 4 }, weights: { masculinity: 4, calories: 5 } },
+    "Coffee Flip": { scores: { masculinity: 3, calories: 7 }, weights: { masculinity: 5, calories: 9 } },
+    "Ramos Gin Fizz": { scores: { masculinity: 2, calories: 7 }, weights: { masculinity: 8, calories: 9 } },
+    "Brandy Alexander": { scores: { masculinity: 2, calories: 7 }, weights: { masculinity: 8, calories: 9 } },
+    "Espresso Martini": { scores: { masculinity: 3, calories: 5 }, weights: { masculinity: 5, calories: 6 } },
+    "Irish Coffee": { scores: { masculinity: 5, calories: 6 }, weights: { masculinity: 5, calories: 8 } },
+    "Tom Collins": { scores: { masculinity: 3, calories: 4 }, weights: { masculinity: 5, calories: 5 } },
+    "French 75": { scores: { masculinity: 2, calories: 4 }, weights: { masculinity: 7, calories: 5 } },
+    "Mimosa": { scores: { masculinity: 1, calories: 3 }, weights: { masculinity: 9, calories: 6 } },
+    "Moscow Mule": { scores: { masculinity: 4, calories: 4 }, weights: { masculinity: 4, calories: 5 } },
+    "Paloma": { scores: { masculinity: 3, calories: 4 }, weights: { masculinity: 5, calories: 5 } },
+    "Dark 'n' Stormy": { scores: { masculinity: 6, calories: 4 }, weights: { masculinity: 7, calories: 5 } },
+    "Mai Tai": { scores: { masculinity: 3, calories: 6 }, weights: { masculinity: 6, calories: 8 } },
+    "Zombie": { scores: { masculinity: 5, calories: 7 }, weights: { masculinity: 5, calories: 9 } },
+    "Aviation": { scores: { masculinity: 1, calories: 4 }, weights: { masculinity: 9, calories: 5 } },
+    "Corpse Reviver #2": { scores: { masculinity: 4, calories: 4 }, weights: { masculinity: 4, calories: 5 } },
+    "Vodka Soda": { scores: { masculinity: 4, calories: 1 }, weights: { masculinity: 4, calories: 10 } },
+    "Bamboo": { scores: { masculinity: 4, calories: 2 }, weights: { masculinity: 4, calories: 8 } },
+    "Cocoa Puff": { scores: { masculinity: 5, calories: 5 }, weights: { masculinity: 5, calories: 6 } },
+    "Lemon Meringue Pie": { scores: { masculinity: 1, calories: 6 }, weights: { masculinity: 9, calories: 8 } },
+    "Purple": { scores: { masculinity: 1, calories: 5 }, weights: { masculinity: 10, calories: 6 } },
+    "The Conference": { scores: { masculinity: 7, calories: 4 }, weights: { masculinity: 9, calories: 5 } },
+    "Creamy Tiki": { scores: { masculinity: 2, calories: 7 }, weights: { masculinity: 8, calories: 9 } },
+    "Rum Flip": { scores: { masculinity: 5, calories: 6 }, weights: { masculinity: 5, calories: 8 } },
+    "Cinnamon Girl": { scores: { masculinity: 5, calories: 5 }, weights: { masculinity: 5, calories: 6 } },
+    "Cucumber Thai": { scores: { masculinity: 2, calories: 4 }, weights: { masculinity: 7, calories: 5 } },
+    "Le CouCou": { scores: { masculinity: 5, calories: 6 }, weights: { masculinity: 5, calories: 8 } },
+    "Mezcal Margarita": { scores: { masculinity: 5, calories: 4 }, weights: { masculinity: 6, calories: 5 } }
+};
+
+for (const drink of drinks) {
+    const scoringFeatures = scoringFeaturesByDrink[drink.name] || scoringFeatureDefaults;
+
+    drink.scores = {
+        ...drink.scores,
+        ...scoringFeatureDefaults.scores,
+        ...scoringFeatures.scores
+    };
+
+    drink.weights = {
+        ...drink.weights,
+        ...scoringFeatureDefaults.weights,
+        ...scoringFeatures.weights
+    };
+}
