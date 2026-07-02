@@ -159,7 +159,8 @@ async function parseQualitativeInput(text) {
     return {
       preferences: {
         remove: [],
-        like: []
+        like: [],
+        require: []
       },
       notice: ""
     };
@@ -218,17 +219,30 @@ function parseQualitativeInputLocally(text) {
     "no",
     "not"
   ]);
+  const require = getTermsNearPreferenceWords(normalizedText, knownTerms, [
+    "only",
+    "must",
+    "must have",
+    "has to",
+    "have to",
+    "need",
+    "needs",
+    "require",
+    "requires",
+    "required"
+  ]).filter(term => !remove.includes(term));
   const like = getTermsNearPreferenceWords(normalizedText, knownTerms, [
     "like",
     "love",
     "want",
     "prefer",
     "enjoy"
-  ]).filter(term => !remove.includes(term));
+  ]).filter(term => !remove.includes(term) && !require.includes(term));
 
   return {
     remove,
     like,
+    require,
     featurePreferences: detectFeaturePreferences(normalizedText)
   };
 }
@@ -309,6 +323,7 @@ function normalizeQualitativePreferences(preferences) {
   return {
     remove: Array.isArray(preferences?.remove) ? preferences.remove : [],
     like: Array.isArray(preferences?.like) ? preferences.like : [],
+    require: Array.isArray(preferences?.require) ? preferences.require : [],
     featurePreferences: normalizeFeaturePreferences(preferences?.featurePreferences)
   };
 }
@@ -345,6 +360,10 @@ function drinkMatchesTerm(drink, term) {
 
 function hasMatchingTerm(drink, terms) {
   return terms.some(term => drinkMatchesTerm(drink, term));
+}
+
+function hasAllRequiredTerms(drink, terms) {
+  return terms.every(term => drinkMatchesTerm(drink, term));
 }
 
 function expandPreferenceTerm(term) {
@@ -392,13 +411,14 @@ function recommendDrinks(
   userPreferences,
   importantTraits,
   drinkList,
-  qualitativePreferences = { remove: [], like: [] },
+  qualitativePreferences = { remove: [], like: [], require: [] },
   numberOfRecommendations = 3
 ) {
   return drinkList
     .map(drink => {
       if (
         hasMatchingTerm(drink, qualitativePreferences.remove) ||
+        !hasAllRequiredTerms(drink, qualitativePreferences.require || []) ||
         isRemovedByFeaturePreference(drink, qualitativePreferences)
       ) {
         return null;
@@ -493,12 +513,16 @@ function getImportantTraitsFromForm() {
   return importantTraits;
 }
 
+function formatMatchPercentage(score) {
+  return `${(100 - score).toFixed(0)}%`;
+}
+
 function createDrinkResultElement(drink) {
   const drinkElement = document.createElement("div");
 
   drinkElement.innerHTML = `
     <h3>${drink.name}</h3>
-    <p><strong>Match score:</strong> ${drink.distance.toFixed(2)}</p>
+    <p><strong>Match:</strong> ${formatMatchPercentage(drink.distance)}</p>
     <p><strong>Description:</strong> ${drink.description}</p>
     <p><strong>Ingredients:</strong> ${drink.ingredients}</p>
     <hr>
