@@ -57,7 +57,7 @@ const drinks = [
         liquor: "White rum",
         scores: {
             strength: 3,
-            sweetness: 3,
+            sweetness: 4,
             sourness: 3,
             bitterness: 1,
             thickness: 2,
@@ -79,7 +79,7 @@ const drinks = [
         liquor: "Gin",
         scores: {
             strength: 2,
-            sweetness: 3,
+            sweetness: 2,
             sourness: 1,
             bitterness: 2,
             thickness: 1,
@@ -102,7 +102,7 @@ const drinks = [
         scores: {
             strength: 3,
             sweetness: 3,
-            sourness: 10,
+            sourness: 7,
             bitterness: 1,
             thickness: 4,
             rarity: 1
@@ -167,7 +167,7 @@ const drinks = [
         liquor: "White wine",
         scores: {
             strength: 2,
-            sweetness: 3,
+            sweetness: 4,
             sourness: 3,
             bitterness: 1,
             thickness: 2,
@@ -189,7 +189,7 @@ const drinks = [
         liquor: "Red wine",
         scores: {
             strength: 2,
-            sweetness: 3,
+            sweetness: 4,
             sourness: 2,
             bitterness: 1,
             thickness: 2,
@@ -277,7 +277,7 @@ const drinks = [
         liquor: "Campari",
         scores: {
             strength: 1,
-            sweetness: 4,
+            sweetness: 3,
             sourness: 1,
             bitterness: 5,
             thickness: 2,
@@ -607,7 +607,7 @@ const drinks = [
         liquor: "Vodka",
         scores: {
             strength: 2,
-            sweetness: 3,
+            sweetness: 4,
             sourness: 2,
             bitterness: 1,
             thickness: 2,
@@ -651,7 +651,7 @@ const drinks = [
         liquor: "Dark rum",
         scores: {
             strength: 2,
-            sweetness: 3,
+            sweetness: 4,
             sourness: 2,
             bitterness: 1,
             thickness: 2,
@@ -1066,7 +1066,7 @@ const scoringFeaturesByDrink = {
     "Dark 'n' Stormy": { scores: { masculinity: 6, calories: 4 }, weights: { masculinity: 7, calories: 5 } },
     "Mai Tai": { scores: { masculinity: 3, calories: 6 }, weights: { masculinity: 6, calories: 8 } },
     "Zombie": { scores: { masculinity: 5, calories: 7 }, weights: { masculinity: 5, calories: 9 } },
-    "Aviation": { scores: { masculinity: 1, calories: 4 }, weights: { masculinity: 9, calories: 5 } },
+    "Aviation": { scores: { masculinity: 2, calories: 4 }, weights: { masculinity: 9, calories: 5 } },
     "Corpse Reviver #2": { scores: { masculinity: 4, calories: 4 }, weights: { masculinity: 4, calories: 5 } },
     "Vodka Soda": { scores: { masculinity: 4, calories: 1 }, weights: { masculinity: 4, calories: 10 } },
     "Bamboo": { scores: { masculinity: 4, calories: 2 }, weights: { masculinity: 4, calories: 8 } },
@@ -1077,8 +1077,8 @@ const scoringFeaturesByDrink = {
     "Creamy Tiki": { scores: { masculinity: 2, calories: 7 }, weights: { masculinity: 8, calories: 9 } },
     "Rum Flip": { scores: { masculinity: 5, calories: 6 }, weights: { masculinity: 5, calories: 8 } },
     "Cinnamon Girl": { scores: { masculinity: 5, calories: 5 }, weights: { masculinity: 5, calories: 6 } },
-    "Cucumber Thai": { scores: { masculinity: 2, calories: 4 }, weights: { masculinity: 7, calories: 5 } },
-    "Le CouCou": { scores: { masculinity: 5, calories: 6 }, weights: { masculinity: 5, calories: 8 } },
+    "Cucumber Thai": { scores: { masculinity: 3, calories: 4 }, weights: { masculinity: 7, calories: 5 } },
+    "Le CouCou": { scores: { masculinity: 5, calories: 5 }, weights: { masculinity: 5, calories: 8 } },
     "Mezcal Margarita": { scores: { masculinity: 5, calories: 4 }, weights: { masculinity: 6, calories: 5 } }
 };
 
