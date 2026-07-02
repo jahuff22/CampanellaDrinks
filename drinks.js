@@ -4,9 +4,7 @@ const traits = [
     "sourness",
     "bitterness",
     "thickness",
-    "rarity",
-    "masculinity",
-    "calories"
+    "rarity"
 ];
 
 const drinks = [

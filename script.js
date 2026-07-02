@@ -395,9 +395,6 @@ function recommendDrinks(
   qualitativePreferences = { remove: [], like: [] },
   numberOfRecommendations = 3
 ) {
-  const recommendationPreferences = applyQualitativePreferenceTargets(userPreferences, qualitativePreferences);
-  const recommendationImportantTraits = applyQualitativeImportanceTargets(importantTraits, qualitativePreferences);
-
   return drinkList
     .map(drink => {
       if (
@@ -407,7 +404,7 @@ function recommendDrinks(
         return null;
       }
 
-      let distance = calculateDistance(recommendationPreferences, recommendationImportantTraits, drink);
+      let distance = calculateDistance(userPreferences, importantTraits, drink);
 
       if (hasMatchingTerm(drink, qualitativePreferences.like)) {
         distance *= 2 / 3;
@@ -423,42 +420,6 @@ function recommendDrinks(
     .filter(Boolean)
     .sort((a, b) => a.distance - b.distance)
     .slice(0, numberOfRecommendations);
-}
-
-function applyQualitativePreferenceTargets(userPreferences, qualitativePreferences) {
-  const featurePreferences = qualitativePreferences.featurePreferences || {};
-  const recommendationPreferences = { ...userPreferences };
-
-  if (featurePreferences.masculinity === "masculine") {
-    recommendationPreferences.masculinity = 7;
-  } else if (featurePreferences.masculinity === "feminine") {
-    recommendationPreferences.masculinity = 1;
-  }
-
-  if (featurePreferences.calories === "low") {
-    recommendationPreferences.calories = 1;
-  } else if (featurePreferences.calories === "medium") {
-    recommendationPreferences.calories = 4;
-  } else if (featurePreferences.calories === "high") {
-    recommendationPreferences.calories = 7;
-  }
-
-  return recommendationPreferences;
-}
-
-function applyQualitativeImportanceTargets(importantTraits, qualitativePreferences) {
-  const featurePreferences = qualitativePreferences.featurePreferences || {};
-  const recommendationImportantTraits = { ...importantTraits };
-
-  if (featurePreferences.masculinity) {
-    recommendationImportantTraits.masculinity = true;
-  }
-
-  if (featurePreferences.calories) {
-    recommendationImportantTraits.calories = true;
-  }
-
-  return recommendationImportantTraits;
 }
 
 function isRemovedByFeaturePreference(drink, qualitativePreferences) {

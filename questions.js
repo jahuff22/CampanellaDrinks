@@ -33,17 +33,5 @@ const questionText = {
     prompt: "When considering how unusual my cocktail is right now, ...",
     low: "I want simple ingredients with expected flavor mixtures",
     high: "I want something rare with unique flavor mixtures"
-  },
-
-  masculinity: {
-    prompt: "When considering the presentation and vibe of my cocktail right now, ...",
-    low: "I want something softer, fruity, floral, pink, or delicate",
-    high: "I want something tougher, darker, spirit-forward, or served in a manly glass"
-  },
-
-  calories: {
-    prompt: "When considering the calories in my cocktail right now, ...",
-    low: "I want something low calorie, dry, or simple",
-    high: "I do not mind a rich, creamy, sugary, or higher calorie drink"
   }
 };
