@@ -711,6 +711,10 @@ h2 {
 }
 
 @media (max-width: 620px) {
+  html::before {
+    display: none;
+  }
+
   h1 {
     font-size: 68px;
   }
