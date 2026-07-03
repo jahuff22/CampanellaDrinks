@@ -94,7 +94,7 @@ function createSliders() {
           id="${trait}-important-label"
           aria-controls="${trait}-important"
           aria-pressed="false"
-        >Prioritize this preference</button>
+        >Click to prioritize this preference</button>
         <button
           class="importance-button"
           type="button"
@@ -514,7 +514,7 @@ function getImportantTraitsFromForm() {
 }
 
 function formatMatchPercentage(score) {
-  return `${(100 - score).toFixed(0)}%`;
+  return `${(100 - score * 0.6).toFixed(0)}%`;
 }
 
 const personaProfiles = {
