@@ -39,6 +39,12 @@ const preferenceSchema = {
         type: "string"
       }
     },
+    require: {
+      type: "array",
+      items: {
+        type: "string"
+      }
+    },
     featurePreferences: {
       type: "object",
       additionalProperties: false,
@@ -55,7 +61,7 @@ const preferenceSchema = {
       required: ["masculinity", "calories"]
     }
   },
-  required: ["remove", "like", "featurePreferences"]
+  required: ["remove", "like", "require", "featurePreferences"]
 };
 
 const server = http.createServer(async (request, response) => {
@@ -116,7 +122,7 @@ async function handleParsePreferences(request, response) {
   const text = typeof body.text === "string" ? body.text.trim() : "";
 
   if (!text) {
-    sendJson(response, 200, { preferences: { remove: [], like: [] } });
+    sendJson(response, 200, { preferences: { remove: [], like: [], require: [] } });
     return;
   }
 
@@ -160,6 +166,9 @@ async function handleParsePreferences(request, response) {
                 "Return only short lowercase terms.",
                 "Put dislikes, allergies, cannot-drink items, avoid requests, and no/never statements in remove.",
                 "Put liked, wanted, loved, preferred, and requested items or concepts in like.",
+                "Put hard requirements in require, including clear only/must/needs/has to/required statements.",
+                "If wording is ambiguous between a preference and a requirement, use like.",
+                "For example, 'only vodka' and 'must have lemon' go in require, but 'prefer vodka' and 'I like lemon' go in like.",
                 "Terms may be specific ingredients or broad concepts like spicy, smoky, citrus, sweet, or creamy.",
                 "If the user asks for a masculine, manly, macho, rugged, or tough cocktail, set featurePreferences.masculinity to masculine.",
                 "If the user asks for a feminine, girly, pretty, pink, floral, or delicate cocktail, set featurePreferences.masculinity to feminine.",
@@ -182,7 +191,7 @@ async function handleParsePreferences(request, response) {
           ]
         }
       ],
-      max_output_tokens: 120,
+      max_output_tokens: 160,
       text: {
         format: {
           type: "json_schema",
@@ -243,6 +252,7 @@ function sanitizePreferences(preferences) {
   return {
     remove: sanitizeTerms(preferences.remove),
     like: sanitizeTerms(preferences.like),
+    require: sanitizeTerms(preferences.require),
     featurePreferences: sanitizeFeaturePreferences(preferences.featurePreferences)
   };
 }
@@ -305,7 +315,7 @@ function calculateCostDollars(usage) {
 
 function estimateCallCostDollars(text) {
   const estimatedPromptTokens = Math.ceil(text.length / 4) + 500;
-  const maxOutputTokens = 120;
+  const maxOutputTokens = 160;
   const estimatedInputCost = (estimatedPromptTokens / 1_000_000) * INPUT_PRICE_PER_1M;
   const estimatedOutputCost = (maxOutputTokens / 1_000_000) * OUTPUT_PRICE_PER_1M;
 
