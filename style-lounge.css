@@ -715,32 +715,22 @@ h2 {
     display: none;
   }
 
-  #quiz-form::before {
-    content: "PROOF.";
+  h1 {
     position: sticky;
     top: 0;
     z-index: 4;
-    margin: -18px -18px 0;
-    padding: 9px 18px 8px;
+    margin: -30px 0 28px;
+    padding: 18px 0 12px;
     border-bottom: 1px solid rgba(232, 185, 94, 0.36);
     background: rgba(27, 20, 34, 0.82);
-    color: rgba(255, 231, 176, 0.78);
-    font-family: Impact, "Arial Narrow Bold", "Franklin Gothic Heavy", "Aptos Display", sans-serif;
-    font-size: 26px;
-    font-weight: 900;
-    letter-spacing: 0.02em;
-    line-height: 1;
-    text-shadow: 0 0 12px rgba(232, 185, 94, 0.32);
+    box-shadow: 0 0 0 100vmax rgba(27, 20, 34, 0.82);
+    clip-path: inset(0 -100vmax);
     backdrop-filter: blur(10px);
-  }
-
-  h1 {
     font-size: 68px;
   }
 
   h1::after {
-    font-size: 12px;
-    letter-spacing: 0.13em;
+    display: none;
   }
 
   .slider-block {
