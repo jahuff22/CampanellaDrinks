@@ -514,7 +514,7 @@ function getImportantTraitsFromForm() {
 }
 
 function formatMatchPercentage(score) {
-  return `${(100 - score * 0.6).toFixed(0)}%`;
+  return `${(100 - score * 0.75).toFixed(0)}%`;
 }
 
 const personaProfiles = {
