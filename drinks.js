@@ -11,6 +11,7 @@ const drinks = [
     {
         name: "Margarita",
         liquor: "Tequila",
+        category: "Sunseeker",
         scores: {
             strength: 3,
             sweetness: 3,
@@ -33,6 +34,7 @@ const drinks = [
     {
         name: "Old Fashioned",
         liquor: "Whiskey",
+        category: "Purist",
         scores: {
             strength: 6,
             sweetness: 3,
@@ -55,6 +57,7 @@ const drinks = [
     {
         name: "Mojito",
         liquor: "White rum",
+        category: "Sunseeker",
         scores: {
             strength: 3,
             sweetness: 4,
@@ -77,6 +80,7 @@ const drinks = [
     {
         name: "Gin & Tonic",
         liquor: "Gin",
+        category: "Sunseeker",
         scores: {
             strength: 2,
             sweetness: 2,
@@ -99,6 +103,7 @@ const drinks = [
     {
         name: "Whiskey Sour",
         liquor: "Whiskey",
+        category: "Sunseeker",
         scores: {
             strength: 3,
             sweetness: 3,
@@ -121,6 +126,7 @@ const drinks = [
     {
         name: "Sidecar",
         liquor: "Cognac",
+        category: "Sunseeker",
         scores: {
             strength: 5,
             sweetness: 3,
@@ -143,6 +149,7 @@ const drinks = [
     {
         name: "Piña Colada",
         liquor: "Rum",
+        category: "Hedonist",
         scores: {
             strength: 2,
             sweetness: 7,
@@ -165,6 +172,7 @@ const drinks = [
     {
         name: "White Sangria",
         liquor: "White wine",
+        category: "Sunseeker",
         scores: {
             strength: 2,
             sweetness: 4,
@@ -187,6 +195,7 @@ const drinks = [
     {
         name: "Red Sangria",
         liquor: "Red wine",
+        category: "Easy going",
         scores: {
             strength: 2,
             sweetness: 4,
@@ -209,6 +218,7 @@ const drinks = [
     {
         name: "Martini",
         liquor: "Gin",
+        category: "Purist",
         scores: {
             strength: 7,
             sweetness: 1,
@@ -231,6 +241,7 @@ const drinks = [
     {
         name: "Bloody Mary",
         liquor: "Vodka",
+        category: "Easy going",
         scores: {
             strength: 2,
             sweetness: 1,
@@ -253,6 +264,7 @@ const drinks = [
     {
         name: "Negroni",
         liquor: "Gin",
+        category: "Purist",
         scores: {
             strength: 5,
             sweetness: 3,
@@ -275,6 +287,7 @@ const drinks = [
     {
         name: "Americano",
         liquor: "Campari",
+        category: "Bittersweet",
         scores: {
             strength: 1,
             sweetness: 3,
@@ -297,6 +310,7 @@ const drinks = [
     {
         name: "Aperol Spritz",
         liquor: "Aperol",
+        category: "Sunseeker",
         scores: {
             strength: 2,
             sweetness: 3,
@@ -319,6 +333,7 @@ const drinks = [
     {
         name: "Last Word",
         liquor: "Gin",
+        category: "Bittersweet",
         scores: {
             strength: 5,
             sweetness: 4,
@@ -341,6 +356,7 @@ const drinks = [
     {
         name: "Manhattan",
         liquor: "Whiskey",
+        category: "Purist",
         scores: {
             strength: 6,
             sweetness: 2,
@@ -363,6 +379,7 @@ const drinks = [
     {
         name: "Sazerac",
         liquor: "Rye whiskey",
+        category: "Purist",
         scores: {
             strength: 7,
             sweetness: 2,
@@ -385,6 +402,7 @@ const drinks = [
     {
         name: "Mint Julep",
         liquor: "Bourbon",
+        category: "Purist",
         scores: {
             strength: 7,
             sweetness: 4,
@@ -407,6 +425,7 @@ const drinks = [
     {
         name: "Daiquiri",
         liquor: "White rum",
+        category: "Sunseeker",
         scores: {
             strength: 3,
             sweetness: 4,
@@ -429,6 +448,7 @@ const drinks = [
     {
         name: "Coffee Flip",
         liquor: "Brandy",
+        category: "Hedonist",
         scores: {
             strength: 3,
             sweetness: 5,
@@ -451,6 +471,7 @@ const drinks = [
     {
         name: "Ramos Gin Fizz",
         liquor: "Gin",
+        category: "Hedonist",
         scores: {
             strength: 2,
             sweetness: 3,
@@ -473,6 +494,7 @@ const drinks = [
     {
         name: "Brandy Alexander",
         liquor: "Brandy",
+        category: "Hedonist",
         scores: {
             strength: 3,
             sweetness: 6,
@@ -495,6 +517,7 @@ const drinks = [
     {
         name: "Espresso Martini",
         liquor: "Vodka",
+        category: "Hedonist",
         scores: {
             strength: 3,
             sweetness: 5,
@@ -517,6 +540,7 @@ const drinks = [
     {
         name: "Irish Coffee",
         liquor: "Irish whiskey",
+        category: "Hedonist",
         scores: {
             strength: 2,
             sweetness: 2,
@@ -539,6 +563,7 @@ const drinks = [
     {
         name: "Tom Collins",
         liquor: "Gin",
+        category: "Sunseeker",
         scores: {
             strength: 2,
             sweetness: 3,
@@ -561,6 +586,7 @@ const drinks = [
     {
         name: "French 75",
         liquor: "Gin",
+        category: "Sunseeker",
         scores: {
             strength: 3,
             sweetness: 3,
@@ -583,6 +609,7 @@ const drinks = [
     {
         name: "Mimosa",
         liquor: "Sparkling wine",
+        category: "Sunseeker",
         scores: {
             strength: 1,
             sweetness: 3,
@@ -605,6 +632,7 @@ const drinks = [
     {
         name: "Moscow Mule",
         liquor: "Vodka",
+        category: "Sunseeker",
         scores: {
             strength: 2,
             sweetness: 4,
@@ -627,6 +655,7 @@ const drinks = [
     {
         name: "Paloma",
         liquor: "Tequila",
+        category: "Sunseeker",
         scores: {
             strength: 2,
             sweetness: 3,
@@ -649,6 +678,7 @@ const drinks = [
     {
         name: "Dark 'n' Stormy",
         liquor: "Dark rum",
+        category: "Sunseeker",
         scores: {
             strength: 2,
             sweetness: 4,
@@ -671,6 +701,7 @@ const drinks = [
     {
         name: "Mai Tai",
         liquor: "Rum",
+        category: "Sunseeker",
         scores: {
             strength: 4,
             sweetness: 6,
@@ -693,6 +724,7 @@ const drinks = [
     {
         name: "Zombie",
         liquor: "Rum",
+        category: "Easy going",
         scores: {
             strength: 4,
             sweetness: 4,
@@ -715,6 +747,7 @@ const drinks = [
     {
         name: "Aviation",
         liquor: "Gin",
+        category: "Sunseeker",
         scores: {
             strength: 4,
             sweetness: 3,
@@ -737,6 +770,7 @@ const drinks = [
     {
         name: "Corpse Reviver #2",
         liquor: "Gin",
+        category: "Bittersweet",
         scores: {
             strength: 5,
             sweetness: 4,
@@ -759,6 +793,7 @@ const drinks = [
     {
         name: "Vodka Soda",
         liquor: "Vodka",
+        category: "Easy going",
         scores: {
             strength: 2,
             sweetness: 1,
@@ -781,6 +816,7 @@ const drinks = [
     {
         name: "Bamboo",
         liquor: "Sherry",
+        category: "Bittersweet",
         scores: {
             strength: 3,
             sweetness: 1,
@@ -803,6 +839,7 @@ const drinks = [
     {
         name: "Cocoa Puff",
         liquor: "BESPOKE",
+        category: "Bittersweet",
         scores: {
             strength: 5,
             sweetness: 6,
@@ -825,6 +862,7 @@ const drinks = [
     {
         name: "Lemon Meringue Pie",
         liquor: "BESPOKE",
+        category: "Hedonist",
         scores: {
             strength: 3,
             sweetness: 5,
@@ -847,6 +885,7 @@ const drinks = [
     {
         name: "Purple",
         liquor: "BESPOKE",
+        category: "Sunseeker",
         scores: {
             strength: 3,
             sweetness: 4,
@@ -869,6 +908,7 @@ const drinks = [
     {
         name: "The Conference",
         liquor: "BESPOKE",
+        category: "Purist",
         scores: {
             strength: 6,
             sweetness: 3,
@@ -891,6 +931,7 @@ const drinks = [
     {
         name: "Creamy Tiki",
         liquor: "BESPOKE",
+        category: "Hedonist",
         scores: {
             strength: 4,
             sweetness: 6,
@@ -913,6 +954,7 @@ const drinks = [
     {
         name: "Rum Flip",
         liquor: "BESPOKE",
+        category: "Hedonist",
         scores: {
             strength: 5,
             sweetness: 2,
@@ -935,6 +977,7 @@ const drinks = [
     {
         name: "Cinnamon Girl",
         liquor: "BESPOKE",
+        category: "Sunseeker",
         scores: {
             strength: 3,
             sweetness: 3,
@@ -957,6 +1000,7 @@ const drinks = [
     {
         name: "Cucumber Thai",
         liquor: "BESPOKE",
+        category: "Sunseeker",
         scores: {
             strength: 3,
             sweetness: 3,
@@ -979,6 +1023,7 @@ const drinks = [
     {
         name: "Le CouCou",
         liquor: "BESPOKE",
+        category: "Easy going",
         scores: {
             strength: 2,
             sweetness: 3,
@@ -1001,6 +1046,7 @@ const drinks = [
     {
         name: "Mezcal Margarita",
         liquor: "BESPOKE",
+        category: "Sunseeker",
         scores: {
             strength: 3,
             sweetness: 3,

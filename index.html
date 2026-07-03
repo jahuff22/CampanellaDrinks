@@ -7,24 +7,34 @@
 </head>
 
 <body>
-  <h1>PROOF.</h1>
+  <main id="quiz-screen">
+    <h1>PROOF.</h1>
 
-  <form id="quiz-form">
-    <div id="slider-container"></div>
+    <form id="quiz-form">
+      <div id="slider-container"></div>
 
-    <div class="qualitative-section">
-      <label for="qualitative-input">
-        Optional: Anything you love or hate
-      </label>
-      <textarea id="qualitative-input" rows="4"></textarea>
-    </div>
+      <div class="qualitative-section">
+        <label for="qualitative-input">
+          Optional: Anything you love or hate
+        </label>
+        <textarea id="qualitative-input" rows="4"></textarea>
+      </div>
 
-    <button type="submit">Recommend Drinks</button>
-  </form>
+      <button type="submit">Recommend Drinks</button>
+    </form>
+  </main>
 
-  <h2>Results</h2>
-  <div id="ai-notice" class="ai-notice" hidden></div>
-  <div id="results"></div>
+  <main id="results-screen" hidden>
+    <section id="persona-profile" class="persona-profile"></section>
+    <div id="ai-notice" class="ai-notice" hidden></div>
+    <section class="recommendations-section">
+      <div class="recommendations-heading">
+        <h2>Your Matches</h2>
+        <button id="retake-button" class="secondary-button" type="button">Retake</button>
+      </div>
+      <div id="results"></div>
+    </section>
+  </main>
 
   <script src="drinks.js"></script>
   <script src="questions.js"></script>

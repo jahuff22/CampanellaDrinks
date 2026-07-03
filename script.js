@@ -517,6 +517,120 @@ function formatMatchPercentage(score) {
   return `${(100 - score).toFixed(0)}%`;
 }
 
+const personaProfiles = {
+  Purist: {
+    title: "Purist",
+    intro: "You like strong, classic drinks with structure and restraint.",
+    avoidance: "You steer clear of overly sweet, overly sour, and fussier drinks that hide the base spirit.",
+    closing: "...then your matches."
+  },
+  Sunseeker: {
+    title: "Sunseeker",
+    intro: "You love citrus, neutral spirits, and refreshing flavors.",
+    avoidance: "You steer clear of smoky flavors, bitter aperitivos, and the harsh flavor of alcohol.",
+    closing: "...then your matches."
+  },
+  Hedonist: {
+    title: "Hedonist",
+    intro: "You love lush, sweet, creamy cocktails with texture and a little drama.",
+    avoidance: "You steer clear of dry, sharp, spirit-forward drinks that ask you to work too hard.",
+    closing: "...then your matches."
+  },
+  Bittersweet: {
+    title: "Bittersweet",
+    intro: "You love bitter complexity when it has sweetness, depth, and a real point of view.",
+    avoidance: "You steer clear of one-note strong drinks and simple sours that do not linger.",
+    closing: "...then your matches."
+  },
+  "Easy going": {
+    title: "Easy Going",
+    intro: "You are open-ended, flexible, and happy across a wide range of drinks.",
+    avoidance: "You steer clear of being pinned down too tightly, and your matches can move in a few directions.",
+    closing: "...then your matches."
+  }
+};
+
+function calculatePersona(recommendations) {
+  const categories = recommendations
+    .slice(0, 3)
+    .map(drink => drink.category)
+    .filter(Boolean);
+
+  const categoryCounts = categories.reduce((counts, category) => {
+    counts[category] = (counts[category] || 0) + 1;
+    return counts;
+  }, {});
+
+  const majorityCategory = Object.keys(categoryCounts).find(category => categoryCounts[category] >= 2);
+  return majorityCategory || "Easy going";
+}
+
+function calculateTasterType(userPreferences) {
+  const tasterScore =
+    userPreferences.strength * 1.5 +
+    userPreferences.sweetness +
+    userPreferences.sourness +
+    userPreferences.bitterness * 2;
+
+  if (tasterScore <= 12) return "supertaster";
+  if (tasterScore >= 33) return "non-taster";
+  return "standard taster";
+}
+
+function createTasteProfile(userPreferences) {
+  return {
+    Strength: getPreferencePercentage(userPreferences.strength),
+    Sweet: getPreferencePercentage(userPreferences.sweetness),
+    Sour: getPreferencePercentage(userPreferences.sourness),
+    Bitter: getPreferencePercentage(userPreferences.bitterness),
+    Body: getPreferencePercentage(userPreferences.thickness),
+    Rarity: getPreferencePercentage(userPreferences.rarity)
+  };
+}
+
+function getPreferencePercentage(value) {
+  return Math.round((Number(value) / 7) * 100);
+}
+
+function createTasteProfileRows(tasteProfile) {
+  return Object.entries(tasteProfile).map(([label, value]) => `
+    <div class="taste-row">
+      <span>${label}</span>
+      <div class="taste-meter" aria-label="${label}: ${value}%">
+        <span style="width: ${value}%"></span>
+      </div>
+    </div>
+  `).join("");
+}
+
+function displayPersonaProfile(personaCategory, userPreferences) {
+  const profile = personaProfiles[personaCategory] || personaProfiles["Easy going"];
+  const profileElement = document.getElementById("persona-profile");
+  const tasteProfile = createTasteProfile(userPreferences);
+  const tasterType = calculateTasterType(userPreferences);
+
+  profileElement.innerHTML = `
+    <div class="persona-summary">
+      <p class="eyebrow">YOU'RE A</p>
+      <h2>${profile.title}</h2>
+      <p class="persona-intro">${profile.intro}</p>
+      <p class="persona-avoidance">${profile.avoidance}</p>
+      <div class="taster-callout">
+        <p class="taster-label">YOU'RE PROBABLY A:</p>
+        <p class="taster-type">${tasterType}</p>
+        <p class="taster-description">Supertasters perceive bitterness and intensity more sharply, standard tasters sit in the middle, and non-tasters usually need bigger flavors to feel the same impact.</p>
+      </div>
+      <p class="persona-closing">${profile.closing}</p>
+    </div>
+    <div class="taste-profile-card">
+      <p class="eyebrow">YOUR TASTE PROFILE</p>
+      <div class="taste-profile-bars">
+        ${createTasteProfileRows(tasteProfile)}
+      </div>
+    </div>
+  `;
+}
+
 function createDrinkResultElement(drink) {
   const drinkElement = document.createElement("div");
 
@@ -558,14 +672,20 @@ function displayBothResults(scaledRecommendations, standardRecommendations) {
   }
 }
 
-function displayResults(recommendations) {
+function displayResults(recommendations, userPreferences) {
   const resultsDiv = document.getElementById("results");
+  const personaCategory = calculatePersona(recommendations);
 
+  displayPersonaProfile(personaCategory, userPreferences);
   resultsDiv.innerHTML = "";
 
   for (const drink of recommendations) {
     resultsDiv.appendChild(createDrinkResultElement(drink));
   }
+
+  document.getElementById("quiz-screen").hidden = true;
+  document.getElementById("results-screen").hidden = false;
+  window.scrollTo({ top: 0, behavior: "smooth" });
 }
 
 function displayNotice(message) {
@@ -579,6 +699,13 @@ const scaledDrinks = getScaledDrinks();
 createSliders();
 
 const quizForm = document.getElementById("quiz-form");
+const retakeButton = document.getElementById("retake-button");
+
+retakeButton.addEventListener("click", function() {
+  document.getElementById("results-screen").hidden = true;
+  document.getElementById("quiz-screen").hidden = false;
+  window.scrollTo({ top: 0, behavior: "smooth" });
+});
 
 quizForm.addEventListener("submit", async function(event) {
   event.preventDefault();
@@ -593,5 +720,5 @@ quizForm.addEventListener("submit", async function(event) {
   const standardRecommendations = recommendDrinks(userPreferences, importantTraits, drinks, qualitativePreferences, 3);
 
   displayNotice(qualitativeResult.notice);
-  displayResults(standardRecommendations);
+  displayResults(standardRecommendations, userPreferences);
 });

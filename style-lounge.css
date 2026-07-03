@@ -434,6 +434,182 @@ h2 {
   font-size: 14px;
 }
 
+.persona-profile {
+  display: grid;
+  grid-template-columns: minmax(0, 1.25fr) minmax(340px, 1fr);
+  gap: 46px;
+  align-items: stretch;
+  margin-bottom: 34px;
+}
+
+.persona-summary,
+.taste-profile-card {
+  min-width: 0;
+  border: 1px solid var(--line);
+  background: var(--paper);
+  box-shadow: var(--shadow);
+}
+
+.persona-summary {
+  display: grid;
+  align-content: center;
+  min-height: 430px;
+  padding: 30px 42px;
+  border-radius: 12px;
+}
+
+.taste-profile-card {
+  display: grid;
+  align-content: center;
+  min-height: 430px;
+  padding: 40px 44px;
+  border-radius: 0;
+}
+
+.eyebrow {
+  margin-bottom: 26px;
+  color: var(--gold);
+  font-size: 14px;
+  font-weight: 900;
+  line-height: 1.1;
+  text-transform: uppercase;
+}
+
+.persona-summary h2 {
+  margin: 0 0 16px;
+  color: #f5df9a;
+  font-family: Didot, "Bodoni 72", "Bodoni 72 Smallcaps", "Baskerville Old Face", Georgia, "Times New Roman", serif;
+  font-size: 60px;
+  font-weight: 800;
+  line-height: 0.95;
+}
+
+.persona-intro,
+.persona-avoidance {
+  max-width: 600px;
+  color: var(--soft);
+  font-size: 19px;
+  font-weight: 760;
+  line-height: 1.34;
+}
+
+.persona-intro {
+  margin-bottom: 20px;
+  color: #fff7df;
+}
+
+.persona-avoidance {
+  margin-bottom: 20px;
+  color: var(--muted);
+}
+
+.taster-callout {
+  margin-bottom: 18px;
+  padding-top: 14px;
+  border-top: 1px solid rgba(232, 185, 94, 0.32);
+}
+
+.taster-label {
+  margin-bottom: 7px;
+  color: var(--gold);
+  font-size: 12px;
+  font-weight: 900;
+  line-height: 1.15;
+  text-transform: uppercase;
+}
+
+.taster-type {
+  margin-bottom: 8px;
+  color: #fff7df;
+  font-family: Didot, "Bodoni 72", "Bodoni 72 Smallcaps", "Baskerville Old Face", Georgia, "Times New Roman", serif;
+  font-size: 28px;
+  font-weight: 800;
+  line-height: 1;
+  text-transform: capitalize;
+}
+
+.taster-description {
+  margin: 0;
+  color: var(--muted);
+  font-size: 14px;
+  font-weight: 650;
+  line-height: 1.34;
+}
+
+.persona-closing {
+  margin: 0;
+  color: #f0a1a8;
+  font-size: 18px;
+  font-style: italic;
+  line-height: 1.35;
+}
+
+.taste-profile-bars {
+  display: grid;
+  gap: 39px;
+}
+
+.taste-row {
+  display: grid;
+  grid-template-columns: 96px minmax(0, 1fr);
+  gap: 24px;
+  align-items: center;
+}
+
+.taste-row > span {
+  color: #fff7df;
+  font-size: 17px;
+  line-height: 1.2;
+}
+
+.taste-meter {
+  height: 26px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: rgba(27, 20, 34, 0.42);
+}
+
+.taste-meter span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: #d1b06d;
+}
+
+.recommendations-section {
+  margin-top: 8px;
+}
+
+.recommendations-heading {
+  display: flex;
+  gap: 18px;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+
+.recommendations-heading h2 {
+  margin: 0;
+}
+
+.secondary-button {
+  min-height: 42px;
+  padding: 0 18px;
+  border: 1px solid var(--line-strong);
+  border-radius: 999px;
+  background: rgba(30, 24, 38, 0.72);
+  color: var(--gold-bright);
+  font-family: Optima, Candara, "Avenir Next", "Segoe UI", system-ui, sans-serif;
+  font-size: 13px;
+  font-weight: 850;
+  cursor: pointer;
+}
+
+.secondary-button:hover {
+  border-color: var(--gold-bright);
+  background: rgba(51, 41, 66, 0.92);
+}
+
 #results {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -501,6 +677,34 @@ h2 {
     padding: 18px;
   }
 
+  .persona-profile {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .persona-summary,
+  .taste-profile-card {
+    min-height: 0;
+    padding: 28px;
+  }
+
+  .persona-summary h2 {
+    font-size: 50px;
+  }
+
+  .persona-intro,
+  .persona-avoidance {
+    font-size: 18px;
+  }
+
+  .persona-intro {
+    margin-bottom: 34px;
+  }
+
+  .persona-avoidance {
+    margin-bottom: 30px;
+  }
+
   #results {
     grid-template-columns: 1fr;
   }
@@ -546,6 +750,33 @@ h2 {
   }
 
   button[type="submit"] {
+    width: 100%;
+  }
+
+  .persona-summary,
+  .taste-profile-card {
+    padding: 22px;
+  }
+
+  .persona-summary h2 {
+    font-size: 42px;
+  }
+
+  .taste-profile-bars {
+    gap: 24px;
+  }
+
+  .taste-row {
+    grid-template-columns: 78px minmax(0, 1fr);
+    gap: 14px;
+  }
+
+  .recommendations-heading {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .secondary-button {
     width: 100%;
   }
 }
