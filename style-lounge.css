@@ -715,6 +715,25 @@ h2 {
     display: none;
   }
 
+  #quiz-form::before {
+    content: "PROOF.";
+    position: sticky;
+    top: 0;
+    z-index: 4;
+    margin: -18px -18px 0;
+    padding: 9px 18px 8px;
+    border-bottom: 1px solid rgba(232, 185, 94, 0.36);
+    background: rgba(27, 20, 34, 0.82);
+    color: rgba(255, 231, 176, 0.78);
+    font-family: Impact, "Arial Narrow Bold", "Franklin Gothic Heavy", "Aptos Display", sans-serif;
+    font-size: 26px;
+    font-weight: 900;
+    letter-spacing: 0.02em;
+    line-height: 1;
+    text-shadow: 0 0 12px rgba(232, 185, 94, 0.32);
+    backdrop-filter: blur(10px);
+  }
+
   h1 {
     font-size: 68px;
   }
@@ -732,16 +751,17 @@ h2 {
   }
 
   .importance-control {
-    grid-template-columns: minmax(0, 1fr) auto;
-    gap: 12px;
+    grid-template-columns: auto auto;
+    gap: 10px;
     align-items: center;
+    justify-content: end;
   }
 
   .importance-label {
-    max-width: none;
+    max-width: 146px;
     font-size: 10px;
     line-height: 1.25;
-    text-align: left;
+    text-align: right;
   }
 
   .importance-button {
@@ -782,5 +802,6 @@ h2 {
 
   .secondary-button {
     width: 100%;
+    font-size: 15px;
   }
 }
