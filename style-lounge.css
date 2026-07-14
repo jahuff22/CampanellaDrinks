@@ -503,39 +503,6 @@ h2 {
   color: var(--muted);
 }
 
-.taster-callout {
-  margin-bottom: 18px;
-  padding-top: 14px;
-  border-top: 1px solid rgba(232, 185, 94, 0.32);
-}
-
-.taster-label {
-  margin-bottom: 7px;
-  color: var(--gold);
-  font-size: 12px;
-  font-weight: 900;
-  line-height: 1.15;
-  text-transform: uppercase;
-}
-
-.taster-type {
-  margin-bottom: 8px;
-  color: #fff7df;
-  font-family: Didot, "Bodoni 72", "Bodoni 72 Smallcaps", "Baskerville Old Face", Georgia, "Times New Roman", serif;
-  font-size: 28px;
-  font-weight: 800;
-  line-height: 1;
-  text-transform: capitalize;
-}
-
-.taster-description {
-  margin: 0;
-  color: var(--muted);
-  font-size: 14px;
-  font-weight: 650;
-  line-height: 1.34;
-}
-
 .persona-closing {
   margin: 0;
   color: #f0a1a8;

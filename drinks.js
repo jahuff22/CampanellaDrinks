@@ -11,20 +11,12 @@ const drinks = [
     {
         name: "Margarita",
         liquor: "Tequila",
-        category: "Sunseeker",
+        category: ["Sunseeker"],
         scores: {
             strength: 3,
             sweetness: 3,
             sourness: 4,
             bitterness: 1,
-            thickness: 2,
-            rarity: 1
-        },
-        weights: {
-            strength: 4,
-            sweetness: 5,
-            sourness: 9,
-            bitterness: 0,
             thickness: 2,
             rarity: 1
         },
@@ -34,20 +26,12 @@ const drinks = [
     {
         name: "Old Fashioned",
         liquor: "Whiskey",
-        category: "Purist",
+        category: ["Purist"],
         scores: {
             strength: 6,
             sweetness: 3,
             sourness: 1,
             bitterness: 2,
-            thickness: 3,
-            rarity: 1
-        },
-        weights: {
-            strength: 10,
-            sweetness: 5,
-            sourness: 0,
-            bitterness: 7,
             thickness: 3,
             rarity: 1
         },
@@ -57,20 +41,12 @@ const drinks = [
     {
         name: "Mojito",
         liquor: "White rum",
-        category: "Sunseeker",
+        category: ["Sunseeker"],
         scores: {
             strength: 3,
             sweetness: 4,
             sourness: 3,
             bitterness: 1,
-            thickness: 2,
-            rarity: 1
-        },
-        weights: {
-            strength: 3,
-            sweetness: 4,
-            sourness: 6,
-            bitterness: 0,
             thickness: 2,
             rarity: 1
         },
@@ -80,7 +56,7 @@ const drinks = [
     {
         name: "Gin & Tonic",
         liquor: "Gin",
-        category: "Sunseeker",
+        category: ["Bittersweet"],
         scores: {
             strength: 2,
             sweetness: 2,
@@ -89,21 +65,13 @@ const drinks = [
             thickness: 1,
             rarity: 1
         },
-        weights: {
-            strength: 3,
-            sweetness: 3,
-            sourness: 1,
-            bitterness: 6,
-            thickness: 2,
-            rarity: 1
-        },
         description: "A crisp, simple highball that pairs botanical gin with bitter, bubbly tonic water.",
         ingredients: "Gin, tonic water, lime wedge."
     },
     {
         name: "Whiskey Sour",
         liquor: "Whiskey",
-        category: "Sunseeker",
+        category: ["Sunseeker"],
         scores: {
             strength: 3,
             sweetness: 3,
@@ -112,36 +80,20 @@ const drinks = [
             thickness: 4,
             rarity: 1
         },
-        weights: {
-            strength: 5,
-            sweetness: 6,
-            sourness: 9,
-            bitterness: 0,
-            thickness: 3,
-            rarity: 1
-        },
         description: "A classic sour balancing whiskey with lemon and sugar, often given a silky texture with egg white.",
         ingredients: "Bourbon or rye whiskey, lemon juice, simple syrup, optional egg white, bitters."
     },
     {
         name: "Sidecar",
         liquor: "Cognac",
-        category: "Sunseeker",
+        category: ["Sunseeker", "Purist"],
         scores: {
             strength: 5,
             sweetness: 3,
             sourness: 4,
             bitterness: 1,
             thickness: 2,
-            rarity: 1
-        },
-        weights: {
-            strength: 5,
-            sweetness: 5,
-            sourness: 7,
-            bitterness: 0,
-            thickness: 2,
-            rarity: 1
+            rarity: 2
         },
         description: "A tart, elegant brandy sour made with cognac, orange liqueur, and lemon.",
         ingredients: "Cognac, orange liqueur, lemon juice, optional sugar rim."
@@ -149,7 +101,7 @@ const drinks = [
     {
         name: "Piña Colada",
         liquor: "Rum",
-        category: "Hedonist",
+        category: ["Hedonist"],
         scores: {
             strength: 2,
             sweetness: 7,
@@ -158,34 +110,18 @@ const drinks = [
             thickness: 7,
             rarity: 1
         },
-        weights: {
-            strength: 2,
-            sweetness: 8,
-            sourness: 2,
-            bitterness: 0,
-            thickness: 10,
-            rarity: 1
-        },
         description: "A creamy tropical rum drink built around pineapple and coconut.",
         ingredients: "White rum, pineapple juice, cream of coconut, lime juice."
     },
     {
         name: "White Sangria",
         liquor: "White wine",
-        category: "Sunseeker",
+        category: ["Sunseeker"],
         scores: {
             strength: 2,
             sweetness: 4,
             sourness: 3,
             bitterness: 1,
-            thickness: 2,
-            rarity: 1
-        },
-        weights: {
-            strength: 3,
-            sweetness: 5,
-            sourness: 5,
-            bitterness: 0,
             thickness: 2,
             rarity: 1
         },
@@ -195,7 +131,7 @@ const drinks = [
     {
         name: "Red Sangria",
         liquor: "Red wine",
-        category: "Easy going",
+        category: ["Sunseeker"],
         scores: {
             strength: 2,
             sweetness: 4,
@@ -204,21 +140,13 @@ const drinks = [
             thickness: 2,
             rarity: 1
         },
-        weights: {
-            strength: 3,
-            sweetness: 5,
-            sourness: 4,
-            bitterness: 0,
-            thickness: 3,
-            rarity: 1
-        },
         description: "A Spanish-style wine punch with red wine, fruit, citrus, and a little spirit or sweetness.",
         ingredients: "Red wine, brandy or orange liqueur, orange, lemon, apple or berries, sugar or simple syrup, soda water."
     },
     {
         name: "Martini",
         liquor: "Gin",
-        category: "Purist",
+        category: ["Purist"],
         scores: {
             strength: 7,
             sweetness: 1,
@@ -227,35 +155,19 @@ const drinks = [
             thickness: 1,
             rarity: 1
         },
-        weights: {
-            strength: 10,
-            sweetness: 8,
-            sourness: 0,
-            bitterness: 2,
-            thickness: 2,
-            rarity: 1
-        },
         description: "A dry, spirit-forward cocktail of gin and vermouth, served chilled and usually garnished with olive or lemon.",
         ingredients: "Gin, dry vermouth, orange bitters if desired, olive or lemon twist."
     },
     {
         name: "Bloody Mary",
         liquor: "Vodka",
-        category: "Easy going",
+        category: ["Bittersweet", "Adventurer"],
         scores: {
             strength: 2,
-            sweetness: 1,
+            sweetness: 2,
             sourness: 3,
             bitterness: 1,
             thickness: 4,
-            rarity: 2
-        },
-        weights: {
-            strength: 2,
-            sweetness: 2,
-            sourness: 4,
-            bitterness: 0,
-            thickness: 5,
             rarity: 2
         },
         description: "A savory brunch cocktail mixing vodka with tomato, citrus, spice, and umami seasonings.",
@@ -264,20 +176,12 @@ const drinks = [
     {
         name: "Negroni",
         liquor: "Gin",
-        category: "Purist",
+        category: ["Bittersweet", "Purist"],
         scores: {
             strength: 5,
             sweetness: 3,
             sourness: 1,
             bitterness: 7,
-            thickness: 3,
-            rarity: 1
-        },
-        weights: {
-            strength: 5,
-            sweetness: 5,
-            sourness: 0,
-            bitterness: 9,
             thickness: 3,
             rarity: 1
         },
@@ -287,20 +191,12 @@ const drinks = [
     {
         name: "Americano",
         liquor: "Campari",
-        category: "Bittersweet",
+        category: ["Bittersweet"],
         scores: {
             strength: 1,
             sweetness: 3,
             sourness: 1,
             bitterness: 5,
-            thickness: 2,
-            rarity: 1
-        },
-        weights: {
-            strength: 2,
-            sweetness: 4,
-            sourness: 0,
-            bitterness: 8,
             thickness: 2,
             rarity: 1
         },
@@ -310,21 +206,13 @@ const drinks = [
     {
         name: "Aperol Spritz",
         liquor: "Aperol",
-        category: "Sunseeker",
+        category: ["Bittersweet", "Sunseeker"],
         scores: {
             strength: 2,
-            sweetness: 3,
+            sweetness: 4,
             sourness: 1,
             bitterness: 3,
             thickness: 1,
-            rarity: 1
-        },
-        weights: {
-            strength: 2,
-            sweetness: 5,
-            sourness: 1,
-            bitterness: 6,
-            thickness: 2,
             rarity: 1
         },
         description: "A low-ABV Italian spritz with bright orange bitterness, sparkling wine, and soda.",
@@ -333,7 +221,7 @@ const drinks = [
     {
         name: "Last Word",
         liquor: "Gin",
-        category: "Bittersweet",
+        category: ["Sunseeker", "Adventurer"],
         scores: {
             strength: 5,
             sweetness: 4,
@@ -342,35 +230,19 @@ const drinks = [
             thickness: 4,
             rarity: 4
         },
-        weights: {
-            strength: 5,
-            sweetness: 5,
-            sourness: 6,
-            bitterness: 2,
-            thickness: 3,
-            rarity: 4
-        },
         description: "A sharp, herbal, equal-parts cocktail balancing gin, Chartreuse, maraschino, and lime.",
         ingredients: "Gin, green Chartreuse, maraschino liqueur, lime juice."
     },
     {
         name: "Manhattan",
         liquor: "Whiskey",
-        category: "Purist",
+        category: ["Purist"],
         scores: {
             strength: 6,
-            sweetness: 2,
+            sweetness: 3,
             sourness: 1,
             bitterness: 2,
             thickness: 2,
-            rarity: 1
-        },
-        weights: {
-            strength: 9,
-            sweetness: 5,
-            sourness: 0,
-            bitterness: 5,
-            thickness: 3,
             rarity: 1
         },
         description: "A classic whiskey cocktail with sweet vermouth and bitters, stirred and served up.",
@@ -379,20 +251,12 @@ const drinks = [
     {
         name: "Sazerac",
         liquor: "Rye whiskey",
-        category: "Purist",
+        category: ["Purist", "Bittersweet"],
         scores: {
             strength: 7,
             sweetness: 2,
             sourness: 1,
             bitterness: 4,
-            thickness: 3,
-            rarity: 3
-        },
-        weights: {
-            strength: 10,
-            sweetness: 4,
-            sourness: 0,
-            bitterness: 6,
             thickness: 3,
             rarity: 3
         },
@@ -402,20 +266,12 @@ const drinks = [
     {
         name: "Mint Julep",
         liquor: "Bourbon",
-        category: "Purist",
+        category: ["Purist"],
         scores: {
             strength: 7,
-            sweetness: 4,
+            sweetness: 3,
             sourness: 1,
             bitterness: 1,
-            thickness: 3,
-            rarity: 1
-        },
-        weights: {
-            strength: 10,
-            sweetness: 5,
-            sourness: 0,
-            bitterness: 0,
             thickness: 3,
             rarity: 1
         },
@@ -425,20 +281,12 @@ const drinks = [
     {
         name: "Daiquiri",
         liquor: "White rum",
-        category: "Sunseeker",
+        category: ["Sunseeker"],
         scores: {
             strength: 3,
             sweetness: 4,
             sourness: 4,
             bitterness: 1,
-            thickness: 2,
-            rarity: 1
-        },
-        weights: {
-            strength: 4,
-            sweetness: 8,
-            sourness: 9,
-            bitterness: 0,
             thickness: 2,
             rarity: 1
         },
@@ -448,21 +296,13 @@ const drinks = [
     {
         name: "Coffee Flip",
         liquor: "Brandy",
-        category: "Hedonist",
+        category: ["Hedonist"],
         scores: {
             strength: 3,
             sweetness: 5,
             sourness: 1,
             bitterness: 1,
             thickness: 7,
-            rarity: 3
-        },
-        weights: {
-            strength: 3,
-            sweetness: 5,
-            sourness: 0,
-            bitterness: 2,
-            thickness: 9,
             rarity: 3
         },
         description: "A rich flip-style dessert cocktail using coffee flavor, spirit, sweetness, and whole egg.",
@@ -471,7 +311,7 @@ const drinks = [
     {
         name: "Ramos Gin Fizz",
         liquor: "Gin",
-        category: "Hedonist",
+        category: ["Hedonist"],
         scores: {
             strength: 2,
             sweetness: 3,
@@ -480,21 +320,13 @@ const drinks = [
             thickness: 6,
             rarity: 4
         },
-        weights: {
-            strength: 2,
-            sweetness: 4,
-            sourness: 5,
-            bitterness: 0,
-            thickness: 9,
-            rarity: 4
-        },
         description: "A famous New Orleans fizz with gin, citrus, cream, egg white, orange flower water, and soda.",
         ingredients: "Gin, lemon juice, lime juice, simple syrup, cream, egg white, orange flower water, soda water."
     },
     {
         name: "Brandy Alexander",
         liquor: "Brandy",
-        category: "Hedonist",
+        category: ["Hedonist"],
         scores: {
             strength: 3,
             sweetness: 6,
@@ -503,21 +335,13 @@ const drinks = [
             thickness: 7,
             rarity: 1
         },
-        weights: {
-            strength: 3,
-            sweetness: 6,
-            sourness: 0,
-            bitterness: 2,
-            thickness: 9,
-            rarity: 1
-        },
         description: "A creamy dessert cocktail combining brandy, creme de cacao, and cream.",
         ingredients: "Brandy or cognac, dark creme de cacao, cream, grated nutmeg."
     },
     {
         name: "Espresso Martini",
         liquor: "Vodka",
-        category: "Hedonist",
+        category: ["Bittersweet", "Hedonist"],
         scores: {
             strength: 3,
             sweetness: 5,
@@ -526,35 +350,19 @@ const drinks = [
             thickness: 4,
             rarity: 1
         },
-        weights: {
-            strength: 3,
-            sweetness: 5,
-            sourness: 0,
-            bitterness: 5,
-            thickness: 9,
-            rarity: 1
-        },
         description: "A modern classic that shakes vodka, coffee liqueur, and espresso into a foamy cocktail.",
         ingredients: "Vodka, coffee liqueur, fresh espresso, simple syrup."
     },
     {
         name: "Irish Coffee",
         liquor: "Irish whiskey",
-        category: "Hedonist",
+        category: ["Bittersweet", "Hedonist"],
         scores: {
             strength: 2,
-            sweetness: 2,
-            sourness: 1,
-            bitterness: 4,
-            thickness: 5,
-            rarity: 1
-        },
-        weights: {
-            strength: 4,
             sweetness: 3,
-            sourness: 0,
-            bitterness: 5,
-            thickness: 6,
+            sourness: 1,
+            bitterness: 3,
+            thickness: 5,
             rarity: 1
         },
         description: "A warm coffee cocktail sweetened with sugar and topped with lightly whipped cream.",
@@ -563,20 +371,12 @@ const drinks = [
     {
         name: "Tom Collins",
         liquor: "Gin",
-        category: "Sunseeker",
+        category: ["Sunseeker"],
         scores: {
             strength: 2,
             sweetness: 3,
             sourness: 4,
             bitterness: 1,
-            thickness: 2,
-            rarity: 1
-        },
-        weights: {
-            strength: 2,
-            sweetness: 4,
-            sourness: 6,
-            bitterness: 0,
             thickness: 2,
             rarity: 1
         },
@@ -586,20 +386,12 @@ const drinks = [
     {
         name: "French 75",
         liquor: "Gin",
-        category: "Sunseeker",
+        category: ["Sunseeker"],
         scores: {
             strength: 3,
             sweetness: 3,
             sourness: 3,
             bitterness: 1,
-            thickness: 2,
-            rarity: 1
-        },
-        weights: {
-            strength: 2,
-            sweetness: 4,
-            sourness: 6,
-            bitterness: 0,
             thickness: 2,
             rarity: 1
         },
@@ -609,20 +401,12 @@ const drinks = [
     {
         name: "Mimosa",
         liquor: "Sparkling wine",
-        category: "Sunseeker",
+        category: ["Easy going"],
         scores: {
             strength: 1,
             sweetness: 3,
             sourness: 2,
             bitterness: 1,
-            thickness: 2,
-            rarity: 1
-        },
-        weights: {
-            strength: 1,
-            sweetness: 4,
-            sourness: 3,
-            bitterness: 0,
             thickness: 2,
             rarity: 1
         },
@@ -632,7 +416,7 @@ const drinks = [
     {
         name: "Moscow Mule",
         liquor: "Vodka",
-        category: "Sunseeker",
+        category: ["Sunseeker"],
         scores: {
             strength: 2,
             sweetness: 4,
@@ -641,34 +425,18 @@ const drinks = [
             thickness: 2,
             rarity: 1
         },
-        weights: {
-            strength: 2,
-            sweetness: 4,
-            sourness: 3,
-            bitterness: 0,
-            thickness: 1,
-            rarity: 1
-        },
         description: "A spicy, fizzy vodka highball with ginger beer and lime.",
         ingredients: "Vodka, ginger beer, lime juice, lime wedge."
     },
     {
         name: "Paloma",
         liquor: "Tequila",
-        category: "Sunseeker",
+        category: ["Sunseeker"],
         scores: {
             strength: 2,
             sweetness: 3,
             sourness: 4,
             bitterness: 2,
-            thickness: 2,
-            rarity: 1
-        },
-        weights: {
-            strength: 2,
-            sweetness: 4,
-            sourness: 6,
-            bitterness: 3,
             thickness: 2,
             rarity: 1
         },
@@ -678,20 +446,12 @@ const drinks = [
     {
         name: "Dark 'n' Stormy",
         liquor: "Dark rum",
-        category: "Sunseeker",
+        category: ["Sunseeker"],
         scores: {
             strength: 2,
             sweetness: 4,
             sourness: 2,
             bitterness: 1,
-            thickness: 2,
-            rarity: 1
-        },
-        weights: {
-            strength: 2,
-            sweetness: 4,
-            sourness: 3,
-            bitterness: 0,
             thickness: 2,
             rarity: 1
         },
@@ -701,21 +461,13 @@ const drinks = [
     {
         name: "Mai Tai",
         liquor: "Rum",
-        category: "Sunseeker",
+        category: ["Sunseeker", "Adventurer"],
         scores: {
             strength: 4,
-            sweetness: 6,
-            sourness: 5,
+            sweetness: 5,
+            sourness: 4,
             bitterness: 1,
             thickness: 3,
-            rarity: 3
-        },
-        weights: {
-            strength: 4,
-            sweetness: 6,
-            sourness: 7,
-            bitterness: 0,
-            thickness: 4,
             rarity: 3
         },
         description: "A classic tiki cocktail mixing rum with lime, orange liqueur, and almond orgeat.",
@@ -724,21 +476,13 @@ const drinks = [
     {
         name: "Zombie",
         liquor: "Rum",
-        category: "Easy going",
+        category: ["Sunseeker", "Purist", "Adventurer"],
         scores: {
-            strength: 4,
-            sweetness: 4,
+            strength: 5,
+            sweetness: 5,
             sourness: 4,
             bitterness: 1,
             thickness: 3,
-            rarity: 4
-        },
-        weights: {
-            strength: 5,
-            sweetness: 5,
-            sourness: 5,
-            bitterness: 0,
-            thickness: 4,
             rarity: 4
         },
         description: "A strong tiki drink layering multiple rums with citrus, spice, and tropical sweetness.",
@@ -747,22 +491,14 @@ const drinks = [
     {
         name: "Aviation",
         liquor: "Gin",
-        category: "Sunseeker",
+        category: ["Sunseeker", "Purist"],
         scores: {
-            strength: 4,
+            strength: 5,
             sweetness: 3,
-            sourness: 5,
+            sourness: 4,
             bitterness: 1,
             thickness: 2,
             rarity: 4
-        },
-        weights: {
-            strength: 4,
-            sweetness: 3,
-            sourness: 6,
-            bitterness: 0,
-            thickness: 2,
-            rarity: 6
         },
         description: "A floral gin sour with maraschino, lemon, and violet liqueur.",
         ingredients: "Gin, maraschino liqueur, lemon juice, creme de violette."
@@ -770,7 +506,7 @@ const drinks = [
     {
         name: "Corpse Reviver #2",
         liquor: "Gin",
-        category: "Bittersweet",
+        category: ["Sunseeker"],
         scores: {
             strength: 5,
             sweetness: 4,
@@ -779,34 +515,18 @@ const drinks = [
             thickness: 3,
             rarity: 3
         },
-        weights: {
-            strength: 4,
-            sweetness: 4,
-            sourness: 6,
-            bitterness: 2,
-            thickness: 2,
-            rarity: 3
-        },
         description: "A tart and aromatic equal-parts gin cocktail with citrus, orange liqueur, aromatized wine, and absinthe.",
         ingredients: "Gin, Cointreau, Lillet Blanc or Cocchi Americano, lemon juice, absinthe rinse."
     },
     {
         name: "Vodka Soda",
         liquor: "Vodka",
-        category: "Easy going",
+        category: ["Easy going"],
         scores: {
             strength: 2,
             sweetness: 1,
             sourness: 1,
             bitterness: 1,
-            thickness: 1,
-            rarity: 1
-        },
-        weights: {
-            strength: 5,
-            sweetness: 3,
-            sourness: 0,
-            bitterness: 0,
             thickness: 1,
             rarity: 1
         },
@@ -816,21 +536,13 @@ const drinks = [
     {
         name: "Bamboo",
         liquor: "Sherry",
-        category: "Bittersweet",
+        category: ["Bittersweet"],
         scores: {
-            strength: 3,
+            strength: 2,
             sweetness: 1,
             sourness: 1,
             bitterness: 3,
             thickness: 3,
-            rarity: 4
-        },
-        weights: {
-            strength: 3,
-            sweetness: 3,
-            sourness: 1,
-            bitterness: 5,
-            thickness: 5,
             rarity: 4
         },
         description: "A low-ABV classic that combines sherry, dry vermouth, and bitters.",
@@ -839,20 +551,12 @@ const drinks = [
     {
         name: "Cocoa Puff",
         liquor: "BESPOKE",
-        category: "Bittersweet",
+        category: ["Adventurer", "Bittersweet", "Hedonist"],
         scores: {
             strength: 5,
             sweetness: 6,
             sourness: 1,
             bitterness: 3,
-            thickness: 3,
-            rarity: 7
-        },
-        weights: {
-            strength: 5,
-            sweetness: 7,
-            sourness: 0,
-            bitterness: 4,
             thickness: 3,
             rarity: 7
         },
@@ -862,21 +566,13 @@ const drinks = [
     {
         name: "Lemon Meringue Pie",
         liquor: "BESPOKE",
-        category: "Hedonist",
+        category: ["Sunseeker", "Hedonist"],
         scores: {
             strength: 3,
             sweetness: 5,
-            sourness: 4,
+            sourness: 3,
             bitterness: 1,
             thickness: 4,
-            rarity: 6
-        },
-        weights: {
-            strength: 2,
-            sweetness: 8,
-            sourness: 6,
-            bitterness: 0,
-            thickness: 7,
             rarity: 6
         },
         description: "A sweet citrus sour with torched sugar foam.",
@@ -885,7 +581,7 @@ const drinks = [
     {
         name: "Purple",
         liquor: "BESPOKE",
-        category: "Sunseeker",
+        category: ["Sunseeker"],
         scores: {
             strength: 3,
             sweetness: 4,
@@ -894,34 +590,18 @@ const drinks = [
             thickness: 4,
             rarity: 5
         },
-        weights: {
-            strength: 3,
-            sweetness: 6,
-            sourness: 6,
-            bitterness: 0,
-            thickness: 4,
-            rarity: 6
-        },
         description: "A floral gin sour with a silky texture from the egg white.",
         ingredients: "Empress gin, Cointreau, lime, crème de violette, egg white"
     },
     {
         name: "The Conference",
         liquor: "BESPOKE",
-        category: "Purist",
+        category: ["Adventurer", "Purist"],
         scores: {
             strength: 6,
             sweetness: 3,
             sourness: 1,
             bitterness: 2,
-            thickness: 3,
-            rarity: 6
-        },
-        weights: {
-            strength: 9,
-            sweetness: 3,
-            sourness: 0,
-            bitterness: 5,
             thickness: 3,
             rarity: 6
         },
@@ -931,21 +611,13 @@ const drinks = [
     {
         name: "Creamy Tiki",
         liquor: "BESPOKE",
-        category: "Hedonist",
+        category: ["Hedonist", "Adventurer"],
         scores: {
             strength: 4,
             sweetness: 6,
-            sourness: 4,
+            sourness: 3,
             bitterness: 1,
             thickness: 5,
-            rarity: 3
-        },
-        weights: {
-            strength: 4,
-            sweetness: 6,
-            sourness: 4,
-            bitterness: 0,
-            thickness: 6,
             rarity: 3
         },
         description: "A rich tiki-style drink with coconut cream, balanced by apricot and citrus.",
@@ -954,7 +626,7 @@ const drinks = [
     {
         name: "Rum Flip",
         liquor: "BESPOKE",
-        category: "Hedonist",
+        category: ["Hedonist", "Adventurer"],
         scores: {
             strength: 5,
             sweetness: 2,
@@ -963,34 +635,18 @@ const drinks = [
             thickness: 6,
             rarity: 3
         },
-        weights: {
-            strength: 6,
-            sweetness: 2,
-            sourness: 0,
-            bitterness: 0,
-            thickness: 9,
-            rarity: 3
-        },
         description: "A whole-egg flip with a thick, smooth texture.",
         ingredients: "Whole egg, demerara syrup, blended aged rum"
     },
     {
         name: "Cinnamon Girl",
         liquor: "BESPOKE",
-        category: "Sunseeker",
+        category: ["Sunseeker", "Adventurer"],
         scores: {
             strength: 3,
             sweetness: 3,
             sourness: 4,
             bitterness: 1,
-            thickness: 3,
-            rarity: 4
-        },
-        weights: {
-            strength: 5,
-            sweetness: 4,
-            sourness: 5,
-            bitterness: 0,
             thickness: 3,
             rarity: 4
         },
@@ -1000,21 +656,13 @@ const drinks = [
     {
         name: "Cucumber Thai",
         liquor: "BESPOKE",
-        category: "Sunseeker",
+        category: ["Sunseeker", "Adventurer"],
         scores: {
             strength: 3,
             sweetness: 3,
             sourness: 4,
             bitterness: 1,
-            thickness: 3,
-            rarity: 5
-        },
-        weights: {
-            strength: 3,
-            sweetness: 4,
-            sourness: 5,
-            bitterness: 0,
-            thickness: 3,
+            thickness: 4,
             rarity: 5
         },
         description: "A cucumber-and-elderflower gin sour with a chili-driven heat.",
@@ -1023,7 +671,7 @@ const drinks = [
     {
         name: "Le CouCou",
         liquor: "BESPOKE",
-        category: "Easy going",
+        category: ["Adventurer"],
         scores: {
             strength: 2,
             sweetness: 3,
@@ -1032,34 +680,18 @@ const drinks = [
             thickness: 3,
             rarity: 7
         },
-        weights: {
-            strength: 5,
-            sweetness: 4,
-            sourness: 2,
-            bitterness: 2,
-            thickness: 4,
-            rarity: 7
-        },
         description: "A clarified milk punch; smooth and light-bodied despite a high spirit content.",
         ingredients: "Calvados, rye, clairin, maple syrup, pineapple, black or red tea, milk"
     },
     {
         name: "Mezcal Margarita",
         liquor: "BESPOKE",
-        category: "Sunseeker",
+        category: ["Sunseeker", "Adventurer"],
         scores: {
             strength: 3,
             sweetness: 3,
             sourness: 4,
             bitterness: 1,
-            thickness: 2,
-            rarity: 3
-        },
-        weights: {
-            strength: 4,
-            sweetness: 4,
-            sourness: 7,
-            bitterness: 0,
             thickness: 2,
             rarity: 3
         },
@@ -1072,60 +704,56 @@ const scoringFeatureDefaults = {
     scores: {
         masculinity: 4,
         calories: 4
-    },
-    weights: {
-        masculinity: 3,
-        calories: 3
     }
 };
 
 const scoringFeaturesByDrink = {
-    "Margarita": { scores: { masculinity: 3, calories: 4 }, weights: { masculinity: 5, calories: 5 } },
-    "Old Fashioned": { scores: { masculinity: 7, calories: 3 }, weights: { masculinity: 8, calories: 5 } },
-    "Mojito": { scores: { masculinity: 3, calories: 4 }, weights: { masculinity: 5, calories: 5 } },
-    "Gin & Tonic": { scores: { masculinity: 4, calories: 3 }, weights: { masculinity: 4, calories: 4 } },
-    "Whiskey Sour": { scores: { masculinity: 6, calories: 4 }, weights: { masculinity: 7, calories: 5 } },
-    "Sidecar": { scores: { masculinity: 5, calories: 4 }, weights: { masculinity: 5, calories: 5 } },
-    "Piña Colada": { scores: { masculinity: 1, calories: 7 }, weights: { masculinity: 9, calories: 9 } },
-    "White Sangria": { scores: { masculinity: 1, calories: 5 }, weights: { masculinity: 8, calories: 5 } },
-    "Red Sangria": { scores: { masculinity: 2, calories: 5 }, weights: { masculinity: 7, calories: 5 } },
-    "Martini": { scores: { masculinity: 6, calories: 2 }, weights: { masculinity: 6, calories: 6 } },
-    "Bloody Mary": { scores: { masculinity: 6, calories: 3 }, weights: { masculinity: 7, calories: 5 } },
-    "Negroni": { scores: { masculinity: 6, calories: 3 }, weights: { masculinity: 7, calories: 5 } },
-    "Americano": { scores: { masculinity: 4, calories: 2 }, weights: { masculinity: 4, calories: 7 } },
-    "Aperol Spritz": { scores: { masculinity: 2, calories: 3 }, weights: { masculinity: 7, calories: 6 } },
-    "Last Word": { scores: { masculinity: 4, calories: 4 }, weights: { masculinity: 4, calories: 5 } },
-    "Manhattan": { scores: { masculinity: 7, calories: 3 }, weights: { masculinity: 8, calories: 5 } },
-    "Sazerac": { scores: { masculinity: 7, calories: 3 }, weights: { masculinity: 9, calories: 5 } },
-    "Mint Julep": { scores: { masculinity: 6, calories: 4 }, weights: { masculinity: 7, calories: 5 } },
-    "Daiquiri": { scores: { masculinity: 4, calories: 4 }, weights: { masculinity: 4, calories: 5 } },
-    "Coffee Flip": { scores: { masculinity: 3, calories: 7 }, weights: { masculinity: 5, calories: 9 } },
-    "Ramos Gin Fizz": { scores: { masculinity: 2, calories: 7 }, weights: { masculinity: 8, calories: 9 } },
-    "Brandy Alexander": { scores: { masculinity: 2, calories: 7 }, weights: { masculinity: 8, calories: 9 } },
-    "Espresso Martini": { scores: { masculinity: 3, calories: 5 }, weights: { masculinity: 5, calories: 6 } },
-    "Irish Coffee": { scores: { masculinity: 5, calories: 6 }, weights: { masculinity: 5, calories: 8 } },
-    "Tom Collins": { scores: { masculinity: 3, calories: 4 }, weights: { masculinity: 5, calories: 5 } },
-    "French 75": { scores: { masculinity: 2, calories: 4 }, weights: { masculinity: 7, calories: 5 } },
-    "Mimosa": { scores: { masculinity: 1, calories: 3 }, weights: { masculinity: 9, calories: 6 } },
-    "Moscow Mule": { scores: { masculinity: 4, calories: 4 }, weights: { masculinity: 4, calories: 5 } },
-    "Paloma": { scores: { masculinity: 3, calories: 4 }, weights: { masculinity: 5, calories: 5 } },
-    "Dark 'n' Stormy": { scores: { masculinity: 6, calories: 4 }, weights: { masculinity: 7, calories: 5 } },
-    "Mai Tai": { scores: { masculinity: 3, calories: 6 }, weights: { masculinity: 6, calories: 8 } },
-    "Zombie": { scores: { masculinity: 5, calories: 7 }, weights: { masculinity: 5, calories: 9 } },
-    "Aviation": { scores: { masculinity: 2, calories: 4 }, weights: { masculinity: 9, calories: 5 } },
-    "Corpse Reviver #2": { scores: { masculinity: 4, calories: 4 }, weights: { masculinity: 4, calories: 5 } },
-    "Vodka Soda": { scores: { masculinity: 4, calories: 1 }, weights: { masculinity: 4, calories: 10 } },
-    "Bamboo": { scores: { masculinity: 4, calories: 2 }, weights: { masculinity: 4, calories: 8 } },
-    "Cocoa Puff": { scores: { masculinity: 5, calories: 5 }, weights: { masculinity: 5, calories: 6 } },
-    "Lemon Meringue Pie": { scores: { masculinity: 1, calories: 6 }, weights: { masculinity: 9, calories: 8 } },
-    "Purple": { scores: { masculinity: 1, calories: 5 }, weights: { masculinity: 10, calories: 6 } },
-    "The Conference": { scores: { masculinity: 7, calories: 4 }, weights: { masculinity: 9, calories: 5 } },
-    "Creamy Tiki": { scores: { masculinity: 2, calories: 7 }, weights: { masculinity: 8, calories: 9 } },
-    "Rum Flip": { scores: { masculinity: 5, calories: 6 }, weights: { masculinity: 5, calories: 8 } },
-    "Cinnamon Girl": { scores: { masculinity: 5, calories: 5 }, weights: { masculinity: 5, calories: 6 } },
-    "Cucumber Thai": { scores: { masculinity: 3, calories: 4 }, weights: { masculinity: 7, calories: 5 } },
-    "Le CouCou": { scores: { masculinity: 5, calories: 5 }, weights: { masculinity: 5, calories: 8 } },
-    "Mezcal Margarita": { scores: { masculinity: 5, calories: 4 }, weights: { masculinity: 6, calories: 5 } }
+    "Margarita": { scores: { masculinity: 4, calories: 4 } },
+    "Old Fashioned": { scores: { masculinity: 7, calories: 3 } },
+    "Mojito": { scores: { masculinity: 6, calories: 4 } },
+    "Gin & Tonic": { scores: { masculinity: 5, calories: 3 } },
+    "Whiskey Sour": { scores: { masculinity: 5, calories: 4 } },
+    "Sidecar": { scores: { masculinity: 6, calories: 4 } },
+    "Piña Colada": { scores: { masculinity: 3, calories: 7 } },
+    "White Sangria": { scores: { masculinity: 3, calories: 5 } },
+    "Red Sangria": { scores: { masculinity: 4, calories: 5 } },
+    "Martini": { scores: { masculinity: 7, calories: 2 } },
+    "Bloody Mary": { scores: { masculinity: 5, calories: 3 } },
+    "Negroni": { scores: { masculinity: 7, calories: 3 } },
+    "Americano": { scores: { masculinity: 6, calories: 2 } },
+    "Aperol Spritz": { scores: { masculinity: 3, calories: 3 } },
+    "Last Word": { scores: { masculinity: 3, calories: 4 } },
+    "Manhattan": { scores: { masculinity: 7, calories: 3 } },
+    "Sazerac": { scores: { masculinity: 7, calories: 3 } },
+    "Mint Julep": { scores: { masculinity: 6, calories: 4 } },
+    "Daiquiri": { scores: { masculinity: 3, calories: 4 } },
+    "Coffee Flip": { scores: { masculinity: 3, calories: 7 } },
+    "Ramos Gin Fizz": { scores: { masculinity: 3, calories: 7 } },
+    "Brandy Alexander": { scores: { masculinity: 2, calories: 7 } },
+    "Espresso Martini": { scores: { masculinity: 3, calories: 5 } },
+    "Irish Coffee": { scores: { masculinity: 2, calories: 6 } },
+    "Tom Collins": { scores: { masculinity: 4, calories: 4 } },
+    "French 75": { scores: { masculinity: 2, calories: 4 } },
+    "Mimosa": { scores: { masculinity: 1, calories: 3 } },
+    "Moscow Mule": { scores: { masculinity: 5, calories: 4 } },
+    "Paloma": { scores: { masculinity: 3, calories: 4 } },
+    "Dark 'n' Stormy": { scores: { masculinity: 6, calories: 4 } },
+    "Mai Tai": { scores: { masculinity: 4, calories: 6 } },
+    "Zombie": { scores: { masculinity: 4, calories: 7 } },
+    "Aviation": { scores: { masculinity: 3, calories: 4 } },
+    "Corpse Reviver #2": { scores: { masculinity: 3, calories: 4 } },
+    "Vodka Soda": { scores: { masculinity: 3, calories: 1 } },
+    "Bamboo": { scores: { masculinity: 4, calories: 2 } },
+    "Cocoa Puff": { scores: { masculinity: 6, calories: 5 } },
+    "Lemon Meringue Pie": { scores: { masculinity: 2, calories: 6 } },
+    "Purple": { scores: { masculinity: 2, calories: 5 } },
+    "The Conference": { scores: { masculinity: 7, calories: 4 } },
+    "Creamy Tiki": { scores: { masculinity: 3, calories: 7 } },
+    "Rum Flip": { scores: { masculinity: 3, calories: 6 } },
+    "Cinnamon Girl": { scores: { masculinity: 5, calories: 5 } },
+    "Cucumber Thai": { scores: { masculinity: 4, calories: 4 } },
+    "Le CouCou": { scores: { masculinity: 6, calories: 5 } },
+    "Mezcal Margarita": { scores: { masculinity: 5, calories: 4 } }
 };
 
 for (const drink of drinks) {
@@ -1135,11 +763,5 @@ for (const drink of drinks) {
         ...drink.scores,
         ...scoringFeatureDefaults.scores,
         ...scoringFeatures.scores
-    };
-
-    drink.weights = {
-        ...drink.weights,
-        ...scoringFeatureDefaults.weights,
-        ...scoringFeatures.weights
     };
 }

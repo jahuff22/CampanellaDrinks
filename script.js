@@ -1,54 +1,3 @@
-function getScaledDrinks() {
-  const targetAverageWeight =
-    drinks.reduce((total, drink) => {
-      const drinkWeightTotal = traits.reduce((sum, trait) => {
-        return sum + drink.weights[trait];
-      }, 0);
-
-      return total + drinkWeightTotal;
-    }, 0) / (drinks.length * traits.length);
-
-  const reweightingFactors = [];
-
-  const scaledDrinks = drinks.map(drink => {
-    const currentAverage =
-      traits.reduce((sum, trait) => {
-        return sum + drink.weights[trait];
-      }, 0) / traits.length;
-
-    const factor = targetAverageWeight / currentAverage;
-
-    reweightingFactors.push({
-      name: drink.name,
-      oldAverage: currentAverage,
-      factor: factor,
-      newAverage: targetAverageWeight
-    });
-
-    const scaledWeights = {};
-
-    for (const trait of traits) {
-      scaledWeights[trait] = drink.weights[trait] * factor;
-    }
-
-    return {
-      ...drink,
-      weights: scaledWeights,
-      scalingFactor: factor
-    };
-  });
-
-  const highestFactor = Math.max(...reweightingFactors.map(item => item.factor));
-  const lowestFactor = Math.min(...reweightingFactors.map(item => item.factor));
-
-  console.log("Target average weight:", targetAverageWeight);
-  console.log("Highest reweighting factor:", highestFactor);
-  console.log("Lowest reweighting factor:", lowestFactor);
-  console.table(reweightingFactors);
-
-  return scaledDrinks;
-}
-
 function createSliders() {
   const sliderContainer = document.getElementById("slider-container");
 
@@ -542,6 +491,12 @@ const personaProfiles = {
     avoidance: "You steer clear of one-note strong drinks and simple sours that do not linger.",
     closing: "...then your matches."
   },
+  Adventurer: {
+    title: "Adventurer",
+    intro: "You like drinks with unusual ingredients, bold structure, and a little edge.",
+    avoidance: "You steer clear of overly predictable cocktails that do exactly what you expect.",
+    closing: "...then your matches."
+  },
   "Easy going": {
     title: "Easy Going",
     intro: "You are open-ended, flexible, and happy across a wide range of drinks.",
@@ -553,8 +508,7 @@ const personaProfiles = {
 function calculatePersona(recommendations) {
   const categories = recommendations
     .slice(0, 3)
-    .map(drink => drink.category)
-    .filter(Boolean);
+    .flatMap(drink => getDrinkCategories(drink));
 
   const categoryCounts = categories.reduce((counts, category) => {
     counts[category] = (counts[category] || 0) + 1;
@@ -565,16 +519,10 @@ function calculatePersona(recommendations) {
   return majorityCategory || "Easy going";
 }
 
-function calculateTasterType(userPreferences) {
-  const tasterScore =
-    userPreferences.strength * 1.5 +
-    userPreferences.sweetness +
-    userPreferences.sourness +
-    userPreferences.bitterness * 2;
-
-  if (tasterScore <= 12) return "supertaster";
-  if (tasterScore >= 33) return "non-taster";
-  return "standard taster";
+function getDrinkCategories(drink) {
+  if (Array.isArray(drink.category)) return drink.category;
+  if (drink.category) return [drink.category];
+  return [];
 }
 
 function createTasteProfile(userPreferences) {
@@ -607,7 +555,6 @@ function displayPersonaProfile(personaCategory, userPreferences) {
   const profile = personaProfiles[personaCategory] || personaProfiles["Easy going"];
   const profileElement = document.getElementById("persona-profile");
   const tasteProfile = createTasteProfile(userPreferences);
-  const tasterType = calculateTasterType(userPreferences);
 
   profileElement.innerHTML = `
     <div class="persona-summary">
@@ -615,11 +562,6 @@ function displayPersonaProfile(personaCategory, userPreferences) {
       <h2>${profile.title}</h2>
       <p class="persona-intro">${profile.intro}</p>
       <p class="persona-avoidance">${profile.avoidance}</p>
-      <div class="taster-callout">
-        <p class="taster-label">YOU'RE PROBABLY A:</p>
-        <p class="taster-type">${tasterType}</p>
-        <p class="taster-description">Supertasters perceive bitterness and intensity more sharply, standard tasters sit in the middle, and non-tasters usually need bigger flavors to feel the same impact.</p>
-      </div>
       <p class="persona-closing">${profile.closing}</p>
     </div>
     <div class="taste-profile-card">
@@ -694,8 +636,6 @@ function displayNotice(message) {
   noticeElement.hidden = !message;
 }
 
-const scaledDrinks = getScaledDrinks();
-
 createSliders();
 
 const quizForm = document.getElementById("quiz-form");
@@ -716,7 +656,6 @@ quizForm.addEventListener("submit", async function(event) {
   const qualitativeResult = await parseQualitativeInput(qualitativeText);
   const qualitativePreferences = qualitativeResult.preferences;
 
-  const scaledRecommendations = recommendDrinks(userPreferences, importantTraits, scaledDrinks, qualitativePreferences, 3);
   const standardRecommendations = recommendDrinks(userPreferences, importantTraits, drinks, qualitativePreferences, 3);
 
   displayNotice(qualitativeResult.notice);
