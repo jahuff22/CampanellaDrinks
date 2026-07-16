@@ -6,6 +6,7 @@ const ROOT_DIR = __dirname;
 loadEnvFile();
 
 const USAGE_FILE = path.join(ROOT_DIR, ".ai-usage.json");
+const RECOMMENDATION_EVENTS_FILE = path.join(ROOT_DIR, ".recommendation-events.jsonl");
 const PORT = Number(process.env.PORT || 3000);
 const MODEL = process.env.OPENAI_MODEL || "gpt-5.4-nano";
 const PAID_FEATURE_CUTOFF_DOLLARS = Math.min(Number(process.env.AI_MONTHLY_LIMIT_DOLLARS || 5), 5);
@@ -75,6 +76,11 @@ const server = http.createServer(async (request, response) => {
   try {
     if (request.method === "POST" && request.url === "/api/parse-preferences") {
       await handleParsePreferences(request, response);
+      return;
+    }
+
+    if (request.method === "POST" && request.url === "/api/recommendation-events") {
+      await handleRecommendationEvent(request, response);
       return;
     }
 
@@ -235,6 +241,162 @@ async function handleParsePreferences(request, response) {
       hardMonthlyCapDollars: HARD_MONTHLY_CAP_DOLLARS
     }
   });
+}
+
+async function handleRecommendationEvent(request, response) {
+  const body = await readJsonBody(request, 25_000);
+  const event = createRecommendationEvent(body);
+
+  fs.appendFile(
+    RECOMMENDATION_EVENTS_FILE,
+    `${JSON.stringify(event)}\n`,
+    error => {
+      if (error) {
+        console.error("Could not persist recommendation event:", error);
+        sendJson(response, 500, { error: "Could not save recommendation event" });
+        return;
+      }
+
+      sendJson(response, 201, {
+        eventId: event.id,
+        sessionId: event.session.id
+      });
+    }
+  );
+}
+
+function createRecommendationEvent(body) {
+  const restaurantSlug = sanitizeSlug(body.restaurantSlug) || "unassigned";
+  const tableSlug = sanitizeSlug(body.tableSlug) || null;
+  const sessionId = sanitizeIdentifier(body.sessionId) || createId("session");
+
+  return {
+    id: createId("rec"),
+    schemaVersion: 1,
+    createdAt: new Date().toISOString(),
+    restaurant: {
+      slug: restaurantSlug
+    },
+    table: tableSlug
+      ? {
+          slug: tableSlug,
+          label: formatTableLabel(tableSlug)
+        }
+      : null,
+    session: {
+      id: sessionId,
+      sourcePath: sanitizePath(body.sourcePath)
+    },
+    guestInput: {
+      sliderPreferences: sanitizeNumericMap(body.sliderPreferences, 1, 7),
+      importantTraits: sanitizeBooleanMap(body.importantTraits),
+      qualitativeText: sanitizeFreeText(body.qualitativeText, 500),
+      parsedPreferences: sanitizeParsedPreferences(body.parsedPreferences)
+    },
+    recommendations: sanitizeRecommendations(body.recommendations),
+    pos: {
+      provider: null,
+      toastRestaurantExternalId: null,
+      toastOrderGuid: null,
+      toastCheckGuid: null,
+      matchMethod: null,
+      confidence: null
+    }
+  };
+}
+
+function createId(prefix) {
+  const randomValue = Math.random().toString(36).slice(2, 10);
+  return `${prefix}_${Date.now().toString(36)}_${randomValue}`;
+}
+
+function sanitizeSlug(value) {
+  return String(value || "")
+    .toLowerCase()
+    .replace(/[^a-z0-9_-]/g, "-")
+    .replace(/-+/g, "-")
+    .replace(/^-|-$/g, "")
+    .slice(0, 80);
+}
+
+function sanitizeIdentifier(value) {
+  return String(value || "")
+    .replace(/[^a-zA-Z0-9_-]/g, "")
+    .slice(0, 120);
+}
+
+function sanitizePath(value) {
+  const pathValue = String(value || "").slice(0, 300);
+  return pathValue.startsWith("/") ? pathValue : null;
+}
+
+function sanitizeFreeText(value, maxLength) {
+  return String(value || "")
+    .replace(/\s+/g, " ")
+    .trim()
+    .slice(0, maxLength);
+}
+
+function sanitizeNumericMap(value, min, max) {
+  const sanitized = {};
+
+  if (!value || typeof value !== "object") return sanitized;
+
+  for (const [key, rawValue] of Object.entries(value)) {
+    const cleanKey = sanitizeSlug(key);
+    const numberValue = Number(rawValue);
+
+    if (!cleanKey || !Number.isFinite(numberValue)) continue;
+
+    sanitized[cleanKey] = Math.min(Math.max(numberValue, min), max);
+  }
+
+  return sanitized;
+}
+
+function sanitizeBooleanMap(value) {
+  const sanitized = {};
+
+  if (!value || typeof value !== "object") return sanitized;
+
+  for (const [key, rawValue] of Object.entries(value)) {
+    const cleanKey = sanitizeSlug(key);
+    if (!cleanKey) continue;
+    sanitized[cleanKey] = rawValue === true;
+  }
+
+  return sanitized;
+}
+
+function sanitizeParsedPreferences(preferences) {
+  return sanitizePreferences({
+    remove: preferences?.remove,
+    like: preferences?.like,
+    require: preferences?.require,
+    featurePreferences: preferences?.featurePreferences
+  });
+}
+
+function sanitizeRecommendations(recommendations) {
+  if (!Array.isArray(recommendations)) return [];
+
+  return recommendations.slice(0, 5).map(drink => ({
+    name: sanitizeFreeText(drink?.name, 120),
+    liquor: sanitizeFreeText(drink?.liquor, 80),
+    category: Array.isArray(drink?.category)
+      ? drink.category.map(category => sanitizeFreeText(category, 80)).filter(Boolean).slice(0, 5)
+      : sanitizeFreeText(drink?.category, 80),
+    matchPercentage: sanitizeFreeText(drink?.matchPercentage, 10),
+    distance: Number.isFinite(Number(drink?.distance)) ? Number(drink.distance) : null
+  })).filter(drink => drink.name);
+}
+
+function formatTableLabel(tableSlug) {
+  return tableSlug
+    .split(/[-_]/g)
+    .filter(Boolean)
+    .map(part => part.charAt(0).toUpperCase() + part.slice(1))
+    .join(" ");
 }
 
 function extractResponseJson(data) {
@@ -403,7 +565,7 @@ function readJsonBody(request, maxBytes) {
 
 function serveStaticFile(request, response) {
   const rawPath = request.url.split("?")[0];
-  const requestPath = ROUTE_ALIASES.get(rawPath) || (rawPath === "/" ? "/index.html" : rawPath);
+  const requestPath = ROUTE_ALIASES.get(rawPath) || (isRestaurantTableRoute(rawPath) ? "/index.html" : (rawPath === "/" ? "/index.html" : rawPath));
   const decodedPath = decodeURIComponent(requestPath.split("?")[0]);
   const filePath = path.normalize(path.join(ROOT_DIR, decodedPath));
 
@@ -427,6 +589,10 @@ function serveStaticFile(request, response) {
     });
     response.end(content);
   });
+}
+
+function isRestaurantTableRoute(rawPath) {
+  return /^\/r\/[a-zA-Z0-9_-]+(?:\/t\/[a-zA-Z0-9_-]+)?\/?$/.test(rawPath);
 }
 
 function sendJson(response, statusCode, data) {

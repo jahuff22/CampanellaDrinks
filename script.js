@@ -103,6 +103,42 @@ function getQualitativeInputFromForm() {
   return document.getElementById("qualitative-input").value.trim();
 }
 
+function getServiceContextFromPath() {
+  const pathParts = window.location.pathname.split("/").filter(Boolean);
+  const restaurantIndex = pathParts.indexOf("r");
+  const tableIndex = pathParts.indexOf("t");
+
+  return {
+    restaurantSlug: restaurantIndex !== -1 ? pathParts[restaurantIndex + 1] || "unassigned" : "unassigned",
+    tableSlug: tableIndex !== -1 ? pathParts[tableIndex + 1] || null : null,
+    sourcePath: window.location.pathname
+  };
+}
+
+function getGuestSessionId(context) {
+  const storageKey = [
+    "proofSession",
+    context.restaurantSlug || "unassigned",
+    context.tableSlug || "no-table"
+  ].join(":");
+
+  try {
+    const existingSessionId = window.localStorage.getItem(storageKey);
+    if (existingSessionId) return existingSessionId;
+
+    const sessionId = createBrowserId("session");
+    window.localStorage.setItem(storageKey, sessionId);
+    return sessionId;
+  } catch (error) {
+    return createBrowserId("session");
+  }
+}
+
+function createBrowserId(prefix) {
+  const randomPart = Math.random().toString(36).slice(2, 10);
+  return `${prefix}_${Date.now().toString(36)}_${randomPart}`;
+}
+
 async function parseQualitativeInput(text) {
   if (!text) {
     return {
@@ -466,6 +502,47 @@ function formatMatchPercentage(score) {
   return `${(100 - score * 0.75).toFixed(0)}%`;
 }
 
+function createRecommendationEventPayload(
+  userPreferences,
+  importantTraits,
+  qualitativeText,
+  qualitativePreferences,
+  recommendations
+) {
+  const context = getServiceContextFromPath();
+
+  return {
+    ...context,
+    sessionId: getGuestSessionId(context),
+    sliderPreferences: userPreferences,
+    importantTraits,
+    qualitativeText,
+    parsedPreferences: qualitativePreferences,
+    recommendations: recommendations.map(drink => ({
+      name: drink.name,
+      liquor: drink.liquor,
+      category: drink.category,
+      distance: drink.distance,
+      matchPercentage: formatMatchPercentage(drink.distance)
+    }))
+  };
+}
+
+async function saveRecommendationEvent(payload) {
+  try {
+    await fetch("/api/recommendation-events", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(payload),
+      keepalive: true
+    });
+  } catch (error) {
+    console.warn("Could not save recommendation event.", error);
+  }
+}
+
 const personaProfiles = {
   Purist: {
     title: "Purist",
@@ -657,7 +734,15 @@ quizForm.addEventListener("submit", async function(event) {
   const qualitativePreferences = qualitativeResult.preferences;
 
   const standardRecommendations = recommendDrinks(userPreferences, importantTraits, drinks, qualitativePreferences, 3);
+  const recommendationEventPayload = createRecommendationEventPayload(
+    userPreferences,
+    importantTraits,
+    qualitativeText,
+    qualitativePreferences,
+    standardRecommendations
+  );
 
   displayNotice(qualitativeResult.notice);
   displayResults(standardRecommendations, userPreferences);
+  saveRecommendationEvent(recommendationEventPayload);
 });
