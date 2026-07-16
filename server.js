@@ -23,6 +23,13 @@ const MIME_TYPES = {
   ".json": "application/json; charset=utf-8"
 };
 
+const ROUTE_ALIASES = new Map([
+  ["/landing", "/landing/index.html"],
+  ["/landing/", "/landing/index.html"],
+  ["/business", "/business/index.html"],
+  ["/business/", "/business/index.html"]
+]);
+
 const preferenceSchema = {
   type: "object",
   additionalProperties: false,
@@ -395,7 +402,8 @@ function readJsonBody(request, maxBytes) {
 }
 
 function serveStaticFile(request, response) {
-  const requestPath = request.url === "/" ? "/index.html" : request.url;
+  const rawPath = request.url.split("?")[0];
+  const requestPath = ROUTE_ALIASES.get(rawPath) || (rawPath === "/" ? "/index.html" : rawPath);
   const decodedPath = decodeURIComponent(requestPath.split("?")[0]);
   const filePath = path.normalize(path.join(ROOT_DIR, decodedPath));
 

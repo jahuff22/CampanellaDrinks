@@ -1,7 +1,7 @@
 {
   "functions": {
     "server.js": {
-      "includeFiles": "{index.html,style.css,style-lounge.css,script.js,drinks.js,questions.js}"
+      "includeFiles": "{index.html,style.css,style-lounge.css,script.js,drinks.js,questions.js,landing/**,business/**,shared/**}"
     }
   }
 }

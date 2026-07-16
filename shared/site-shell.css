@@ -1,0 +1,25 @@
+:root {
+  color-scheme: light;
+  --page-background: #ffffff;
+  --page-foreground: #111111;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  min-height: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--page-background);
+  color: var(--page-foreground);
+  font-family: Arial, sans-serif;
+}
+
+.site-shell {
+  min-height: 100vh;
+}
