@@ -137,20 +137,6 @@
   outline-offset: 4px;
 }
 
-.landing-business-link {
-  display: inline-flex;
-  margin-top: 20px;
-  color: rgba(255, 245, 221, 0.86);
-  font-size: 1rem;
-  font-weight: 700;
-  text-decoration: none;
-}
-
-.landing-business-link:hover,
-.landing-business-link:focus-visible {
-  color: var(--proof-gold-light);
-}
-
 @media (max-width: 620px) {
   .landing-page {
     background-position: 54% center;
