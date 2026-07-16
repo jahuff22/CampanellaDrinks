@@ -72,7 +72,7 @@ const preferenceSchema = {
   required: ["remove", "like", "require", "featurePreferences"]
 };
 
-const server = http.createServer(async (request, response) => {
+async function handleRequest(request, response) {
   try {
     if (request.method === "POST" && request.url === "/api/parse-preferences") {
       await handleParsePreferences(request, response);
@@ -94,11 +94,17 @@ const server = http.createServer(async (request, response) => {
     console.error(error);
     sendJson(response, 500, { error: "Unexpected server error" });
   }
-});
+}
 
-server.listen(PORT, () => {
-  console.log(`Campanella Drinks running at http://localhost:${PORT}`);
-});
+if (require.main === module) {
+  const server = http.createServer(handleRequest);
+
+  server.listen(PORT, () => {
+    console.log(`Campanella Drinks running at http://localhost:${PORT}`);
+  });
+}
+
+module.exports = handleRequest;
 
 function loadEnvFile() {
   const envPath = path.join(ROOT_DIR, ".env");
