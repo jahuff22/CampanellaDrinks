@@ -7,8 +7,6 @@ loadEnvFile();
 
 const USAGE_FILE = path.join(ROOT_DIR, ".ai-usage.json");
 const RECOMMENDATION_EVENTS_FILE = path.join(ROOT_DIR, ".recommendation-events.jsonl");
-const RECOMMENDATION_EVENTS_WEBHOOK_URL = process.env.RECOMMENDATION_EVENTS_WEBHOOK_URL || "";
-const RECOMMENDATION_EVENTS_WEBHOOK_TOKEN = process.env.RECOMMENDATION_EVENTS_WEBHOOK_TOKEN || "";
 const PORT = Number(process.env.PORT || 3000);
 const MODEL = process.env.OPENAI_MODEL || "gpt-5.4-nano";
 const PAID_FEATURE_CUTOFF_DOLLARS = Math.min(Number(process.env.AI_MONTHLY_LIMIT_DOLLARS || 5), 5);
@@ -74,7 +72,7 @@ const preferenceSchema = {
   required: ["remove", "like", "require", "featurePreferences"]
 };
 
-async function handleRequest(request, response) {
+const server = http.createServer(async (request, response) => {
   try {
     if (request.method === "POST" && request.url === "/api/parse-preferences") {
       await handleParsePreferences(request, response);
@@ -96,17 +94,11 @@ async function handleRequest(request, response) {
     console.error(error);
     sendJson(response, 500, { error: "Unexpected server error" });
   }
-}
+});
 
-if (require.main === module) {
-  const server = http.createServer(handleRequest);
-
-  server.listen(PORT, () => {
-    console.log(`Campanella Drinks running at http://localhost:${PORT}`);
-  });
-}
-
-module.exports = handleRequest;
+server.listen(PORT, () => {
+  console.log(`Campanella Drinks running at http://localhost:${PORT}`);
+});
 
 function loadEnvFile() {
   const envPath = path.join(ROOT_DIR, ".env");
@@ -255,78 +247,22 @@ async function handleRecommendationEvent(request, response) {
   const body = await readJsonBody(request, 25_000);
   const event = createRecommendationEvent(body);
 
-  const storageResult = await persistRecommendationEvent(event);
-  const statusCode = storageResult.persisted ? 201 : 202;
+  fs.appendFile(
+    RECOMMENDATION_EVENTS_FILE,
+    `${JSON.stringify(event)}\n`,
+    error => {
+      if (error) {
+        console.error("Could not persist recommendation event:", error);
+        sendJson(response, 500, { error: "Could not save recommendation event" });
+        return;
+      }
 
-  sendJson(response, statusCode, {
-    eventId: event.id,
-    sessionId: event.session.id,
-    storage: storageResult
-  });
-}
-
-async function persistRecommendationEvent(event) {
-  if (RECOMMENDATION_EVENTS_WEBHOOK_URL) {
-    return persistRecommendationEventToWebhook(event);
-  }
-
-  return persistRecommendationEventToLocalFile(event);
-}
-
-async function persistRecommendationEventToWebhook(event) {
-  try {
-    const headers = {
-      "Content-Type": "application/json"
-    };
-
-    if (RECOMMENDATION_EVENTS_WEBHOOK_TOKEN) {
-      headers.Authorization = `Bearer ${RECOMMENDATION_EVENTS_WEBHOOK_TOKEN}`;
+      sendJson(response, 201, {
+        eventId: event.id,
+        sessionId: event.session.id
+      });
     }
-
-    const webhookResponse = await fetch(RECOMMENDATION_EVENTS_WEBHOOK_URL, {
-      method: "POST",
-      headers,
-      body: JSON.stringify(event)
-    });
-
-    if (!webhookResponse.ok) {
-      console.error("Recommendation event webhook failed:", webhookResponse.status);
-      return {
-        persisted: false,
-        provider: "webhook",
-        warning: "Recommendation event webhook rejected the event."
-      };
-    }
-
-    return {
-      persisted: true,
-      provider: "webhook"
-    };
-  } catch (error) {
-    console.error("Recommendation event webhook error:", error);
-    return {
-      persisted: false,
-      provider: "webhook",
-      warning: "Recommendation event webhook could not be reached."
-    };
-  }
-}
-
-async function persistRecommendationEventToLocalFile(event) {
-  try {
-    await fs.promises.appendFile(RECOMMENDATION_EVENTS_FILE, `${JSON.stringify(event)}\n`);
-    return {
-      persisted: true,
-      provider: "local-jsonl"
-    };
-  } catch (error) {
-    console.error("Could not persist recommendation event locally:", error);
-    return {
-      persisted: false,
-      provider: "local-jsonl",
-      warning: "No durable production storage is configured."
-    };
-  }
+  );
 }
 
 function createRecommendationEvent(body) {
