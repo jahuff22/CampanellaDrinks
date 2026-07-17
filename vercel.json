@@ -6,6 +6,10 @@
   },
   "rewrites": [
     {
+      "source": "/",
+      "destination": "/api/server"
+    },
+    {
       "source": "/r/:restaurant/t/:table",
       "destination": "/api/server"
     },
@@ -15,6 +19,10 @@
     },
     {
       "source": "/api/:path*",
+      "destination": "/api/server"
+    },
+    {
+      "source": "/:path*",
       "destination": "/api/server"
     }
   ]
