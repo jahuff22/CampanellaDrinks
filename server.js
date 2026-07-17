@@ -7,6 +7,7 @@ loadEnvFile();
 
 const USAGE_FILE = path.join(ROOT_DIR, ".ai-usage.json");
 const RECOMMENDATION_EVENTS_FILE = path.join(ROOT_DIR, ".recommendation-events.jsonl");
+const RECOMMENDATION_EVENTS_WEBHOOK_URL = process.env.RECOMMENDATION_EVENTS_WEBHOOK_URL || "";
 const PORT = Number(process.env.PORT || 3000);
 const MODEL = process.env.OPENAI_MODEL || "gpt-5.4-nano";
 const PAID_FEATURE_CUTOFF_DOLLARS = Math.min(Number(process.env.AI_MONTHLY_LIMIT_DOLLARS || 5), 5);
@@ -247,22 +248,71 @@ async function handleRecommendationEvent(request, response) {
   const body = await readJsonBody(request, 25_000);
   const event = createRecommendationEvent(body);
 
-  fs.appendFile(
-    RECOMMENDATION_EVENTS_FILE,
-    `${JSON.stringify(event)}\n`,
-    error => {
-      if (error) {
-        console.error("Could not persist recommendation event:", error);
-        sendJson(response, 500, { error: "Could not save recommendation event" });
-        return;
-      }
+  const storageResult = await persistRecommendationEvent(event);
 
-      sendJson(response, 201, {
-        eventId: event.id,
-        sessionId: event.session.id
-      });
+  sendJson(response, storageResult.persisted ? 201 : 202, {
+    eventId: event.id,
+    sessionId: event.session.id,
+    storage: storageResult
+  });
+}
+
+async function persistRecommendationEvent(event) {
+  if (RECOMMENDATION_EVENTS_WEBHOOK_URL) {
+    return persistRecommendationEventToWebhook(event);
+  }
+
+  return persistRecommendationEventToLocalFile(event);
+}
+
+async function persistRecommendationEventToWebhook(event) {
+  try {
+    const webhookResponse = await fetch(RECOMMENDATION_EVENTS_WEBHOOK_URL, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(event)
+    });
+
+    if (!webhookResponse.ok) {
+      console.error("Recommendation event webhook failed:", webhookResponse.status);
+      return {
+        persisted: false,
+        provider: "webhook",
+        warning: "Webhook rejected the event."
+      };
     }
-  );
+
+    return {
+      persisted: true,
+      provider: "webhook"
+    };
+  } catch (error) {
+    console.error("Recommendation event webhook error:", error);
+    return {
+      persisted: false,
+      provider: "webhook",
+      warning: "Webhook could not be reached."
+    };
+  }
+}
+
+async function persistRecommendationEventToLocalFile(event) {
+  try {
+    await fs.promises.appendFile(RECOMMENDATION_EVENTS_FILE, `${JSON.stringify(event)}\n`);
+    return {
+      persisted: true,
+      provider: "local-jsonl"
+    };
+  } catch (error) {
+    console.error("Could not persist recommendation event locally:", error);
+    return {
+      persisted: false,
+      provider: "local-jsonl",
+      warning: "No production storage is configured."
+    };
+  }
 }
 
 function createRecommendationEvent(body) {
