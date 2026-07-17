@@ -1,29 +1,29 @@
 {
   "functions": {
-    "api/server.js": {
+    "api/index.js": {
       "includeFiles": "{index.html,style.css,style-lounge.css,script.js,drinks.js,questions.js,landing/**,business/**,shared/**}"
     }
   },
   "rewrites": [
     {
       "source": "/",
-      "destination": "/api/server"
+      "destination": "/api"
     },
     {
       "source": "/r/:restaurant/t/:table",
-      "destination": "/api/server"
+      "destination": "/api"
     },
     {
       "source": "/r/:restaurant",
-      "destination": "/api/server"
+      "destination": "/api"
     },
     {
       "source": "/api/:path*",
-      "destination": "/api/server"
+      "destination": "/api"
     },
     {
       "source": "/:path*",
-      "destination": "/api/server"
+      "destination": "/api"
     }
   ]
 }
