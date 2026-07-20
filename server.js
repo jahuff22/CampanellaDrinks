@@ -8,6 +8,7 @@ loadEnvFile();
 const USAGE_FILE = path.join(ROOT_DIR, ".ai-usage.json");
 const RECOMMENDATION_EVENTS_FILE = path.join(ROOT_DIR, ".recommendation-events.jsonl");
 const RECOMMENDATION_EVENTS_WEBHOOK_URL = process.env.RECOMMENDATION_EVENTS_WEBHOOK_URL || "";
+const RECOMMENDATION_EVENTS_READ_URL = process.env.RECOMMENDATION_EVENTS_READ_URL || RECOMMENDATION_EVENTS_WEBHOOK_URL;
 const PORT = Number(process.env.PORT || 3000);
 const MODEL = process.env.OPENAI_MODEL || "gpt-5.4-nano";
 const PAID_FEATURE_CUTOFF_DOLLARS = Math.min(Number(process.env.AI_MONTHLY_LIMIT_DOLLARS || 5), 5);
@@ -22,7 +23,8 @@ const MIME_TYPES = {
   ".html": "text/html; charset=utf-8",
   ".css": "text/css; charset=utf-8",
   ".js": "text/javascript; charset=utf-8",
-  ".json": "application/json; charset=utf-8"
+  ".json": "application/json; charset=utf-8",
+  ".csv": "text/csv; charset=utf-8"
 };
 
 const ROUTE_ALIASES = new Map([
@@ -82,6 +84,11 @@ const server = http.createServer(async (request, response) => {
 
     if (request.method === "POST" && request.url === "/api/recommendation-events") {
       await handleRecommendationEvent(request, response);
+      return;
+    }
+
+    if (request.method === "GET" && request.url.startsWith("/api/dashboard-data")) {
+      await handleDashboardData(request, response);
       return;
     }
 
@@ -254,6 +261,152 @@ async function handleRecommendationEvent(request, response) {
     eventId: event.id,
     sessionId: event.session.id,
     storage: storageResult
+  });
+}
+
+async function handleDashboardData(request, response) {
+  const url = new URL(request.url, `http://${request.headers.host || "localhost"}`);
+  const restaurantSlug = sanitizeSlug(url.searchParams.get("restaurant"));
+
+  if (!restaurantSlug) {
+    sendJson(response, 400, { error: "restaurant is required" });
+    return;
+  }
+
+  const readResult = await readRecommendationEvents(restaurantSlug);
+
+  sendJson(response, 200, {
+    restaurantSlug,
+    events: readResult.events,
+    source: readResult.source,
+    receiptDataAvailable: hasReceiptData(readResult.events)
+  });
+}
+
+async function readRecommendationEvents(restaurantSlug) {
+  if (RECOMMENDATION_EVENTS_READ_URL) {
+    const remoteResult = await readRecommendationEventsFromRemote(restaurantSlug);
+    if (remoteResult.ok) return remoteResult;
+  }
+
+  return readRecommendationEventsFromLocalFile(restaurantSlug);
+}
+
+async function readRecommendationEventsFromRemote(restaurantSlug) {
+  try {
+    const url = new URL(RECOMMENDATION_EVENTS_READ_URL);
+    url.searchParams.set("restaurant", restaurantSlug);
+
+    const remoteResponse = await fetch(url);
+    if (!remoteResponse.ok) {
+      console.error("Recommendation event read failed:", remoteResponse.status);
+      return { ok: false };
+    }
+
+    const data = await remoteResponse.json();
+    const events = Array.isArray(data.events) ? data.events : Array.isArray(data) ? data : [];
+
+    return {
+      ok: true,
+      source: "remote-webhook",
+      events: filterEventsByRestaurant(events, restaurantSlug)
+    };
+  } catch (error) {
+    console.error("Recommendation event read error:", error);
+    return { ok: false };
+  }
+}
+
+async function readRecommendationEventsFromLocalFile(restaurantSlug) {
+  try {
+    const content = await fs.promises.readFile(RECOMMENDATION_EVENTS_FILE, "utf8");
+    const events = content
+      .split(/\r?\n/)
+      .filter(Boolean)
+      .map(line => {
+        try {
+          return JSON.parse(line);
+        } catch (error) {
+          return null;
+        }
+      })
+      .filter(Boolean);
+
+    return {
+      ok: true,
+      source: "local-jsonl",
+      events: filterEventsByRestaurant(events, restaurantSlug)
+    };
+  } catch (error) {
+    if (error.code !== "ENOENT") {
+      console.error("Could not read recommendation events locally:", error);
+    }
+
+    return {
+      ok: true,
+      source: "local-jsonl",
+      events: []
+    };
+  }
+}
+
+function filterEventsByRestaurant(events, restaurantSlug) {
+  return events
+    .filter(event => sanitizeSlug(event?.restaurant?.slug) === restaurantSlug)
+    .map(sanitizeDashboardEvent)
+    .filter(Boolean);
+}
+
+function sanitizeDashboardEvent(event) {
+  if (!event || typeof event !== "object") return null;
+
+  return {
+    id: sanitizeIdentifier(event.id),
+    createdAt: sanitizeFreeText(event.createdAt, 40),
+    restaurant: {
+      slug: sanitizeSlug(event.restaurant?.slug)
+    },
+    table: event.table
+      ? {
+          slug: sanitizeSlug(event.table.slug),
+          label: sanitizeFreeText(event.table.label, 80)
+        }
+      : null,
+    session: {
+      id: sanitizeIdentifier(event.session?.id),
+      sourcePath: sanitizePath(event.session?.sourcePath)
+    },
+    guestInput: {
+      sliderPreferences: sanitizeNumericMap(event.guestInput?.sliderPreferences, 1, 7),
+      importantTraits: sanitizeBooleanMap(event.guestInput?.importantTraits),
+      qualitativeText: sanitizeFreeText(event.guestInput?.qualitativeText, 500),
+      parsedPreferences: sanitizeParsedPreferences(event.guestInput?.parsedPreferences)
+    },
+    recommendations: sanitizeRecommendations(event.recommendations),
+    pos: sanitizePosData(event.pos)
+  };
+}
+
+function sanitizePosData(pos) {
+  if (!pos || typeof pos !== "object") return {};
+
+  return {
+    provider: sanitizeFreeText(pos.provider, 40),
+    toastRestaurantExternalId: sanitizeFreeText(pos.toastRestaurantExternalId, 120),
+    toastOrderGuid: sanitizeFreeText(pos.toastOrderGuid, 120),
+    toastCheckGuid: sanitizeFreeText(pos.toastCheckGuid, 120),
+    matchMethod: sanitizeFreeText(pos.matchMethod, 60),
+    confidence: Number.isFinite(Number(pos.confidence)) ? Number(pos.confidence) : null,
+    drinkSubtotal: Number.isFinite(Number(pos.drinkSubtotal)) ? Number(pos.drinkSubtotal) : null,
+    checkSubtotal: Number.isFinite(Number(pos.checkSubtotal)) ? Number(pos.checkSubtotal) : null,
+    usedProof: pos.usedProof === true
+  };
+}
+
+function hasReceiptData(events) {
+  return events.some(event => {
+    const pos = event.pos || {};
+    return Boolean(pos.toastCheckGuid || pos.toastOrderGuid || Number.isFinite(pos.drinkSubtotal));
   });
 }
 
@@ -615,7 +768,7 @@ function readJsonBody(request, maxBytes) {
 
 function serveStaticFile(request, response) {
   const rawPath = request.url.split("?")[0];
-  const requestPath = ROUTE_ALIASES.get(rawPath) || (isRestaurantTableRoute(rawPath) ? "/index.html" : (rawPath === "/" ? "/index.html" : rawPath));
+  const requestPath = ROUTE_ALIASES.get(rawPath) || (isRestaurantTableRoute(rawPath) ? "/index.html" : (isDashboardRoute(rawPath) ? "/dashboard.html" : (rawPath === "/" ? "/index.html" : rawPath)));
   const decodedPath = decodeURIComponent(requestPath.split("?")[0]);
   const filePath = path.normalize(path.join(ROOT_DIR, decodedPath));
 
@@ -643,6 +796,10 @@ function serveStaticFile(request, response) {
 
 function isRestaurantTableRoute(rawPath) {
   return /^\/r\/[a-zA-Z0-9_-]+(?:\/t\/[a-zA-Z0-9_-]+)?\/?$/.test(rawPath);
+}
+
+function isDashboardRoute(rawPath) {
+  return /^\/dashboard\/[a-zA-Z0-9_-]+\/?$/.test(rawPath) || /^\/[a-zA-Z0-9_-]+\/dashboard\/?$/.test(rawPath);
 }
 
 function sendJson(response, statusCode, data) {

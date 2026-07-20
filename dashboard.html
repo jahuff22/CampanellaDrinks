@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>PROOF Dashboard</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="/dashboard.css?v=1">
+</head>
+<body>
+  <main class="dashboard-shell">
+    <header class="dashboard-header">
+      <div>
+        <p class="eyebrow">PROOF Owner Dashboard</p>
+        <h1 id="restaurant-title">Restaurant</h1>
+      </div>
+      <div class="header-actions">
+        <a id="quiz-link" href="/">Guest quiz</a>
+        <button id="refresh-button" type="button">Refresh</button>
+      </div>
+    </header>
+
+    <section id="status-panel" class="status-panel" hidden></section>
+
+    <section class="metric-grid" aria-label="Dashboard summary">
+      <article class="metric-card">
+        <span>Total PROOF sessions</span>
+        <strong id="total-events">0</strong>
+      </article>
+      <article class="metric-card">
+        <span>Tables reached</span>
+        <strong id="total-tables">0</strong>
+      </article>
+      <article class="metric-card">
+        <span>Most common segment</span>
+        <strong id="top-segment">None</strong>
+      </article>
+      <article class="metric-card">
+        <span>Top preference</span>
+        <strong id="top-preference">None</strong>
+      </article>
+    </section>
+
+    <section class="dashboard-section receipt-section">
+      <div class="section-heading">
+        <div>
+          <p class="eyebrow">Receipt Impact</p>
+          <h2>Drink Spend Comparison</h2>
+        </div>
+      </div>
+      <div id="receipt-content" class="receipt-content"></div>
+    </section>
+
+    <section class="dashboard-grid">
+      <article class="dashboard-section">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">Demand</p>
+            <h2>Preference Mix</h2>
+          </div>
+        </div>
+        <div id="preference-bars" class="bar-list"></div>
+      </article>
+
+      <article class="dashboard-section">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">Audience</p>
+            <h2>Segment Counts</h2>
+          </div>
+        </div>
+        <div id="segment-bars" class="bar-list"></div>
+      </article>
+    </section>
+
+    <section class="dashboard-section">
+      <div class="section-heading">
+        <div>
+          <p class="eyebrow">Menu Fit</p>
+          <h2>Potential Menu Gaps</h2>
+        </div>
+      </div>
+      <div id="gap-list" class="gap-list"></div>
+    </section>
+
+    <section class="dashboard-section">
+      <div class="section-heading">
+        <div>
+          <p class="eyebrow">Recent Activity</p>
+          <h2>Latest PROOF Sessions</h2>
+        </div>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Time</th>
+              <th>Table</th>
+              <th>Preferences</th>
+              <th>Recommendations</th>
+            </tr>
+          </thead>
+          <tbody id="recent-events"></tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <script src="/drinks.js"></script>
+  <script src="/dashboard.js"></script>
+</body>
+</html>
