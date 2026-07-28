@@ -7,7 +7,7 @@ const traitLabels = {
   rarity: "Rarity"
 };
 
-const segmentNames = ["Purist", "Sunseeker", "Hedonist", "Bittersweet", "Adventurer", "Easy going"];
+const segmentNames = ["Purist", "Sunseeker", "Hedonist", "Bittersweet", "Adventurer", "Harmonist"];
 const menuDrinks = Array.isArray(window.drinks) ? window.drinks : [];
 
 const state = {
@@ -130,7 +130,7 @@ function inferEventSegment(event) {
     return totals;
   }, {});
 
-  return Object.keys(counts).find(category => counts[category] >= 2) || categories[0] || "Easy going";
+  return Object.keys(counts).find(category => counts[category] >= 2) || categories[0] || "Harmonist";
 }
 
 function calculateCoverage(events) {
@@ -225,7 +225,7 @@ function getPersonaNote(segment) {
     Hedonist: "Usually shown / Espresso Martini",
     Bittersweet: "Usually shown / Negroni",
     Adventurer: "Usually shown / Last Word",
-    "Easy going": "Usually shown / Vodka Soda"
+    Harmonist: "Usually shown / Vodka Soda"
   };
   return escapeHtml(examples[segment] || "Covered by current menu");
 }
@@ -505,7 +505,7 @@ function segmentCoordinate(segment) {
     Hedonist: { x: 34, y: 54 },
     Bittersweet: { x: 20, y: 48 },
     Adventurer: { x: 64, y: 82 },
-    "Easy going": { x: 18, y: 14 }
+    Harmonist: { x: 18, y: 14 }
   };
   return coordinates[segment] || { x: 50, y: 50 };
 }

@@ -574,8 +574,8 @@ const personaProfiles = {
     avoidance: "You steer clear of overly predictable cocktails that do exactly what you expect.",
     closing: "...then your matches."
   },
-  "Easy going": {
-    title: "Easy Going",
+  Harmonist: {
+    title: "Harmonist",
     intro: "You are open-ended, flexible, and happy across a wide range of drinks.",
     avoidance: "You steer clear of being pinned down too tightly, and your matches can move in a few directions.",
     closing: "...then your matches."
@@ -593,7 +593,7 @@ function calculatePersona(recommendations) {
   }, {});
 
   const majorityCategory = Object.keys(categoryCounts).find(category => categoryCounts[category] >= 2);
-  return majorityCategory || "Easy going";
+  return majorityCategory || "Harmonist";
 }
 
 function getDrinkCategories(drink) {
@@ -629,7 +629,7 @@ function createTasteProfileRows(tasteProfile) {
 }
 
 function displayPersonaProfile(personaCategory, userPreferences) {
-  const profile = personaProfiles[personaCategory] || personaProfiles["Easy going"];
+  const profile = personaProfiles[personaCategory] || personaProfiles.Harmonist;
   const profileElement = document.getElementById("persona-profile");
   const tasteProfile = createTasteProfile(userPreferences);
 
