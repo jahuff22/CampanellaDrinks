@@ -707,6 +707,260 @@ function displayResults(recommendations, userPreferences) {
   window.scrollTo({ top: 0, behavior: "smooth" });
 }
 
+function isCustomerMode() {
+  return window.location.pathname.split("/").filter(Boolean)[0] === "customer";
+}
+
+function createCustomerProfileData(userPreferences, qualitativeText, qualitativePreferences, recommendations) {
+  const persona = calculatePersona(recommendations);
+  const strongLikes = getStrongPreferencePhrases(userPreferences, "high");
+  const strongAvoids = [
+    ...getStrongPreferencePhrases(userPreferences, "low"),
+    ...(qualitativePreferences.remove || [])
+  ];
+  const aboutYou = createAboutYouSentence(persona, userPreferences);
+  const bartenderScript = createBartenderScript(strongLikes, strongAvoids);
+  const spiritsAndModifiers = createSpiritsAndModifiers(recommendations, userPreferences);
+  const recipe = createCustomRecipe(persona, userPreferences, spiritsAndModifiers);
+
+  return {
+    eventId: createBrowserId("cust"),
+    sourcePath: window.location.pathname,
+    persona,
+    aboutYou,
+    bartenderScript,
+    spiritsAndModifiers,
+    recipe,
+    sliderPreferences: userPreferences,
+    importantTraits: getImportantTraitsFromForm(),
+    qualitativeText,
+    parsedPreferences: qualitativePreferences,
+    recommendations
+  };
+}
+
+function displayCustomerResults(profileData, notice) {
+  displayPersonaProfile(profileData.persona, profileData.sliderPreferences);
+  displayNotice(notice);
+
+  const resultsDiv = document.getElementById("results");
+  resultsDiv.className = "customer-results";
+  resultsDiv.innerHTML = `
+    <section class="customer-card customer-intro-card">
+      <p class="eyebrow">Cocktail Persona</p>
+      <h2>You're a ${escapeHtml(profileData.persona)}</h2>
+      <p><strong>About you:</strong> ${escapeHtml(profileData.aboutYou)}</p>
+      <form id="customer-email-form" class="customer-email-form">
+        <label for="customer-email">Enter your email for your cocktail recommendations, your personal bartender script, and a custom recipe built just for your palate.</label>
+        <div class="customer-email-row">
+          <input id="customer-email" type="email" autocomplete="email" required placeholder="you@example.com">
+          <button type="submit">Send my drinks</button>
+        </div>
+      </form>
+    </section>
+    <section id="customer-unlocked-results" class="customer-unlocked-results" hidden></section>
+  `;
+
+  document.getElementById("customer-email-form").addEventListener("submit", async event => {
+    event.preventDefault();
+    const email = document.getElementById("customer-email").value.trim();
+    await unlockCustomerResults(profileData, email);
+  });
+
+  document.querySelector(".recommendations-heading h2").textContent = "Your Palate";
+  document.getElementById("quiz-screen").hidden = true;
+  document.getElementById("results-screen").hidden = false;
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+async function unlockCustomerResults(profileData, email) {
+  const unlocked = document.getElementById("customer-unlocked-results");
+  unlocked.hidden = false;
+  unlocked.innerHTML = createUnlockedCustomerHtml(profileData);
+  populateInterestingDrinkOptions(profileData.recommendations);
+  await saveCustomerEvent(profileData, email);
+
+  document.getElementById("customer-feedback-form").addEventListener("submit", async event => {
+    event.preventDefault();
+    await saveCustomerEvent(profileData, email, getCustomerFeedback(), getCustomerBirthday());
+    document.getElementById("customer-save-status").textContent = "Saved. Thank you.";
+  });
+}
+
+function createUnlockedCustomerHtml(profileData) {
+  return `
+    <section class="customer-card">
+      <h2>Your Perfect Classics</h2>
+      <div class="customer-drink-grid">
+        ${profileData.recommendations.map(createCustomerDrinkCard).join("")}
+      </div>
+      <p>Any decent bar in America can make these. Just ask.</p>
+    </section>
+    <section class="customer-card">
+      <h2>Your Bartender Script</h2>
+      <p>${escapeHtml(profileData.bartenderScript)}</p>
+    </section>
+    <section class="customer-card">
+      <h2>Try these spirits and modifiers</h2>
+      <ul>${profileData.spiritsAndModifiers.map(item => `<li>${escapeHtml(item)}</li>`).join("")}</ul>
+    </section>
+    <section class="customer-card">
+      <h2>A recipe for your palate</h2>
+      <h3>${escapeHtml(profileData.recipe.name)}</h3>
+      <p>${escapeHtml(profileData.recipe.description)}</p>
+      <ul>${profileData.recipe.ingredients.map(item => `<li>${escapeHtml(item)}</li>`).join("")}</ul>
+      <p>${escapeHtml(profileData.recipe.method)}</p>
+    </section>
+    <form id="customer-feedback-form" class="customer-card customer-feedback-form">
+      <h2>Tell us how we did</h2>
+      <label>Which of the drinks interests you most?
+        <select id="customer-interesting-drink"></select>
+      </label>
+      <label>How much do you like these drinks?
+        <input id="customer-drink-rating" type="range" min="1" max="7" value="4">
+      </label>
+      <label>What is your favorite drink?
+        <input id="customer-favorite-drink" type="text">
+      </label>
+      <label>Anything else we should know or change?
+        <textarea id="customer-feedback-notes" rows="4"></textarea>
+      </label>
+      <p>Thanks for letting us read your palate. We'll keep you up to date with PROOF bars near you, plus the occasional thought on why people like what they like.</p>
+      <h2>One more thing.</h2>
+      <label>Tell us your birthday and we'll send you a celebratory cocktail built for your palate.
+        <input id="customer-birthday" type="date">
+      </label>
+      <button type="submit">Save details</button>
+      <span id="customer-save-status"></span>
+    </form>
+    <section class="customer-card">
+      <h2>What is PROOF?</h2>
+      <p>A simple fix for a familiar problem: I don't know which drink on this menu is for me. We read your palate, then point you to the right one. We partner with restaurants and bars across America.</p>
+      <p>Know a bar that needs us? Make the introduction. If it works out, we'll send you $1,000. -> outreach@joinproof.bar</p>
+      <p>Ideas, thoughts, or looking to collaborate? The door's always open.</p>
+      <p>Cheers,<br>Michael and Jake</p>
+    </section>
+  `;
+}
+
+function createCustomerDrinkCard(drink) {
+  return `
+    <article>
+      <h3>${escapeHtml(drink.name)}</h3>
+      <p>${escapeHtml(drink.description)}</p>
+    </article>
+  `;
+}
+
+function populateInterestingDrinkOptions(recommendations) {
+  const select = document.getElementById("customer-interesting-drink");
+  select.innerHTML = recommendations.map(drink => `<option value="${escapeHtml(drink.name)}">${escapeHtml(drink.name)}</option>`).join("");
+}
+
+function getCustomerFeedback() {
+  return {
+    mostInterestingDrink: document.getElementById("customer-interesting-drink")?.value || "",
+    drinkRating: document.getElementById("customer-drink-rating")?.value || "",
+    favoriteDrink: document.getElementById("customer-favorite-drink")?.value || "",
+    notes: document.getElementById("customer-feedback-notes")?.value || ""
+  };
+}
+
+function getCustomerBirthday() {
+  return document.getElementById("customer-birthday")?.value || "";
+}
+
+async function saveCustomerEvent(profileData, email, feedback = {}, birthday = "") {
+  try {
+    await fetch("/api/customer-events", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        ...profileData,
+        email,
+        birthday,
+        feedback,
+        recommendations: profileData.recommendations.map(drink => ({
+          name: drink.name,
+          liquor: drink.liquor,
+          category: drink.category,
+          distance: drink.distance,
+          matchPercentage: formatMatchPercentage(drink.distance)
+        }))
+      }),
+      keepalive: true
+    });
+  } catch (error) {
+    console.warn("Could not save customer event.", error);
+  }
+}
+
+function createAboutYouSentence(persona, preferences) {
+  const high = getStrongPreferencePhrases(preferences, "high").slice(0, 2);
+  const low = getStrongPreferencePhrases(preferences, "low").slice(0, 1);
+  const likes = high.length ? high.join(", ") : "balanced cocktails";
+  const avoids = low.length ? ` and you tend to avoid ${low[0]}` : "";
+  return `You lean ${persona.toLowerCase()}: you like ${likes}${avoids}.`;
+}
+
+function getStrongPreferencePhrases(preferences, direction) {
+  const labels = {
+    strength: "strong structure",
+    sweetness: "sweetness",
+    sourness: "bright acidity",
+    bitterness: "bitterness",
+    thickness: "rich texture",
+    rarity: "adventurous flavors"
+  };
+
+  return Object.entries(preferences)
+    .filter(([, value]) => direction === "high" ? Number(value) >= 6 : Number(value) <= 2)
+    .map(([trait]) => labels[trait])
+    .filter(Boolean);
+}
+
+function createBartenderScript(likes, avoids) {
+  const likeParts = likes.length ? likes.slice(0, 3) : ["balanced", "refreshing", "well-structured"];
+  const skip = avoids.length ? avoids[0] : "anything too far from your mood";
+  return `Ask for something ${likeParts.join(", ")} - and skip anything with ${skip}.`;
+}
+
+function createSpiritsAndModifiers(recommendations, preferences) {
+  const liquors = recommendations.map(drink => drink.liquor).filter(Boolean);
+  const modifiers = [];
+  if (preferences.sourness >= 5) modifiers.push("fresh lime or lemon");
+  if (preferences.bitterness >= 5) modifiers.push("Campari, amaro, or bitters");
+  if (preferences.sweetness >= 5) modifiers.push("honey, pineapple, or orange liqueur");
+  if (preferences.thickness >= 5) modifiers.push("egg white, cream, or coconut");
+  if (preferences.rarity >= 5) modifiers.push("Chartreuse, mezcal, or sherry");
+  return [...new Set([...liquors, ...modifiers])].slice(0, 6);
+}
+
+function createCustomRecipe(persona, preferences, spiritsAndModifiers) {
+  const base = spiritsAndModifiers[0] || "gin";
+  const citrus = preferences.sourness >= 4 ? "3/4 oz fresh lemon or lime" : "1/4 oz citrus";
+  const sweet = preferences.sweetness >= 5 ? "3/4 oz honey syrup" : "1/2 oz simple syrup";
+  const texture = preferences.thickness >= 5 ? "1 egg white or 1/2 oz cream" : "soda or stirred dilution";
+
+  return {
+    name: `${persona} House Sour`,
+    description: "A custom starting point built from your strongest palate signals.",
+    ingredients: [`2 oz ${base}`, citrus, sweet, texture, "1 dash bitters or saline"],
+    method: "Shake with ice, strain into a chilled glass, and adjust the sweet/sour balance to taste."
+  };
+}
+
+function escapeHtml(value) {
+  return String(value || "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
+
 function displayNotice(message) {
   const noticeElement = document.getElementById("ai-notice");
   noticeElement.textContent = message;
@@ -718,6 +972,11 @@ initializeQuiz();
 async function initializeQuiz() {
   if (typeof loadSavedDrinkSetForActiveRestaurant === "function") {
     await loadSavedDrinkSetForActiveRestaurant();
+  }
+
+  if (isCustomerMode()) {
+    document.body.classList.add("customer-mode");
+    document.querySelector("button[type='submit']").textContent = "Read my palate";
   }
 
   createSliders();
@@ -741,6 +1000,16 @@ async function initializeQuiz() {
     const qualitativePreferences = qualitativeResult.preferences;
 
     const standardRecommendations = recommendDrinks(userPreferences, importantTraits, drinks, qualitativePreferences, 3);
+    displayNotice(qualitativeResult.notice);
+
+    if (isCustomerMode()) {
+      displayCustomerResults(
+        createCustomerProfileData(userPreferences, qualitativeText, qualitativePreferences, standardRecommendations),
+        qualitativeResult.notice
+      );
+      return;
+    }
+
     const recommendationEventPayload = createRecommendationEventPayload(
       userPreferences,
       importantTraits,
@@ -749,7 +1018,6 @@ async function initializeQuiz() {
       standardRecommendations
     );
 
-    displayNotice(qualitativeResult.notice);
     displayResults(standardRecommendations, userPreferences);
     saveRecommendationEvent(recommendationEventPayload);
   });

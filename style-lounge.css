@@ -598,6 +598,110 @@ h2 {
   background: rgba(51, 41, 66, 0.92);
 }
 
+.customer-mode .recommendations-heading h2 {
+  color: var(--gold);
+}
+
+.customer-results {
+  display: grid;
+  gap: 18px;
+}
+
+.customer-results .customer-card {
+  padding: 22px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background:
+    linear-gradient(145deg, rgba(232, 185, 94, 0.12), rgba(255, 243, 223, 0.02)),
+    var(--panel);
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.22);
+}
+
+.customer-results h2 {
+  margin: 0 0 14px;
+}
+
+.customer-results h3 {
+  margin: 0 0 10px;
+  color: var(--ink);
+  font-family: Didot, "Bodoni 72", "Bodoni 72 Smallcaps", "Baskerville Old Face", Georgia, "Times New Roman", serif;
+  font-size: 24px;
+}
+
+.customer-results p,
+.customer-results li,
+.customer-results label {
+  color: var(--soft);
+  font-size: 15px;
+  line-height: 1.5;
+}
+
+.customer-email-form,
+.customer-feedback-form {
+  display: grid;
+  gap: 14px;
+  margin-top: 18px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+.customer-email-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 10px;
+}
+
+.customer-email-form input,
+.customer-feedback-form input,
+.customer-feedback-form select,
+.customer-feedback-form textarea {
+  width: 100%;
+  min-height: 44px;
+  padding: 10px 12px;
+  border: 1px solid var(--line-strong);
+  border-radius: 8px;
+  background: rgba(30, 24, 38, 0.72);
+  color: var(--ink);
+  font: inherit;
+}
+
+.customer-email-form button,
+.customer-feedback-form button {
+  min-height: 44px;
+  padding: 0 18px;
+  border: 1px solid rgba(242, 212, 138, 0.72);
+  border-radius: 999px;
+  background: linear-gradient(135deg, var(--ink), var(--gold) 46%, #98713a);
+  color: var(--deep);
+  font-weight: 850;
+  cursor: pointer;
+}
+
+.customer-unlocked-results {
+  display: grid;
+  gap: 18px;
+}
+
+.customer-drink-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.customer-drink-grid article {
+  padding: 16px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: rgba(27, 20, 34, 0.42);
+}
+
+#customer-save-status {
+  color: var(--muted);
+  font-size: 14px;
+}
+
 #results {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -656,6 +760,11 @@ h2 {
   display: none;
 }
 
+#results.customer-results {
+  display: grid;
+  grid-template-columns: 1fr;
+}
+
 @media (max-width: 820px) {
   body {
     padding: 30px 16px 42px;
@@ -694,6 +803,11 @@ h2 {
   }
 
   #results {
+    grid-template-columns: 1fr;
+  }
+
+  .customer-email-row,
+  .customer-drink-grid {
     grid-template-columns: 1fr;
   }
 }

@@ -7,6 +7,7 @@ loadEnvFile();
 
 const USAGE_FILE = path.join(ROOT_DIR, ".ai-usage.json");
 const RECOMMENDATION_EVENTS_FILE = path.join(ROOT_DIR, ".recommendation-events.jsonl");
+const CUSTOMER_EVENTS_FILE = path.join(ROOT_DIR, ".customer-events.jsonl");
 const RESTAURANT_MENUS_FILE = path.join(ROOT_DIR, ".restaurant-menus.json");
 const RECOMMENDATION_EVENTS_WEBHOOK_URL = process.env.RECOMMENDATION_EVENTS_WEBHOOK_URL || "";
 const RECOMMENDATION_EVENTS_READ_URL = process.env.RECOMMENDATION_EVENTS_READ_URL || RECOMMENDATION_EVENTS_WEBHOOK_URL;
@@ -32,7 +33,9 @@ const ROUTE_ALIASES = new Map([
   ["/landing", "/landing/index.html"],
   ["/landing/", "/landing/index.html"],
   ["/business", "/business/index.html"],
-  ["/business/", "/business/index.html"]
+  ["/business/", "/business/index.html"],
+  ["/customer", "/index.html"],
+  ["/customer/", "/index.html"]
 ]);
 
 const preferenceSchema = {
@@ -85,6 +88,11 @@ const server = http.createServer(async (request, response) => {
 
     if (request.method === "POST" && request.url === "/api/recommendation-events") {
       await handleRecommendationEvent(request, response);
+      return;
+    }
+
+    if (request.method === "POST" && request.url === "/api/customer-events") {
+      await handleCustomerEvent(request, response);
       return;
     }
 
@@ -271,6 +279,17 @@ async function handleRecommendationEvent(request, response) {
   sendJson(response, storageResult.persisted ? 201 : 202, {
     eventId: event.id,
     sessionId: event.session.id,
+    storage: storageResult
+  });
+}
+
+async function handleCustomerEvent(request, response) {
+  const body = await readJsonBody(request, 50_000);
+  const event = createCustomerEvent(body);
+  const storageResult = await persistCustomerEvent(event);
+
+  sendJson(response, storageResult.persisted ? 201 : 202, {
+    eventId: event.id,
     storage: storageResult
   });
 }
@@ -583,6 +602,67 @@ async function persistRecommendationEvent(event) {
   return persistRecommendationEventToLocalFile(event);
 }
 
+async function persistCustomerEvent(event) {
+  if (RECOMMENDATION_EVENTS_WEBHOOK_URL) {
+    return persistCustomerEventToWebhook(event);
+  }
+
+  return persistCustomerEventToLocalFile(event);
+}
+
+async function persistCustomerEventToWebhook(event) {
+  try {
+    const webhookResponse = await fetch(RECOMMENDATION_EVENTS_WEBHOOK_URL, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        recordType: "customer",
+        ...event
+      })
+    });
+
+    if (!webhookResponse.ok) {
+      console.error("Customer event webhook failed:", webhookResponse.status);
+      return {
+        persisted: false,
+        provider: "webhook",
+        warning: "Webhook rejected the customer event."
+      };
+    }
+
+    return {
+      persisted: true,
+      provider: "webhook"
+    };
+  } catch (error) {
+    console.error("Customer event webhook error:", error);
+    return {
+      persisted: false,
+      provider: "webhook",
+      warning: "Webhook could not be reached."
+    };
+  }
+}
+
+async function persistCustomerEventToLocalFile(event) {
+  try {
+    await fs.promises.appendFile(CUSTOMER_EVENTS_FILE, `${JSON.stringify(event)}\n`);
+    return {
+      persisted: true,
+      provider: "local-jsonl"
+    };
+  } catch (error) {
+    console.error("Could not persist customer event locally:", error);
+    return {
+      persisted: false,
+      provider: "local-jsonl",
+      warning: "No production customer storage is configured."
+    };
+  }
+}
+
 async function persistRecommendationEventToWebhook(event) {
   try {
     const webhookResponse = await fetch(RECOMMENDATION_EVENTS_WEBHOOK_URL, {
@@ -671,6 +751,56 @@ function createRecommendationEvent(body) {
       confidence: null
     }
   };
+}
+
+function createCustomerEvent(body) {
+  return {
+    id: sanitizeIdentifier(body.eventId) || createId("cust"),
+    schemaVersion: 1,
+    recordType: "customer",
+    createdAt: new Date().toISOString(),
+    email: sanitizeEmail(body.email),
+    birthday: sanitizeFreeText(body.birthday, 40),
+    sourcePath: sanitizePath(body.sourcePath) || "/customer",
+    persona: sanitizeFreeText(body.persona, 60),
+    aboutYou: sanitizeFreeText(body.aboutYou, 500),
+    bartenderScript: sanitizeFreeText(body.bartenderScript, 500),
+    recipe: sanitizeCustomerRecipe(body.recipe),
+    guestInput: {
+      sliderPreferences: sanitizeNumericMap(body.sliderPreferences, 1, 7),
+      importantTraits: sanitizeBooleanMap(body.importantTraits),
+      qualitativeText: sanitizeFreeText(body.qualitativeText, 500),
+      parsedPreferences: sanitizeParsedPreferences(body.parsedPreferences)
+    },
+    recommendations: sanitizeRecommendations(body.recommendations),
+    spiritsAndModifiers: Array.isArray(body.spiritsAndModifiers)
+      ? body.spiritsAndModifiers.map(item => sanitizeFreeText(item, 80)).filter(Boolean).slice(0, 12)
+      : [],
+    feedback: {
+      mostInterestingDrink: sanitizeFreeText(body.feedback?.mostInterestingDrink, 120),
+      drinkRating: Number.isFinite(Number(body.feedback?.drinkRating)) ? Math.min(Math.max(Number(body.feedback.drinkRating), 1), 7) : null,
+      favoriteDrink: sanitizeFreeText(body.feedback?.favoriteDrink, 200),
+      notes: sanitizeFreeText(body.feedback?.notes, 500)
+    }
+  };
+}
+
+function sanitizeCustomerRecipe(recipe) {
+  if (!recipe || typeof recipe !== "object") return {};
+
+  return {
+    name: sanitizeFreeText(recipe.name, 120),
+    description: sanitizeFreeText(recipe.description, 500),
+    ingredients: Array.isArray(recipe.ingredients)
+      ? recipe.ingredients.map(item => sanitizeFreeText(item, 100)).filter(Boolean).slice(0, 12)
+      : [],
+    method: sanitizeFreeText(recipe.method, 500)
+  };
+}
+
+function sanitizeEmail(value) {
+  const email = String(value || "").trim().toLowerCase().slice(0, 254);
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) ? email : "";
 }
 
 function createId(prefix) {

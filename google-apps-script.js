@@ -1,5 +1,6 @@
 const SHEET_NAME = "Events";
 const MENU_SHEET_NAME = "Menus";
+const CUSTOMER_SHEET_NAME = "Customers";
 
 const HEADERS = [
   "receivedAt",
@@ -24,11 +25,35 @@ const MENU_HEADERS = [
   "drinks"
 ];
 
+const CUSTOMER_HEADERS = [
+  "receivedAt",
+  "eventId",
+  "createdAt",
+  "email",
+  "birthday",
+  "sourcePath",
+  "persona",
+  "aboutYou",
+  "sliderPreferences",
+  "importantTraits",
+  "qualitativeText",
+  "parsedPreferences",
+  "recommendations",
+  "spiritsAndModifiers",
+  "bartenderScript",
+  "recipe",
+  "feedback"
+];
+
 function doPost(e) {
   const payload = JSON.parse(e.postData.contents);
 
   if (payload.recordType === "menu") {
     return saveMenu(payload);
+  }
+
+  if (payload.recordType === "customer") {
+    return saveCustomer(payload);
   }
 
   const sheet = getSheet();
@@ -129,6 +154,32 @@ function getMenu(e) {
   });
 }
 
+function saveCustomer(event) {
+  const sheet = getCustomerSheet();
+
+  sheet.appendRow([
+    new Date().toISOString(),
+    event.id || "",
+    event.createdAt || "",
+    event.email || "",
+    event.birthday || "",
+    event.sourcePath || "",
+    event.persona || "",
+    event.aboutYou || "",
+    JSON.stringify(event.guestInput?.sliderPreferences || {}),
+    JSON.stringify(event.guestInput?.importantTraits || {}),
+    event.guestInput?.qualitativeText || "",
+    JSON.stringify(event.guestInput?.parsedPreferences || {}),
+    JSON.stringify(event.recommendations || []),
+    JSON.stringify(event.spiritsAndModifiers || []),
+    event.bartenderScript || "",
+    JSON.stringify(event.recipe || {}),
+    JSON.stringify(event.feedback || {})
+  ]);
+
+  return jsonResponse({ ok: true });
+}
+
 function getSheet() {
   const spreadsheet = SpreadsheetApp.getActiveSpreadsheet();
   let sheet = spreadsheet.getSheetByName(SHEET_NAME);
@@ -154,6 +205,21 @@ function getMenuSheet() {
 
   if (sheet.getLastRow() === 0) {
     sheet.appendRow(MENU_HEADERS);
+  }
+
+  return sheet;
+}
+
+function getCustomerSheet() {
+  const spreadsheet = SpreadsheetApp.getActiveSpreadsheet();
+  let sheet = spreadsheet.getSheetByName(CUSTOMER_SHEET_NAME);
+
+  if (!sheet) {
+    sheet = spreadsheet.insertSheet(CUSTOMER_SHEET_NAME);
+  }
+
+  if (sheet.getLastRow() === 0) {
+    sheet.appendRow(CUSTOMER_HEADERS);
   }
 
   return sheet;
