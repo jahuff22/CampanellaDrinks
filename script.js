@@ -713,36 +713,44 @@ function displayNotice(message) {
   noticeElement.hidden = !message;
 }
 
-createSliders();
+initializeQuiz();
 
-const quizForm = document.getElementById("quiz-form");
-const retakeButton = document.getElementById("retake-button");
+async function initializeQuiz() {
+  if (typeof loadSavedDrinkSetForActiveRestaurant === "function") {
+    await loadSavedDrinkSetForActiveRestaurant();
+  }
 
-retakeButton.addEventListener("click", function() {
-  document.getElementById("results-screen").hidden = true;
-  document.getElementById("quiz-screen").hidden = false;
-  window.scrollTo({ top: 0, behavior: "smooth" });
-});
+  createSliders();
 
-quizForm.addEventListener("submit", async function(event) {
-  event.preventDefault();
+  const quizForm = document.getElementById("quiz-form");
+  const retakeButton = document.getElementById("retake-button");
 
-  const userPreferences = getUserPreferencesFromForm();
-  const importantTraits = getImportantTraitsFromForm();
-  const qualitativeText = getQualitativeInputFromForm();
-  const qualitativeResult = await parseQualitativeInput(qualitativeText);
-  const qualitativePreferences = qualitativeResult.preferences;
+  retakeButton.addEventListener("click", function() {
+    document.getElementById("results-screen").hidden = true;
+    document.getElementById("quiz-screen").hidden = false;
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  });
 
-  const standardRecommendations = recommendDrinks(userPreferences, importantTraits, drinks, qualitativePreferences, 3);
-  const recommendationEventPayload = createRecommendationEventPayload(
-    userPreferences,
-    importantTraits,
-    qualitativeText,
-    qualitativePreferences,
-    standardRecommendations
-  );
+  quizForm.addEventListener("submit", async function(event) {
+    event.preventDefault();
 
-  displayNotice(qualitativeResult.notice);
-  displayResults(standardRecommendations, userPreferences);
-  saveRecommendationEvent(recommendationEventPayload);
-});
+    const userPreferences = getUserPreferencesFromForm();
+    const importantTraits = getImportantTraitsFromForm();
+    const qualitativeText = getQualitativeInputFromForm();
+    const qualitativeResult = await parseQualitativeInput(qualitativeText);
+    const qualitativePreferences = qualitativeResult.preferences;
+
+    const standardRecommendations = recommendDrinks(userPreferences, importantTraits, drinks, qualitativePreferences, 3);
+    const recommendationEventPayload = createRecommendationEventPayload(
+      userPreferences,
+      importantTraits,
+      qualitativeText,
+      qualitativePreferences,
+      standardRecommendations
+    );
+
+    displayNotice(qualitativeResult.notice);
+    displayResults(standardRecommendations, userPreferences);
+    saveRecommendationEvent(recommendationEventPayload);
+  });
+}

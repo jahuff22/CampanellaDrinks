@@ -1,4 +1,5 @@
 const SHEET_NAME = "Events";
+const MENU_SHEET_NAME = "Menus";
 
 const HEADERS = [
   "receivedAt",
@@ -17,9 +18,21 @@ const HEADERS = [
   "pos"
 ];
 
+const MENU_HEADERS = [
+  "updatedAt",
+  "restaurantSlug",
+  "drinks"
+];
+
 function doPost(e) {
+  const payload = JSON.parse(e.postData.contents);
+
+  if (payload.recordType === "menu") {
+    return saveMenu(payload);
+  }
+
   const sheet = getSheet();
-  const event = JSON.parse(e.postData.contents);
+  const event = payload;
 
   sheet.appendRow([
     new Date().toISOString(),
@@ -42,6 +55,10 @@ function doPost(e) {
 }
 
 function doGet(e) {
+  if (String(e.parameter.type || "") === "menu") {
+    return getMenu(e);
+  }
+
   const restaurantSlug = String(e.parameter.restaurant || "").toLowerCase().trim();
   const sheet = getSheet();
   const rows = sheet.getDataRange().getValues();
@@ -56,6 +73,62 @@ function doGet(e) {
   });
 }
 
+function saveMenu(payload) {
+  const restaurantSlug = String(payload.restaurantSlug || "").toLowerCase().trim();
+  const drinks = Array.isArray(payload.drinks) ? payload.drinks : [];
+
+  if (!restaurantSlug || !drinks.length) {
+    return jsonResponse({ ok: false, error: "restaurantSlug and drinks are required" });
+  }
+
+  const sheet = getMenuSheet();
+  const rows = sheet.getDataRange().getValues();
+  let targetRow = -1;
+
+  for (let index = 1; index < rows.length; index += 1) {
+    if (String(rows[index][1] || "").toLowerCase().trim() === restaurantSlug) {
+      targetRow = index + 1;
+      break;
+    }
+  }
+
+  const row = [
+    new Date().toISOString(),
+    restaurantSlug,
+    JSON.stringify(drinks)
+  ];
+
+  if (targetRow === -1) {
+    sheet.appendRow(row);
+  } else {
+    sheet.getRange(targetRow, 1, 1, MENU_HEADERS.length).setValues([row]);
+  }
+
+  return jsonResponse({ ok: true });
+}
+
+function getMenu(e) {
+  const restaurantSlug = String(e.parameter.restaurant || "").toLowerCase().trim();
+  const sheet = getMenuSheet();
+  const rows = sheet.getDataRange().getValues();
+
+  for (let index = 1; index < rows.length; index += 1) {
+    if (String(rows[index][1] || "").toLowerCase().trim() === restaurantSlug) {
+      return jsonResponse({
+        ok: true,
+        restaurantSlug,
+        drinks: parseJson(rows[index][2], [])
+      });
+    }
+  }
+
+  return jsonResponse({
+    ok: true,
+    restaurantSlug,
+    drinks: []
+  });
+}
+
 function getSheet() {
   const spreadsheet = SpreadsheetApp.getActiveSpreadsheet();
   let sheet = spreadsheet.getSheetByName(SHEET_NAME);
@@ -66,6 +139,21 @@ function getSheet() {
 
   if (sheet.getLastRow() === 0) {
     sheet.appendRow(HEADERS);
+  }
+
+  return sheet;
+}
+
+function getMenuSheet() {
+  const spreadsheet = SpreadsheetApp.getActiveSpreadsheet();
+  let sheet = spreadsheet.getSheetByName(MENU_SHEET_NAME);
+
+  if (!sheet) {
+    sheet = spreadsheet.insertSheet(MENU_SHEET_NAME);
+  }
+
+  if (sheet.getLastRow() === 0) {
+    sheet.appendRow(MENU_HEADERS);
   }
 
   return sheet;

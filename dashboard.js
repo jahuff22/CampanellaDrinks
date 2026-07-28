@@ -3,17 +3,19 @@ const traitLabels = {
   sweetness: "Sweet",
   sourness: "Sour",
   bitterness: "Bitter",
-  thickness: "Body",
+  thickness: "Thick",
   rarity: "Rarity"
 };
 
 const segmentNames = ["Purist", "Sunseeker", "Hedonist", "Bittersweet", "Adventurer", "Harmonist"];
-const menuDrinks = Array.isArray(window.drinks) ? window.drinks : [];
+let menuDrinks = Array.isArray(window.drinks) ? window.drinks : [];
 
 const state = {
   restaurantSlug: getRestaurantSlugFromPath(),
   events: [],
-  activeTab: "personas"
+  activeTab: "personas",
+  mapXAxis: "bitterness",
+  mapYAxis: "sweetness"
 };
 
 document.getElementById("refresh-button").addEventListener("click", loadDashboard);
@@ -22,12 +24,33 @@ for (const button of document.querySelectorAll(".tab-button")) {
   button.addEventListener("click", () => setActiveTab(button.dataset.tab));
 }
 
+document.getElementById("map-x-axis").addEventListener("change", event => {
+  state.mapXAxis = event.target.value;
+  renderMenuMap(state.events);
+});
+
+document.getElementById("map-y-axis").addEventListener("change", event => {
+  state.mapYAxis = event.target.value;
+  renderMenuMap(state.events);
+});
+document.getElementById("add-drink-button").addEventListener("click", addDrink);
+document.getElementById("save-menu-button").addEventListener("click", saveMenu);
+document.getElementById("coordinate-table").addEventListener("input", handleCoordinateInput);
+document.getElementById("coordinate-table").addEventListener("click", handleCoordinateClick);
+
 initializeDashboard();
 
 async function initializeDashboard() {
   const restaurantName = formatSlug(state.restaurantSlug);
   document.getElementById("restaurant-title").textContent = restaurantName || "Restaurant";
   document.getElementById("quiz-link").href = `/r/${state.restaurantSlug}`;
+  initializeMapControls();
+
+  if (typeof loadSavedDrinkSetForActiveRestaurant === "function") {
+    await loadSavedDrinkSetForActiveRestaurant();
+    menuDrinks = Array.isArray(window.drinks) ? window.drinks : menuDrinks;
+  }
+
   await loadDashboard();
 }
 
@@ -108,6 +131,19 @@ function showStatus(message) {
   const statusPanel = document.getElementById("status-panel");
   statusPanel.textContent = message;
   statusPanel.hidden = false;
+}
+
+function initializeMapControls() {
+  const options = Object.entries(traitLabels)
+    .map(([trait, label]) => `<option value="${trait}">${escapeHtml(label)}</option>`)
+    .join("");
+
+  const xAxis = document.getElementById("map-x-axis");
+  const yAxis = document.getElementById("map-y-axis");
+  xAxis.innerHTML = options;
+  yAxis.innerHTML = options;
+  xAxis.value = state.mapXAxis;
+  yAxis.value = state.mapYAxis;
 }
 
 function countSegments(events) {
@@ -232,60 +268,69 @@ function getPersonaNote(segment) {
 
 function renderMenuMap(events) {
   const plot = document.getElementById("menu-map-plot");
-  const gaps = findMenuGaps(events);
-  const guestPoints = Object.entries(countSegments(events)).map(([segment, count]) => ({
-    label: segment,
-    count,
-    ...segmentCoordinate(segment)
-  }));
+  const xAxis = state.mapXAxis;
+  const yAxis = state.mapYAxis;
+  const xLabel = traitLabels[xAxis] || "X";
+  const yLabel = traitLabels[yAxis] || "Y";
+  const guestPoints = events
+    .map((event, index) => {
+      const preferences = event.guestInput?.sliderPreferences || {};
+      const x = Number(preferences[xAxis]);
+      const y = Number(preferences[yAxis]);
+      if (!Number.isFinite(x) || !Number.isFinite(y)) return null;
+      return {
+        label: `${event.table?.label || event.table?.slug || "Guest"} / ${xLabel} ${x}, ${yLabel} ${y}`,
+        x: normalizeScore(x),
+        y: normalizeScore(y),
+        type: "guest",
+        index
+      };
+    })
+    .filter(Boolean);
 
   const drinkPoints = menuDrinks.map(drink => ({
     label: drink.name,
-    x: normalizeScore(drink.scores?.sourness),
-    y: normalizeScore(drink.scores?.rarity),
+    x: normalizeScore(drink.scores?.[xAxis]),
+    y: normalizeScore(drink.scores?.[yAxis]),
     type: "drink"
   }));
 
-  const gapPoints = gaps.slice(0, 4).map(gap => ({
-    label: gap.shortTitle,
-    x: normalizeScore(gap.average.sourness),
-    y: normalizeScore(gap.average.rarity),
-    type: "gap"
-  }));
-
   plot.innerHTML = `
-    <span class="axis-label axis-left">LESS SOUR</span>
-    <span class="axis-label axis-right">MORE SOUR</span>
-    <span class="axis-label axis-top">MORE ADVENTUROUS</span>
+    <span class="axis-label axis-left">LESS ${escapeHtml(xLabel).toUpperCase()}</span>
+    <span class="axis-label axis-right">MORE ${escapeHtml(xLabel).toUpperCase()}</span>
+    <span class="axis-label axis-top">MORE ${escapeHtml(yLabel).toUpperCase()}</span>
+    <span class="axis-label axis-bottom">LESS ${escapeHtml(yLabel).toUpperCase()}</span>
     ${drinkPoints.map(point => renderPoint(point)).join("")}
-    ${guestPoints.map(point => renderPoint({ ...point, type: "guest" })).join("")}
-    ${gapPoints.map(point => renderPoint(point)).join("")}
+    ${guestPoints.map(point => renderPoint(point)).join("")}
   `;
 
-  renderMapGaps(gaps);
+  renderMapSummary(guestPoints, drinkPoints, xLabel, yLabel);
 }
 
 function renderPoint(point) {
   const left = clamp(point.x, 4, 96);
   const top = clamp(100 - point.y, 4, 96);
-  const label = point.type === "drink" ? "" : `<span>${escapeHtml(point.label)}</span>`;
-  return `<i class="map-point ${point.type}" style="left:${left}%;top:${top}%">${label}</i>`;
+  return `<i class="map-point ${point.type}" title="${escapeHtml(point.label)}" style="left:${left}%;top:${top}%"></i>`;
 }
 
-function renderMapGaps(gaps) {
+function renderMapSummary(guestPoints, drinkPoints, xLabel, yLabel) {
   const container = document.getElementById("map-gaps");
-
-  if (!gaps.length) {
-    container.innerHTML = `<p class="empty-note">No obvious map gaps yet.</p>`;
-    return;
-  }
-
-  container.innerHTML = gaps.slice(0, 4).map(gap => `
+  const guestSummary = summarizePointCloud(guestPoints);
+  const drinkSummary = summarizePointCloud(drinkPoints);
+  container.innerHTML = `
     <article class="callout">
-      <strong>${escapeHtml(gap.shortTitle)}</strong>
-      <span>${escapeHtml(gap.note)}</span>
+      <strong>${guestPoints.length} guests plotted</strong>
+      <span>White dots use each guest's ${escapeHtml(xLabel)} and ${escapeHtml(yLabel)} slider answers.</span>
     </article>
-  `).join("");
+    <article class="callout">
+      <strong>${drinkPoints.length} drinks plotted</strong>
+      <span>Gold diamonds use the menu score for those same two axes.</span>
+    </article>
+    <article class="callout">
+      <strong>Current center</strong>
+      <span>Guests: ${guestSummary}. Drinks: ${drinkSummary}.</span>
+    </article>
+  `;
 }
 
 function renderPerDrink(events) {
@@ -358,22 +403,171 @@ function getDrinkAction(shown, orders, averageMatch) {
 
 function renderCoordinates() {
   const tbody = document.getElementById("coordinate-table");
-  tbody.innerHTML = menuDrinks.map(drink => `
+  tbody.innerHTML = menuDrinks.map((drink, drinkIndex) => `
     <tr>
-      <td><span class="drink-name">${escapeHtml(drink.name)}</span></td>
-      ${Object.keys(traitLabels).map(trait => renderScoreCell(drink.scores?.[trait])).join("")}
+      <td>
+        <input class="coordinate-text-input" data-drink-index="${drinkIndex}" data-field="name" value="${escapeAttribute(drink.name)}" aria-label="Drink name">
+      </td>
+      <td>
+        <input class="coordinate-text-input" data-drink-index="${drinkIndex}" data-field="type" value="${escapeAttribute(drink.type || drink.liquor || "")}" aria-label="Drink type">
+      </td>
+      <td>
+        <input class="coordinate-text-input" data-drink-index="${drinkIndex}" data-field="category" value="${escapeAttribute(getCategoryText(drink))}" aria-label="Drink personas">
+      </td>
+      ${Object.keys(traitLabels).map(trait => renderScoreCell(drinkIndex, trait, drink.scores?.[trait])).join("")}
+      <td>
+        <button class="remove-drink-button" type="button" data-drink-index="${drinkIndex}">Remove</button>
+      </td>
     </tr>
   `).join("");
 }
 
-function renderScoreCell(value) {
+function renderScoreCell(drinkIndex, trait, value) {
   const numberValue = Number(value) || 0;
   return `
     <td class="score-cell">
-      ${numberValue}
+      <input
+        class="coordinate-score-input"
+        type="number"
+        min="1"
+        max="7"
+        step="1"
+        value="${numberValue}"
+        data-drink-index="${drinkIndex}"
+        data-score="${trait}"
+        aria-label="${traitLabels[trait]} score"
+      >
       <span class="score-bar"><i style="width:${normalizeScore(numberValue)}%"></i></span>
     </td>
   `;
+}
+
+function handleCoordinateInput(event) {
+  const input = event.target;
+  const drinkIndex = Number(input.dataset.drinkIndex);
+  const drink = menuDrinks[drinkIndex];
+  if (!drink) return;
+
+  if (input.dataset.score) {
+    const score = input.dataset.score;
+    const value = clamp(Math.round(Number(input.value) || 1), 1, 7);
+    input.value = value;
+    drink.scores = drink.scores || {};
+    drink.scores[score] = value;
+    const bar = input.parentElement.querySelector(".score-bar i");
+    if (bar) bar.style.width = `${normalizeScore(value)}%`;
+  } else if (input.dataset.field === "name") {
+    drink.name = input.value.trim() || "Untitled Drink";
+  } else if (input.dataset.field === "type") {
+    drink.type = input.value.trim();
+    drink.liquor = drink.type;
+  } else if (input.dataset.field === "category") {
+    drink.category = parseCategoryInput(input.value);
+  }
+
+  markMenuDirty();
+  renderMenuMap(state.events);
+  renderMenuLab(state.events);
+}
+
+function handleCoordinateClick(event) {
+  const button = event.target.closest(".remove-drink-button");
+  if (!button) return;
+
+  const drinkIndex = Number(button.dataset.drinkIndex);
+  if (!menuDrinks[drinkIndex]) return;
+
+  menuDrinks.splice(drinkIndex, 1);
+  setActiveMenuDrinks(menuDrinks);
+  markMenuDirty();
+  renderCoordinates();
+  renderMenuMap(state.events);
+  renderMenuLab(state.events);
+  renderPerDrink(state.events);
+}
+
+function addDrink() {
+  menuDrinks.push({
+    name: `New Drink ${menuDrinks.length + 1}`,
+    liquor: "Custom",
+    type: "Custom",
+    category: ["Harmonist"],
+    scores: {
+      strength: 4,
+      sweetness: 4,
+      sourness: 4,
+      bitterness: 4,
+      thickness: 4,
+      rarity: 4,
+      masculinity: 4,
+      calories: 4
+    },
+    description: "Custom drink added from the dashboard.",
+    ingredients: "Ingredient list not provided."
+  });
+
+  setActiveMenuDrinks(menuDrinks);
+  markMenuDirty();
+  renderCoordinates();
+  renderMenuMap(state.events);
+  renderMenuLab(state.events);
+}
+
+async function saveMenu() {
+  const status = document.getElementById("menu-save-status");
+  status.textContent = "Saving...";
+
+  try {
+    const response = await fetch("/api/menu-data", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        restaurantSlug: state.restaurantSlug,
+        drinks: menuDrinks
+      })
+    });
+    const data = await response.json();
+
+    if (!response.ok) throw new Error(data.error || "Menu save failed");
+
+    menuDrinks = data.drinks;
+    setActiveMenuDrinks(menuDrinks);
+    renderCoordinates();
+    renderMenuMap(state.events);
+    renderMenuLab(state.events);
+    status.textContent = `Saved. Source: ${data.storage.provider}.`;
+  } catch (error) {
+    status.textContent = "Save failed.";
+  }
+}
+
+function setActiveMenuDrinks(nextDrinks) {
+  menuDrinks = nextDrinks;
+  if (typeof setActiveDrinkSet === "function") {
+    setActiveDrinkSet(menuDrinks);
+  } else {
+    window.drinks = menuDrinks;
+  }
+}
+
+function markMenuDirty() {
+  document.getElementById("menu-save-status").textContent = "Unsaved changes.";
+}
+
+function getCategoryText(drink) {
+  return Array.isArray(drink.category) ? drink.category.join(", ") : String(drink.category || "");
+}
+
+function parseCategoryInput(value) {
+  const allowed = ["Purist", "Sunseeker", "Hedonist", "Bittersweet", "Adventurer", "Harmonist"];
+  const normalizedParts = String(value || "")
+    .split(/[,/]/g)
+    .map(part => part.trim().toLowerCase())
+    .filter(Boolean);
+  const categories = allowed.filter(persona => normalizedParts.includes(persona.toLowerCase()));
+  return categories.length ? categories : ["Harmonist"];
 }
 
 function renderMenuLab(events) {
@@ -516,6 +710,17 @@ function normalizeScore(value) {
   return ((numberValue - 1) / 6) * 100;
 }
 
+function summarizePointCloud(points) {
+  if (!points.length) return "no data";
+  const averageX = average(points.map(point => point.x));
+  const averageY = average(points.map(point => point.y));
+  return `${denormalizeScore(averageX).toFixed(1)}, ${denormalizeScore(averageY).toFixed(1)}`;
+}
+
+function denormalizeScore(value) {
+  return (Number(value) / 100) * 6 + 1;
+}
+
 function parseMatchPercent(value) {
   const parsed = Number(String(value || "").replace(/[^0-9.]/g, ""));
   return Number.isFinite(parsed) ? parsed : 0;
@@ -559,4 +764,8 @@ function escapeHtml(value) {
     .replace(/>/g, "&gt;")
     .replace(/"/g, "&quot;")
     .replace(/'/g, "&#039;");
+}
+
+function escapeAttribute(value) {
+  return escapeHtml(value);
 }

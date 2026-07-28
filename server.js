@@ -7,6 +7,7 @@ loadEnvFile();
 
 const USAGE_FILE = path.join(ROOT_DIR, ".ai-usage.json");
 const RECOMMENDATION_EVENTS_FILE = path.join(ROOT_DIR, ".recommendation-events.jsonl");
+const RESTAURANT_MENUS_FILE = path.join(ROOT_DIR, ".restaurant-menus.json");
 const RECOMMENDATION_EVENTS_WEBHOOK_URL = process.env.RECOMMENDATION_EVENTS_WEBHOOK_URL || "";
 const RECOMMENDATION_EVENTS_READ_URL = process.env.RECOMMENDATION_EVENTS_READ_URL || RECOMMENDATION_EVENTS_WEBHOOK_URL;
 const PORT = Number(process.env.PORT || 3000);
@@ -89,6 +90,16 @@ const server = http.createServer(async (request, response) => {
 
     if (request.method === "GET" && request.url.startsWith("/api/dashboard-data")) {
       await handleDashboardData(request, response);
+      return;
+    }
+
+    if (request.method === "GET" && request.url.startsWith("/api/menu-data")) {
+      await handleMenuData(request, response);
+      return;
+    }
+
+    if (request.method === "POST" && request.url === "/api/menu-data") {
+      await handleMenuSave(request, response);
       return;
     }
 
@@ -281,6 +292,160 @@ async function handleDashboardData(request, response) {
     source: readResult.source,
     receiptDataAvailable: hasReceiptData(readResult.events)
   });
+}
+
+async function handleMenuData(request, response) {
+  const url = new URL(request.url, `http://${request.headers.host || "localhost"}`);
+  const restaurantSlug = sanitizeSlug(url.searchParams.get("restaurant"));
+
+  if (!restaurantSlug) {
+    sendJson(response, 400, { error: "restaurant is required" });
+    return;
+  }
+
+  const readResult = await readRestaurantMenu(restaurantSlug);
+
+  sendJson(response, 200, {
+    restaurantSlug,
+    drinks: readResult.drinks,
+    source: readResult.source
+  });
+}
+
+async function handleMenuSave(request, response) {
+  const body = await readJsonBody(request, 100_000);
+  const restaurantSlug = sanitizeSlug(body.restaurantSlug);
+
+  if (!restaurantSlug) {
+    sendJson(response, 400, { error: "restaurantSlug is required" });
+    return;
+  }
+
+  const drinks = sanitizeMenuDrinks(body.drinks);
+  if (!drinks.length) {
+    sendJson(response, 400, { error: "At least one drink is required" });
+    return;
+  }
+
+  const storageResult = await persistRestaurantMenu(restaurantSlug, drinks);
+
+  sendJson(response, storageResult.persisted ? 200 : 202, {
+    restaurantSlug,
+    drinks,
+    storage: storageResult
+  });
+}
+
+async function readRestaurantMenu(restaurantSlug) {
+  if (RECOMMENDATION_EVENTS_READ_URL) {
+    const remoteResult = await readRestaurantMenuFromRemote(restaurantSlug);
+    if (remoteResult.ok) return remoteResult;
+  }
+
+  return readRestaurantMenuFromLocalFile(restaurantSlug);
+}
+
+async function readRestaurantMenuFromRemote(restaurantSlug) {
+  try {
+    const url = new URL(RECOMMENDATION_EVENTS_READ_URL);
+    url.searchParams.set("type", "menu");
+    url.searchParams.set("restaurant", restaurantSlug);
+
+    const remoteResponse = await fetch(url);
+    if (!remoteResponse.ok) return { ok: false };
+
+    const data = await remoteResponse.json();
+    const drinks = sanitizeMenuDrinks(data.drinks);
+
+    return {
+      ok: true,
+      source: "remote-webhook",
+      drinks
+    };
+  } catch (error) {
+    console.error("Restaurant menu read error:", error);
+    return { ok: false };
+  }
+}
+
+async function readRestaurantMenuFromLocalFile(restaurantSlug) {
+  try {
+    const menus = JSON.parse(await fs.promises.readFile(RESTAURANT_MENUS_FILE, "utf8"));
+    return {
+      ok: true,
+      source: "local-json",
+      drinks: sanitizeMenuDrinks(menus[restaurantSlug])
+    };
+  } catch (error) {
+    if (error.code !== "ENOENT") {
+      console.error("Could not read restaurant menus locally:", error);
+    }
+
+    return {
+      ok: true,
+      source: "local-json",
+      drinks: []
+    };
+  }
+}
+
+async function persistRestaurantMenu(restaurantSlug, drinks) {
+  if (RECOMMENDATION_EVENTS_WEBHOOK_URL) {
+    const remoteResult = await persistRestaurantMenuToWebhook(restaurantSlug, drinks);
+    if (remoteResult.persisted) return remoteResult;
+  }
+
+  return persistRestaurantMenuToLocalFile(restaurantSlug, drinks);
+}
+
+async function persistRestaurantMenuToWebhook(restaurantSlug, drinks) {
+  try {
+    const webhookResponse = await fetch(RECOMMENDATION_EVENTS_WEBHOOK_URL, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        recordType: "menu",
+        restaurantSlug,
+        drinks
+      })
+    });
+
+    if (!webhookResponse.ok) {
+      console.error("Restaurant menu webhook failed:", webhookResponse.status);
+      return { persisted: false, provider: "webhook" };
+    }
+
+    return { persisted: true, provider: "webhook" };
+  } catch (error) {
+    console.error("Restaurant menu webhook error:", error);
+    return { persisted: false, provider: "webhook" };
+  }
+}
+
+async function persistRestaurantMenuToLocalFile(restaurantSlug, drinks) {
+  try {
+    let menus = {};
+
+    try {
+      menus = JSON.parse(await fs.promises.readFile(RESTAURANT_MENUS_FILE, "utf8"));
+    } catch (error) {
+      if (error.code !== "ENOENT") throw error;
+    }
+
+    menus[restaurantSlug] = drinks;
+    await fs.promises.writeFile(RESTAURANT_MENUS_FILE, JSON.stringify(menus, null, 2));
+
+    return { persisted: true, provider: "local-json" };
+  } catch (error) {
+    console.error("Could not persist restaurant menu locally:", error);
+    return {
+      persisted: false,
+      provider: "local-json",
+      warning: "No production menu storage is configured."
+    };
+  }
 }
 
 async function readRecommendationEvents(restaurantSlug) {
@@ -592,6 +757,51 @@ function sanitizeRecommendations(recommendations) {
     matchPercentage: sanitizeFreeText(drink?.matchPercentage, 10),
     distance: Number.isFinite(Number(drink?.distance)) ? Number(drink.distance) : null
   })).filter(drink => drink.name);
+}
+
+function sanitizeMenuDrinks(drinks) {
+  if (!Array.isArray(drinks)) return [];
+
+  return drinks.slice(0, 200).map(drink => {
+    const name = sanitizeFreeText(drink?.name, 120);
+    if (!name) return null;
+
+    return {
+      name,
+      liquor: sanitizeFreeText(drink?.liquor || drink?.type, 80),
+      type: sanitizeFreeText(drink?.type || drink?.liquor, 80),
+      category: sanitizeMenuCategories(drink?.category),
+      scores: {
+        strength: sanitizeScore(drink?.scores?.strength),
+        sweetness: sanitizeScore(drink?.scores?.sweetness),
+        sourness: sanitizeScore(drink?.scores?.sourness),
+        bitterness: sanitizeScore(drink?.scores?.bitterness),
+        thickness: sanitizeScore(drink?.scores?.thickness),
+        rarity: sanitizeScore(drink?.scores?.rarity),
+        masculinity: sanitizeScore(drink?.scores?.masculinity),
+        calories: sanitizeScore(drink?.scores?.calories)
+      },
+      description: sanitizeFreeText(drink?.description, 500),
+      ingredients: sanitizeFreeText(drink?.ingredients, 500)
+    };
+  }).filter(Boolean);
+}
+
+function sanitizeMenuCategories(categories) {
+  const rawCategories = Array.isArray(categories) ? categories : String(categories || "").split(/[,/]/g);
+  const allowed = new Set(["Purist", "Sunseeker", "Hedonist", "Bittersweet", "Adventurer", "Harmonist"]);
+  const sanitized = rawCategories
+    .map(category => sanitizeFreeText(category, 40))
+    .map(category => [...allowed].find(allowedCategory => allowedCategory.toLowerCase() === category.toLowerCase()))
+    .filter(Boolean);
+
+  return sanitized.length ? [...new Set(sanitized)] : ["Harmonist"];
+}
+
+function sanitizeScore(value) {
+  const numberValue = Number(value);
+  if (!Number.isFinite(numberValue)) return 4;
+  return Math.min(Math.max(Math.round(numberValue), 1), 7);
 }
 
 function formatTableLabel(tableSlug) {

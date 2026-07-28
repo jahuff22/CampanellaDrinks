@@ -3,7 +3,7 @@
 <head>
   <title>PROOF Console</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="stylesheet" href="/dashboard.css?v=2">
+  <link rel="stylesheet" href="/dashboard.css?v=4">
 </head>
 <body>
   <main class="console-shell">
@@ -71,15 +71,24 @@
       <section id="menu-map" class="tab-panel">
         <div class="panel-heading">
           <h1>Your guests and your cocktails, on the same map.</h1>
-          <p>Guest demand clusters are plotted against the current cocktail list.</p>
+          <p>Choose any two taste axes to compare guest demand against the current cocktail list.</p>
+        </div>
+        <div class="map-controls" aria-label="Menu map axes">
+          <label>
+            <span>X axis</span>
+            <select id="map-x-axis"></select>
+          </label>
+          <label>
+            <span>Y axis</span>
+            <select id="map-y-axis"></select>
+          </label>
         </div>
         <div class="map-layout">
           <div id="menu-map-plot" class="menu-map-plot" aria-label="Menu map"></div>
           <aside>
             <div class="legend">
-              <span><i class="dot drink-dot"></i>YOUR COCKTAILS</span>
-              <span><i class="dot guest-dot"></i>PALATE GROUPS</span>
-              <span><i class="dot gap-dot"></i>GAP</span>
+              <span><i class="dot guest-dot"></i>GUESTS</span>
+              <span><i class="dot drink-dot"></i>DRINKS</span>
             </div>
             <div id="map-gaps" class="callout-list"></div>
           </aside>
@@ -113,17 +122,25 @@
           <h1>Every drink, every axis - editable</h1>
           <p>Current menu coordinates used by recommendations and gap detection.</p>
         </div>
+        <div class="coordinate-actions">
+          <button id="add-drink-button" type="button">Add drink</button>
+          <button id="save-menu-button" type="button">Save menu</button>
+          <span id="menu-save-status" aria-live="polite"></span>
+        </div>
         <div class="table-wrap">
           <table>
             <thead>
               <tr>
                 <th>Drink</th>
+                <th>Type</th>
+                <th>Personas</th>
                 <th>Strength</th>
                 <th>Sweet</th>
                 <th>Sour</th>
                 <th>Bitter</th>
                 <th>Body</th>
                 <th>Rarity</th>
+                <th></th>
               </tr>
             </thead>
             <tbody id="coordinate-table"></tbody>
@@ -142,6 +159,6 @@
   </main>
 
   <script src="/drinks.js"></script>
-  <script src="/dashboard.js?v=2"></script>
+  <script src="/dashboard.js?v=4"></script>
 </body>
 </html>

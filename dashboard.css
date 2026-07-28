@@ -315,6 +315,34 @@ h2 {
   gap: 22px;
 }
 
+.map-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin: 16px 0 18px;
+}
+
+.map-controls label {
+  display: grid;
+  gap: 7px;
+  min-width: 180px;
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.map-controls select {
+  min-height: 36px;
+  padding: 0 34px 0 10px;
+  border: 1px solid var(--line);
+  border-radius: 0;
+  background: #070913;
+  color: var(--cream);
+  font: inherit;
+  font-size: 13px;
+}
+
 .menu-map-plot {
   position: relative;
   min-height: 460px;
@@ -338,22 +366,28 @@ h2 {
 .axis-left { left: 10px; bottom: 10px; }
 .axis-right { right: 10px; bottom: 10px; }
 .axis-top { top: 10px; left: 50%; transform: translateX(-50%); }
+.axis-bottom { bottom: 10px; left: 50%; transform: translateX(-50%); }
 
 .map-point {
   position: absolute;
-  width: 11px;
-  height: 11px;
+  width: 5px;
+  height: 5px;
   border-radius: 50%;
   transform: translate(-50%, -50%);
 }
 
 .map-point.drink {
-  border: 1px solid var(--gold);
-  background: #070913;
+  width: 15px;
+  height: 15px;
+  border: 1px solid rgba(242, 235, 220, 0.38);
+  border-radius: 0;
+  background: var(--gold);
+  transform: translate(-50%, -50%) rotate(45deg);
 }
 
 .map-point.guest {
-  background: var(--blue);
+  background: #ffffff;
+  box-shadow: 0 0 7px rgba(255, 255, 255, 0.44);
 }
 
 .map-point.gap {
@@ -391,11 +425,15 @@ h2 {
 }
 
 .drink-dot {
-  border: 1px solid var(--gold);
+  width: 12px;
+  height: 12px;
+  border: 1px solid rgba(242, 235, 220, 0.38);
+  background: var(--gold);
+  transform: rotate(45deg);
 }
 
 .guest-dot {
-  background: var(--blue);
+  background: #ffffff;
   border-radius: 50%;
 }
 
@@ -430,6 +468,34 @@ h2 {
 .table-wrap {
   overflow-x: auto;
   border-top: 1px solid var(--line);
+}
+
+.coordinate-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+  margin: 16px 0;
+}
+
+.coordinate-actions button,
+.remove-drink-button {
+  min-height: 34px;
+  padding: 0 12px;
+  border: 1px solid var(--line);
+  background: #070913;
+  color: var(--cream);
+  cursor: pointer;
+}
+
+#save-menu-button {
+  border-color: var(--gold);
+  color: var(--gold);
+}
+
+#menu-save-status {
+  color: var(--muted);
+  font-size: 13px;
 }
 
 table {
@@ -485,7 +551,7 @@ td {
 }
 
 .score-cell {
-  width: 84px;
+  width: 88px;
 }
 
 .score-bar {
@@ -499,6 +565,33 @@ td {
   display: block;
   height: 100%;
   background: var(--gold);
+}
+
+.coordinate-text-input,
+.coordinate-score-input {
+  width: 100%;
+  min-height: 32px;
+  border: 1px solid var(--line);
+  background: #070913;
+  color: var(--cream);
+  font: inherit;
+  font-size: 13px;
+}
+
+.coordinate-text-input {
+  min-width: 150px;
+  padding: 0 8px;
+}
+
+.coordinate-score-input {
+  min-width: 56px;
+  padding: 0 4px;
+  text-align: center;
+}
+
+.remove-drink-button {
+  min-height: 30px;
+  color: var(--rust);
 }
 
 .lab-grid {

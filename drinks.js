@@ -7,7 +7,7 @@ const traits = [
     "rarity"
 ];
 
-const drinks = [
+const defaultDrinks = [
     {
         name: "Amaretto Sour",
         liquor: "Amaretto",
@@ -369,3 +369,168 @@ const drinks = [
         ingredients: "Vodka, coffee liqueur, cream."
     }
 ];
+
+const restaurantDrinkRows = {
+    testrest: [
+        ["Margarita", "Classic", 3, 3, 4, 1, 2, 1, 1, 1, 4, "Sunseeker"],
+        ["Old Fashioned", "Classic", 6, 3, 1, 2, 3, 1, 1, 1, 7, "Purist"],
+        ["Mojito", "Classic", 3, 4, 3, 1, 2, 1, 1, 1, 6, "Sunseeker"],
+        ["Gin & Tonic", "Classic", 2, 2, 1, 2, 1, 1, 1, 1, 5, "Harmonist/Bittersweet flex"],
+        ["Whiskey Sour", "Classic", 3, 3, 4, 1, 4, 1, 1, 1, 5, "Sunseeker"],
+        ["Sidecar", "Classic", 5, 3, 4, 1, 2, 1, 1, 2, 6, "Sunseeker/Purist flex"],
+        ["Pina Colada", "Classic", 2, 7, 1, 1, 7, 1, 1, 1, 3, "Hedonist"],
+        ["White Sangria", "Classic", 2, 3, 3, 1, 2, 1, 1, 1, 3, "Sunseeker/harmonist flex"],
+        ["Red Sangria", "Classic", 2, 3, 2, 1, 2, 1, 1, 1, 4, "Sunseeker/harmonist flex"],
+        ["Martini", "Classic", 7, 1, 1, 1, 2, 1, 1, 1, 7, "Purist"],
+        ["Bloody Mary", "Classic", 2, 2, 3, 1, 4, 2, 2, 2, 5, "Bittersweet/harmonist/adventurer flex"],
+        ["Negroni", "Classic", 5, 3, 1, 7, 3, 1, 1, 1, 7, "Bittersweet (purist adjacent)"],
+        ["Americano", "Classic", 1, 3, 1, 5, 2, 1, 1, 1, 6, "Bittersweet"],
+        ["Aperol Spritz", "Classic", 2, 4, 1, 2, 1, 1, 1, 1, 3, "Bittersweet/sunseeker (harmomist adjacent)"],
+        ["Last Word", "Classic", 5, 4, 5, 2, 4, 4, 4, 4, 3, "Sunseeker/adventurer"],
+        ["Manhattan", "Classic", 6, 3, 1, 2, 2, 1, 1, 1, 7, "Purist"],
+        ["Sazerac", "Classic", 7, 2, 1, 3, 3, 3, 3, 3, 7, "Purist/bittersweet"],
+        ["Mint Julep", "Classic", 7, 3, 1, 1, 3, 1, 1, 1, 6, "Purist"],
+        ["Daiquiri", "Classic", 3, 3, 4, 1, 2, 1, 1, 1, 3, "Sunseeker"],
+        ["Coffee Flip", "Classic", 3, 5, 1, 1, 7, 2, 3, 3, 3, "Hedonist"],
+        ["Ramos Gin Fizz", "Classic", 2, 3, 3, 1, 6, 3, 4, 4, 3, "Hedonist (harmonist adjacent)"],
+        ["Brandy Alexander", "Classic", 3, 6, 1, 1, 7, 1, 1, 1, 2, "Hedonist"],
+        ["Espresso Martini", "Classic", 3, 5, 1, 2, 4, 1, 1, 1, 3, "Harmonist/Bittersweet (hedonist adjacent)"],
+        ["Irish Coffee", "Classic", 2, 3, 1, 3, 5, 1, 1, 1, 2, "Bittersweet/Hedonist"],
+        ["Tom Collins", "Classic", 2, 3, 4, 1, 2, 1, 1, 1, 4, "Sunseeker (harmonist adjacent)"],
+        ["French 75", "Classic", 3, 3, 3, 1, 2, 1, 1, 1, 2, "Sunseeker"],
+        ["Mimosa", "Classic", 1, 3, 2, 1, 2, 1, 1, 1, 1, "Harmonist"],
+        ["Moscow Mule", "Classic", 2, 3, 2, 1, 2, 1, 1, 1, 5, "Sunseeker"],
+        ["Paloma", "Classic", 2, 3, 4, 2, 2, 1, 1, 1, 3, "Sunseeker"],
+        ["Dark 'n' Stormy", "Classic", 2, 3, 2, 1, 2, 1, 1, 1, 6, "Sunseeker"],
+        ["Mai Tai", "Classic", 4, 5, 4, 1, 3, 3, 2, 3, 4, "Sunseeker (adventurer adjacent)"],
+        ["Zombie", "Classic", 5, 5, 4, 1, 3, 4, 4, 4, 4, "Sunseeker, Purist, Adventurer"],
+        ["Aviation", "Classic", 5, 3, 4, 1, 2, 5, 4, 4, 3, "Sunseeker, Purist (harmonist adjacent)"],
+        ["Corpse Reviver #2", "Classic", 4, 4, 5, 1, 3, 3, 3, 3, 3, "Sunseeker"],
+        ["Vodka Soda", "Classic", 2, 1, 1, 1, 1, 1, 1, 1, 3, "Harmonist"],
+        ["Bamboo", "Classic", 2, 1, 1, 3, 3, 3, 4, 4, 4, "Bittersweet, harmonist flex"],
+        ["Cocoa Puff", "Bespoke", 5, 6, 1, 3, 3, 7, 6, 7, 6, "Adventurer (bittwesweet, hedonist adjacent)"],
+        ["Lemon Meringue Pie", "Bespoke", 3, 5, 3, 1, 4, 5, 6, 6, 2, "Sunseeker (harmonist/indulgent adjacent)"],
+        ["Purple", "Bespoke", 3, 4, 4, 1, 4, 5, 4, 5, 2, "Sunseeker"],
+        ["The Conference", "Bespoke", 6, 3, 1, 2, 3, 5, 6, 6, 7, "Adventurer, purist flex"],
+        ["Creamy Tiki", "Bespoke", 4, 6, 3, 1, 5, 3, 3, 3, 3, "Hedonist, Adventurer"],
+        ["Rum Flip", "Bespoke", 5, 2, 1, 1, 6, 2, 3, 3, 3, "Hedonist, Adventurer"],
+        ["Cinnamon Girl", "Bespoke", 3, 3, 4, 1, 3, 4, 4, 4, 5, "Sunseeker, Adventurer"],
+        ["Cucumber Thai", "Bespoke", 3, 3, 4, 1, 4, 4, 5, 5, 4, "Sunseeker, Adventurer"],
+        ["Le CouCou", "Bespoke", 3, 3, 2, 1, 3, 6, 7, 7, 6, "Adventurer (harmonsist flex)"],
+        ["Mezcal Margarita", "Bespoke", 3, 3, 4, 1, 2, 3, 2, 3, 5, "Sunseeker, Adventurer flex"]
+    ]
+};
+
+const restaurantDrinkSets = Object.fromEntries(
+    Object.entries(restaurantDrinkRows).map(([restaurantSlug, rows]) => [
+        restaurantSlug,
+        rows.map(createRestaurantDrink)
+    ])
+);
+
+let drinks = getActiveDrinkSet();
+
+if (typeof window !== "undefined") {
+    window.drinks = drinks;
+    window.defaultDrinks = defaultDrinks;
+    window.restaurantDrinkSets = restaurantDrinkSets;
+    window.loadSavedDrinkSetForActiveRestaurant = loadSavedDrinkSetForActiveRestaurant;
+    window.setActiveDrinkSet = setActiveDrinkSet;
+    window.getActiveRestaurantSlug = getRestaurantSlugFromCurrentPath;
+}
+
+function createRestaurantDrink(row) {
+    const [
+        name,
+        type,
+        strength,
+        sweetness,
+        sourness,
+        bitterness,
+        thickness,
+        rarityIngredients,
+        rarityCombos,
+        rarity,
+        masculinity,
+        personas
+    ] = row;
+
+    return {
+        name,
+        liquor: type,
+        type,
+        category: parsePersonaCategories(personas),
+        scores: {
+            strength,
+            sweetness,
+            sourness,
+            bitterness,
+            thickness,
+            rarity,
+            rarityIngredients,
+            rarityCombos,
+            masculinity,
+            calories: 4
+        },
+        description: `${type} cocktail scored for ${personas}.`,
+        ingredients: "Ingredient list not provided."
+    };
+}
+
+function parsePersonaCategories(personas) {
+    const validPersonas = ["Purist", "Sunseeker", "Hedonist", "Bittersweet", "Adventurer", "Harmonist"];
+    const normalized = String(personas || "").toLowerCase();
+    const categories = validPersonas.filter(persona => normalized.includes(persona.toLowerCase()));
+    return categories.length ? categories : ["Harmonist"];
+}
+
+function getActiveDrinkSet() {
+    const restaurantSlug = getRestaurantSlugFromCurrentPath();
+    return restaurantDrinkSets[restaurantSlug] || defaultDrinks;
+}
+
+async function loadSavedDrinkSetForActiveRestaurant() {
+    const restaurantSlug = getRestaurantSlugFromCurrentPath();
+    if (!restaurantSlug) return drinks;
+
+    try {
+        const response = await fetch(`/api/menu-data?restaurant=${encodeURIComponent(restaurantSlug)}`);
+        const data = await response.json();
+
+        if (response.ok && Array.isArray(data.drinks) && data.drinks.length) {
+            setActiveDrinkSet(data.drinks);
+        }
+    } catch (error) {
+        console.warn("Could not load saved restaurant menu.", error);
+    }
+
+    return drinks;
+}
+
+function setActiveDrinkSet(nextDrinks) {
+    drinks = Array.isArray(nextDrinks) ? nextDrinks : getActiveDrinkSet();
+
+    if (typeof window !== "undefined") {
+        window.drinks = drinks;
+    }
+
+    return drinks;
+}
+
+function getRestaurantSlugFromCurrentPath() {
+    if (typeof window === "undefined") return "";
+    const pathParts = window.location.pathname.split("/").filter(Boolean);
+    const restaurantIndex = pathParts.indexOf("r");
+    if (restaurantIndex !== -1) return sanitizeDrinkSetSlug(pathParts[restaurantIndex + 1]);
+    if (pathParts[0] === "dashboard") return sanitizeDrinkSetSlug(pathParts[1]);
+    if (pathParts[1] === "dashboard") return sanitizeDrinkSetSlug(pathParts[0]);
+    return "";
+}
+
+function sanitizeDrinkSetSlug(value) {
+    return String(value || "")
+        .toLowerCase()
+        .replace(/[^a-z0-9_-]/g, "-")
+        .replace(/-+/g, "-")
+        .replace(/^-|-$/g, "");
+}
