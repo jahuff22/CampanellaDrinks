@@ -340,7 +340,14 @@ function drinkMatchesTerm(drink, term) {
   const expandedTerms = expandPreferenceTerm(term);
   const normalizedSearchableText = normalizeSearchText(searchableText);
 
-  return expandedTerms.some(expandedTerm => normalizedSearchableText.includes(expandedTerm));
+  return expandedTerms.some(expandedTerm => normalizedTextIncludesTerm(normalizedSearchableText, expandedTerm));
+}
+
+function normalizedTextIncludesTerm(text, term) {
+  const normalizedTerm = normalizeSearchText(term);
+  if (!normalizedTerm) return false;
+
+  return new RegExp(`(^|[^a-z0-9])${escapeRegExp(normalizedTerm)}([^a-z0-9]|$)`).test(text);
 }
 
 function hasMatchingTerm(drink, terms) {
