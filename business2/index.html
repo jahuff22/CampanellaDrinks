@@ -56,7 +56,7 @@
         <h2>Cocktail menus are getting better — and harder to navigate.</h2>
         <div class="problem-copy">
           <p>Guests want to try something new. But most of them don't know what <mark>clarified milk</mark>, <mark>amaro</mark>, <mark>aquavit</mark>, or <mark>fat-washed bourbon</mark> is going to taste like.</p>
-          <p>So they hesitate. They ask for a generic recommendation, or they fall back on the same order they always place. When they do take a chance, they often end up with a drink that tastes nothing like they expected.</p>
+          <p><b>So they hesitate. </b>They ask for a generic recommendation, or they fall back on the same order they always place.&nbsp; When they do take a chance, they often end up with a drink that tastes nothing like they expected.&nbsp;</p>
         </div>
       </div>
     </section>
@@ -161,39 +161,39 @@
     </section>
 
     <section id="dashboard" class="dashboard dark-section">
-      <div class="wrap dashboard-grid">
-        <div>
+      <div class="wrap">
+        <div class="section-grid">
           <p class="kicker"><span></span>The dashboard<span></span></p>
           <h2>See what your guests want.</h2>
-          <p class="dashboard-copy">What guests are drawn to, which drinks are getting recommended, and where demand isn't matching the current menu.</p>
         </div>
-        <div class="report-card">
-          <p>Sample data — illustrative only</p>
-          <h3>Preference report · last 30 days</h3>
-          <strong>1,284 profiles</strong>
-          <div class="report-columns">
-            <div>
-              <h4>Flavor demand</h4>
-              <dl>
-                <div><dt>Bitter &amp; herbaceous</dt><dd>31%</dd></div>
-                <div><dt>Bright &amp; citrus-forward</dt><dd>26%</dd></div>
-                <div><dt>Rich &amp; spirit-forward</dt><dd>22%</dd></div>
-                <div><dt>Light &amp; effervescent</dt><dd>14%</dd></div>
-                <div><dt>Sweet &amp; dessert-leaning</dt><dd>7%</dd></div>
-              </dl>
-            </div>
-            <div>
-              <h4>Menu signal</h4>
-              <dl>
-                <div><dt>Paper Plane</dt><dd>312 recs</dd></div>
-                <div><dt>Oaxaca Old Fashioned</dt><dd>241 recs</dd></div>
-                <div><dt>Garden Spritz</dt><dd>96 recs</dd></div>
-              </dl>
-            </div>
+        <p class="dashboard-copy">What guests are drawn to, which drinks are getting recommended, and where demand isn't matching the current menu.</p>
+
+        <div id="dashPanel" class="report-panel">
+          <div class="report-pattern" aria-hidden="true"></div>
+          <div class="sample-badge">Sample data — illustrative only</div>
+          <div class="report-topline">
+            <span>Preference report · Last 30 days</span>
+            <span>1,284 profiles</span>
           </div>
-          <div class="unmet">
-            <h4>Unmet demand</h4>
-            <p>Guests are asking for bitter, low-ABV drinks at nearly twice the rate your menu can currently serve.</p>
+          <div class="report-body">
+            <div class="report-column">
+              <span>Flavor demand</span>
+              <div class="meter-row"><div><span>Bitter &amp; herbaceous</span><b>31%</b></div><i><em style="width: 88%"></em></i></div>
+              <div class="meter-row"><div><span>Bright &amp; citrus-forward</span><b>26%</b></div><i><em style="width: 68%"></em></i></div>
+              <div class="meter-row"><div><span>Rich &amp; spirit-forward</span><b>22%</b></div><i><em style="width: 58%"></em></i></div>
+              <div class="meter-row"><div><span>Light &amp; effervescent</span><b>14%</b></div><i><em style="width: 38%"></em></i></div>
+              <div class="meter-row"><div><span>Sweet &amp; dessert-leaning</span><b>7%</b></div><i><em style="width: 20%"></em></i></div>
+            </div>
+            <div class="report-column">
+              <span>Menu signal</span>
+              <div class="meter-row"><div><span>Paper Plane</span><b>312 recs</b></div><i><em style="width: 88%"></em></i></div>
+              <div class="meter-row"><div><span>Oaxaca Old Fashioned</span><b>241 recs</b></div><i><em style="width: 68%"></em></i></div>
+              <div class="meter-row"><div><span>Garden Spritz</span><b>96 recs</b></div><i><em style="width: 27%"></em></i></div>
+              <div class="unmet">
+                <span>Unmet demand</span>
+                <p>Guests are asking for bitter, low-ABV drinks at nearly twice the rate your menu can currently serve.</p>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -227,11 +227,14 @@
         <a class="button-gold" href="mailto:hello@proofdrinks.com">Become a pilot</a>
         <a class="email" href="mailto:hello@proofdrinks.com">hello@proofdrinks.com</a>
       </div>
-      <footer class="wrap footer">
-        <p>PROOF<sup>&deg;</sup></p>
-        <p>Drink discovery for modern hospitality</p>
-      </footer>
     </section>
+    <footer class="footer">
+      <div class="wrap footer-inner">
+        <span>PROOF&deg;</span>
+        <span>Drink discovery for modern hospitality</span>
+        <span>New York, NY</span>
+      </div>
+    </footer>
   </div>
 </body>
 </html>
