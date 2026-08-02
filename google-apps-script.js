@@ -156,8 +156,20 @@ function getMenu(e) {
 
 function saveCustomer(event) {
   const sheet = getCustomerSheet();
+  const row = customerEventToRow(event);
+  const targetRow = findRowByValue(sheet, 2, event.id || "");
 
-  sheet.appendRow([
+  if (targetRow === -1) {
+    sheet.appendRow(row);
+  } else {
+    sheet.getRange(targetRow, 1, 1, CUSTOMER_HEADERS.length).setValues([row]);
+  }
+
+  return jsonResponse({ ok: true });
+}
+
+function customerEventToRow(event) {
+  return [
     new Date().toISOString(),
     event.id || "",
     event.createdAt || "",
@@ -175,9 +187,7 @@ function saveCustomer(event) {
     event.bartenderScript || "",
     JSON.stringify(event.recipe || {}),
     JSON.stringify(event.feedback || {})
-  ]);
-
-  return jsonResponse({ ok: true });
+  ];
 }
 
 function getSheet() {
@@ -223,6 +233,23 @@ function getCustomerSheet() {
   }
 
   return sheet;
+}
+
+function findRowByValue(sheet, columnNumber, value) {
+  const normalizedValue = String(value || "").trim();
+  if (!normalizedValue || sheet.getLastRow() < 2) {
+    return -1;
+  }
+
+  const values = sheet.getRange(2, columnNumber, sheet.getLastRow() - 1, 1).getValues();
+
+  for (let index = 0; index < values.length; index += 1) {
+    if (String(values[index][0] || "").trim() === normalizedValue) {
+      return index + 2;
+    }
+  }
+
+  return -1;
 }
 
 function rowToEvent(headers, row) {
