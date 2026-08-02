@@ -156,8 +156,9 @@ function getMenu(e) {
 
 function saveCustomer(event) {
   const sheet = getCustomerSheet();
+  const customerId = String(event.id || event.eventId || "").trim();
   const row = customerEventToRow(event);
-  const targetRow = findRowByValue(sheet, 2, event.id || "");
+  const targetRow = findCustomerRowByEventId(sheet, customerId);
 
   if (targetRow === -1) {
     sheet.appendRow(row);
@@ -171,7 +172,7 @@ function saveCustomer(event) {
 function customerEventToRow(event) {
   return [
     new Date().toISOString(),
-    event.id || "",
+    event.id || event.eventId || "",
     event.createdAt || "",
     event.email || "",
     event.birthday || "",
@@ -230,9 +231,40 @@ function getCustomerSheet() {
 
   if (sheet.getLastRow() === 0) {
     sheet.appendRow(CUSTOMER_HEADERS);
+  } else {
+    sheet.getRange(1, 1, 1, CUSTOMER_HEADERS.length).setValues([CUSTOMER_HEADERS]);
   }
 
   return sheet;
+}
+
+function findCustomerRowByEventId(sheet, eventId) {
+  const normalizedEventId = String(eventId || "").trim();
+  if (!normalizedEventId || sheet.getLastRow() < 2) {
+    return -1;
+  }
+
+  const headers = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0];
+  const eventIdColumn = headers.indexOf("eventId") + 1;
+
+  if (eventIdColumn > 0) {
+    const row = findRowByValue(sheet, eventIdColumn, normalizedEventId);
+    if (row !== -1) {
+      return row;
+    }
+  }
+
+  const values = sheet.getRange(2, 1, sheet.getLastRow() - 1, sheet.getLastColumn()).getValues();
+
+  for (let rowIndex = 0; rowIndex < values.length; rowIndex += 1) {
+    for (let columnIndex = 0; columnIndex < values[rowIndex].length; columnIndex += 1) {
+      if (String(values[rowIndex][columnIndex] || "").trim() === normalizedEventId) {
+        return rowIndex + 2;
+      }
+    }
+  }
+
+  return -1;
 }
 
 function findRowByValue(sheet, columnNumber, value) {

@@ -770,8 +770,30 @@ function displayCustomerResults(profileData, notice) {
 
   document.getElementById("customer-email-form").addEventListener("submit", async event => {
     event.preventDefault();
+    const form = event.currentTarget;
+    if (form.dataset.submitted === "true") return;
+
+    form.dataset.submitted = "true";
+    const submitButton = form.querySelector("button[type='submit']");
     const email = document.getElementById("customer-email").value.trim();
-    await unlockCustomerResults(profileData, email);
+
+    if (submitButton) {
+      submitButton.disabled = true;
+      submitButton.textContent = "Sending...";
+    }
+
+    try {
+      await unlockCustomerResults(profileData, email);
+      if (submitButton) {
+        submitButton.textContent = "Sent";
+      }
+    } catch (error) {
+      form.dataset.submitted = "false";
+      if (submitButton) {
+        submitButton.disabled = false;
+        submitButton.textContent = "Send my drinks";
+      }
+    }
   });
 
   document.querySelector(".recommendations-heading h2").textContent = "Your Palate";
