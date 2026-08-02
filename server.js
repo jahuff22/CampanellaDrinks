@@ -650,7 +650,31 @@ async function persistCustomerEventToWebhook(event) {
 
 async function persistCustomerEventToLocalFile(event) {
   try {
-    await fs.promises.appendFile(CUSTOMER_EVENTS_FILE, `${JSON.stringify(event)}\n`);
+    let existingEvents = [];
+
+    try {
+      const fileContents = await fs.promises.readFile(CUSTOMER_EVENTS_FILE, "utf8");
+      existingEvents = fileContents
+        .split(/\r?\n/)
+        .filter(Boolean)
+        .map(line => JSON.parse(line));
+    } catch (error) {
+      if (error.code !== "ENOENT") {
+        throw error;
+      }
+    }
+
+    const existingIndex = existingEvents.findIndex(existingEvent => existingEvent.id === event.id);
+
+    if (existingIndex === -1) {
+      existingEvents.push(event);
+    } else {
+      existingEvents[existingIndex] = event;
+    }
+
+    const fileContents = existingEvents.map(existingEvent => JSON.stringify(existingEvent)).join("\n");
+    await fs.promises.writeFile(CUSTOMER_EVENTS_FILE, `${fileContents}\n`);
+
     return {
       persisted: true,
       provider: "local-jsonl"
