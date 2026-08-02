@@ -780,8 +780,11 @@ function createRecommendationEvent(body) {
 }
 
 function createCustomerEvent(body) {
+  const eventId = sanitizeIdentifier(body.eventId) || createId("cust");
+
   return {
-    id: sanitizeIdentifier(body.eventId) || createId("cust"),
+    id: eventId,
+    eventId,
     schemaVersion: 1,
     recordType: "customer",
     createdAt: new Date().toISOString(),
