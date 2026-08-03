@@ -663,6 +663,65 @@ td {
   grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 
+.lab-controls {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 18px;
+  align-items: start;
+  margin-bottom: 20px;
+  padding-bottom: 18px;
+  border-bottom: 1px solid var(--line);
+}
+
+.lab-inventory-control,
+.lab-complexity-control {
+  display: grid;
+  gap: 10px;
+}
+
+.lab-inventory-control span,
+.lab-complexity-control legend {
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.lab-inventory-control textarea {
+  min-height: 120px;
+  width: 100%;
+  border: 1px solid var(--line);
+  background: #070913;
+  color: var(--cream);
+  font: inherit;
+  font-size: 13px;
+  line-height: 1.4;
+  padding: 10px 12px;
+  resize: vertical;
+}
+
+.lab-complexity-control {
+  min-width: 220px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.complexity-button {
+  min-height: 36px;
+  border: 1px solid var(--line);
+  background: transparent;
+  color: var(--cream);
+  cursor: pointer;
+  text-align: left;
+  padding: 0 12px;
+}
+
+.complexity-button.is-active {
+  border-color: var(--gold);
+  color: var(--gold);
+}
+
 .lab-card {
   min-height: 210px;
 }
@@ -677,6 +736,11 @@ td {
   border-top: 1px solid var(--line);
 }
 
+.lab-complexity-note {
+  color: var(--muted);
+  font-size: 12px;
+}
+
 @media (max-width: 900px) {
   .console-frame {
     padding: 22px 18px;
@@ -684,7 +748,8 @@ td {
 
   .console-header,
   .personas-top,
-  .map-layout {
+  .map-layout,
+  .lab-controls {
     grid-template-columns: 1fr;
   }
 

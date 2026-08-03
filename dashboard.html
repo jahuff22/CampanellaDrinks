@@ -3,7 +3,7 @@
 <head>
   <title>PROOF Console</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="stylesheet" href="/dashboard.css?v=5">
+  <link rel="stylesheet" href="/dashboard.css?v=6">
 </head>
 <body>
   <main class="console-shell">
@@ -154,12 +154,24 @@
           <h1>Where the fixes land</h1>
           <p>Menu Lab turns underserved demand into briefs your beverage team can evaluate.</p>
         </div>
+        <div class="lab-controls">
+          <label class="lab-inventory-control">
+            <span>Bar ingredients</span>
+            <textarea id="bar-ingredients-input" rows="5"></textarea>
+          </label>
+          <fieldset class="lab-complexity-control">
+            <legend>Complexity</legend>
+            <button class="complexity-button is-active" type="button" data-complexity="simple">Simple</button>
+            <button class="complexity-button" type="button" data-complexity="standard">Standard</button>
+            <button class="complexity-button" type="button" data-complexity="advanced">Advanced</button>
+          </fieldset>
+        </div>
         <div id="menu-lab-list" class="lab-grid"></div>
       </section>
     </section>
   </main>
 
   <script src="/drinks.js"></script>
-  <script src="/dashboard.js?v=5"></script>
+  <script src="/dashboard.js?v=6"></script>
 </body>
 </html>

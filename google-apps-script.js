@@ -22,7 +22,8 @@ const HEADERS = [
 const MENU_HEADERS = [
   "updatedAt",
   "restaurantSlug",
-  "drinks"
+  "drinks",
+  "barIngredients"
 ];
 
 const CUSTOMER_HEADERS = [
@@ -101,6 +102,7 @@ function doGet(e) {
 function saveMenu(payload) {
   const restaurantSlug = String(payload.restaurantSlug || "").toLowerCase().trim();
   const drinks = Array.isArray(payload.drinks) ? payload.drinks : [];
+  const barIngredients = Array.isArray(payload.barIngredients) ? payload.barIngredients : [];
 
   if (!restaurantSlug || !drinks.length) {
     return jsonResponse({ ok: false, error: "restaurantSlug and drinks are required" });
@@ -120,7 +122,8 @@ function saveMenu(payload) {
   const row = [
     new Date().toISOString(),
     restaurantSlug,
-    JSON.stringify(drinks)
+    JSON.stringify(drinks),
+    JSON.stringify(barIngredients)
   ];
 
   if (targetRow === -1) {
@@ -142,7 +145,8 @@ function getMenu(e) {
       return jsonResponse({
         ok: true,
         restaurantSlug,
-        drinks: parseJson(rows[index][2], [])
+        drinks: parseJson(rows[index][2], []),
+        barIngredients: parseJson(rows[index][3], [])
       });
     }
   }
@@ -150,7 +154,8 @@ function getMenu(e) {
   return jsonResponse({
     ok: true,
     restaurantSlug,
-    drinks: []
+    drinks: [],
+    barIngredients: []
   });
 }
 
@@ -216,6 +221,8 @@ function getMenuSheet() {
 
   if (sheet.getLastRow() === 0) {
     sheet.appendRow(MENU_HEADERS);
+  } else {
+    sheet.getRange(1, 1, 1, MENU_HEADERS.length).setValues([MENU_HEADERS]);
   }
 
   return sheet;

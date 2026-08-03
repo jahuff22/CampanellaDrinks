@@ -520,16 +520,13 @@ async function handleMenuData(request, response) {
     return;
   }
 
-  if (!isDashboardAuthorized(request, restaurantSlug)) {
-    sendJson(response, 401, { error: "Dashboard login required" });
-    return;
-  }
-
   const readResult = await readRestaurantMenu(restaurantSlug);
+  const includeInventory = isDashboardAuthorized(request, restaurantSlug);
 
   sendJson(response, 200, {
     restaurantSlug,
     drinks: readResult.drinks,
+    barIngredients: includeInventory ? readResult.barIngredients : [],
     source: readResult.source
   });
 }
@@ -549,16 +546,18 @@ async function handleMenuSave(request, response) {
   }
 
   const drinks = sanitizeMenuDrinks(body.drinks);
+  const barIngredients = sanitizeBarIngredients(body.barIngredients);
   if (!drinks.length) {
     sendJson(response, 400, { error: "At least one drink is required" });
     return;
   }
 
-  const storageResult = await persistRestaurantMenu(restaurantSlug, drinks);
+  const storageResult = await persistRestaurantMenu(restaurantSlug, drinks, barIngredients);
 
   sendJson(response, storageResult.persisted ? 200 : 202, {
     restaurantSlug,
     drinks,
+    barIngredients,
     storage: storageResult
   });
 }
@@ -583,11 +582,13 @@ async function readRestaurantMenuFromRemote(restaurantSlug) {
 
     const data = await remoteResponse.json();
     const drinks = sanitizeMenuDrinks(data.drinks);
+    const barIngredients = sanitizeBarIngredients(data.barIngredients);
 
     return {
       ok: true,
       source: "remote-webhook",
-      drinks
+      drinks,
+      barIngredients
     };
   } catch (error) {
     console.error("Restaurant menu read error:", error);
@@ -598,10 +599,15 @@ async function readRestaurantMenuFromRemote(restaurantSlug) {
 async function readRestaurantMenuFromLocalFile(restaurantSlug) {
   try {
     const menus = JSON.parse(await fs.promises.readFile(RESTAURANT_MENUS_FILE, "utf8"));
+    const menuRecord = menus[restaurantSlug];
+    const drinks = Array.isArray(menuRecord) ? menuRecord : menuRecord?.drinks;
+    const barIngredients = Array.isArray(menuRecord) ? [] : menuRecord?.barIngredients;
+
     return {
       ok: true,
       source: "local-json",
-      drinks: sanitizeMenuDrinks(menus[restaurantSlug])
+      drinks: sanitizeMenuDrinks(drinks),
+      barIngredients: sanitizeBarIngredients(barIngredients)
     };
   } catch (error) {
     if (error.code !== "ENOENT") {
@@ -611,21 +617,22 @@ async function readRestaurantMenuFromLocalFile(restaurantSlug) {
     return {
       ok: true,
       source: "local-json",
-      drinks: []
+      drinks: [],
+      barIngredients: []
     };
   }
 }
 
-async function persistRestaurantMenu(restaurantSlug, drinks) {
+async function persistRestaurantMenu(restaurantSlug, drinks, barIngredients) {
   if (RECOMMENDATION_EVENTS_WEBHOOK_URL) {
-    const remoteResult = await persistRestaurantMenuToWebhook(restaurantSlug, drinks);
+    const remoteResult = await persistRestaurantMenuToWebhook(restaurantSlug, drinks, barIngredients);
     if (remoteResult.persisted) return remoteResult;
   }
 
-  return persistRestaurantMenuToLocalFile(restaurantSlug, drinks);
+  return persistRestaurantMenuToLocalFile(restaurantSlug, drinks, barIngredients);
 }
 
-async function persistRestaurantMenuToWebhook(restaurantSlug, drinks) {
+async function persistRestaurantMenuToWebhook(restaurantSlug, drinks, barIngredients) {
   try {
     const webhookResponse = await fetch(RECOMMENDATION_EVENTS_WEBHOOK_URL, {
       method: "POST",
@@ -635,7 +642,8 @@ async function persistRestaurantMenuToWebhook(restaurantSlug, drinks) {
       body: JSON.stringify({
         recordType: "menu",
         restaurantSlug,
-        drinks
+        drinks,
+        barIngredients
       })
     });
 
@@ -651,7 +659,7 @@ async function persistRestaurantMenuToWebhook(restaurantSlug, drinks) {
   }
 }
 
-async function persistRestaurantMenuToLocalFile(restaurantSlug, drinks) {
+async function persistRestaurantMenuToLocalFile(restaurantSlug, drinks, barIngredients) {
   try {
     let menus = {};
 
@@ -661,7 +669,10 @@ async function persistRestaurantMenuToLocalFile(restaurantSlug, drinks) {
       if (error.code !== "ENOENT") throw error;
     }
 
-    menus[restaurantSlug] = drinks;
+    menus[restaurantSlug] = {
+      drinks,
+      barIngredients
+    };
     await fs.promises.writeFile(RESTAURANT_MENUS_FILE, JSON.stringify(menus, null, 2));
 
     return { persisted: true, provider: "local-json" };
@@ -1152,6 +1163,23 @@ function sanitizeMenuDrinks(drinks) {
       ingredients: sanitizeFreeText(drink?.ingredients, 500)
     };
   }).filter(Boolean);
+}
+
+function sanitizeBarIngredients(ingredients) {
+  if (!Array.isArray(ingredients)) return [];
+
+  const seen = new Set();
+  const sanitized = [];
+
+  for (const ingredient of ingredients) {
+    const value = sanitizeFreeText(ingredient, 80).toLowerCase();
+    if (!value || seen.has(value)) continue;
+    seen.add(value);
+    sanitized.push(value);
+    if (sanitized.length >= 300) break;
+  }
+
+  return sanitized.sort((a, b) => a.localeCompare(b));
 }
 
 function sanitizeMenuCategories(categories) {
