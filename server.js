@@ -1,6 +1,7 @@
 const http = require("http");
 const fs = require("fs");
 const path = require("path");
+const crypto = require("crypto");
 
 const ROOT_DIR = __dirname;
 loadEnvFile();
@@ -13,6 +14,11 @@ const RECOMMENDATION_EVENTS_WEBHOOK_URL = process.env.RECOMMENDATION_EVENTS_WEBH
 const RECOMMENDATION_EVENTS_READ_URL = process.env.RECOMMENDATION_EVENTS_READ_URL || RECOMMENDATION_EVENTS_WEBHOOK_URL;
 const PORT = Number(process.env.PORT || 3000);
 const MODEL = process.env.OPENAI_MODEL || "gpt-5.4-nano";
+const ADMIN_DASHBOARD_PASSWORD = process.env.ADMIN_DASHBOARD_PASSWORD || "";
+const DASHBOARD_PASSWORDS = parseDashboardPasswords(process.env.DASHBOARD_PASSWORDS || "{}");
+const SESSION_SECRET = process.env.SESSION_SECRET || "";
+const DASHBOARD_SESSION_COOKIE = "proof_dashboard_session";
+const DASHBOARD_SESSION_TTL_SECONDS = 60 * 60 * 12;
 const PAID_FEATURE_CUTOFF_DOLLARS = Math.min(Number(process.env.AI_MONTHLY_LIMIT_DOLLARS || 5), 5);
 const HARD_MONTHLY_CAP_DOLLARS = Math.min(Number(process.env.AI_HARD_MONTHLY_CAP_DOLLARS || 6), 6);
 const INPUT_PRICE_PER_1M = Number(process.env.AI_INPUT_PRICE_PER_1M || 0.2);
@@ -98,6 +104,16 @@ const server = http.createServer(async (request, response) => {
       return;
     }
 
+    if (request.method === "POST" && request.url === "/api/dashboard-login") {
+      await handleDashboardLogin(request, response);
+      return;
+    }
+
+    if (request.method === "POST" && request.url === "/api/dashboard-logout") {
+      handleDashboardLogout(response);
+      return;
+    }
+
     if (request.method === "GET" && request.url.startsWith("/api/dashboard-data")) {
       await handleDashboardData(request, response);
       return;
@@ -150,6 +166,140 @@ function loadEnvFile() {
       process.env[key] = value;
     }
   }
+}
+
+function parseDashboardPasswords(rawValue) {
+  try {
+    const parsed = JSON.parse(rawValue);
+
+    return Object.entries(parsed || {}).reduce((passwords, [restaurantSlug, password]) => {
+      const slug = sanitizeSlug(restaurantSlug);
+      if (slug && typeof password === "string" && password) {
+        passwords[slug] = password;
+      }
+      return passwords;
+    }, {});
+  } catch (error) {
+    console.warn("DASHBOARD_PASSWORDS must be valid JSON.");
+    return {};
+  }
+}
+
+function getDashboardAccessRole(restaurantSlug, password) {
+  if (ADMIN_DASHBOARD_PASSWORD && secureCompare(password, ADMIN_DASHBOARD_PASSWORD)) {
+    return "admin";
+  }
+
+  const restaurantPassword = DASHBOARD_PASSWORDS[restaurantSlug];
+  if (restaurantPassword && secureCompare(password, restaurantPassword)) {
+    return "restaurant";
+  }
+
+  return "";
+}
+
+function createDashboardSessionCookie(session) {
+  const expiresAt = Date.now() + DASHBOARD_SESSION_TTL_SECONDS * 1000;
+  const payload = {
+    restaurantSlug: session.restaurantSlug,
+    role: session.role,
+    expiresAt
+  };
+  const encodedPayload = base64UrlEncode(JSON.stringify(payload));
+  const signature = signDashboardSession(encodedPayload);
+  const secureFlag = process.env.NODE_ENV === "production" ? "; Secure" : "";
+
+  return [
+    `${DASHBOARD_SESSION_COOKIE}=${encodedPayload}.${signature}`,
+    "Path=/",
+    "HttpOnly",
+    "SameSite=Lax",
+    `Max-Age=${DASHBOARD_SESSION_TTL_SECONDS}${secureFlag}`
+  ].join("; ");
+}
+
+function isDashboardAuthorized(request, restaurantSlug) {
+  const session = readDashboardSession(request);
+
+  if (!session) {
+    return false;
+  }
+
+  return session.role === "admin" || session.restaurantSlug === restaurantSlug;
+}
+
+function readDashboardSession(request) {
+  if (!SESSION_SECRET) {
+    return null;
+  }
+
+  const cookies = parseCookies(request.headers.cookie || "");
+  const token = cookies[DASHBOARD_SESSION_COOKIE];
+  if (!token || !token.includes(".")) {
+    return null;
+  }
+
+  const [encodedPayload, signature] = token.split(".");
+  if (!encodedPayload || !signature || !secureCompare(signature, signDashboardSession(encodedPayload))) {
+    return null;
+  }
+
+  try {
+    const payload = JSON.parse(base64UrlDecode(encodedPayload));
+    if (!payload.expiresAt || Number(payload.expiresAt) < Date.now()) {
+      return null;
+    }
+
+    return {
+      restaurantSlug: sanitizeSlug(payload.restaurantSlug),
+      role: payload.role === "admin" ? "admin" : "restaurant"
+    };
+  } catch (error) {
+    return null;
+  }
+}
+
+function signDashboardSession(encodedPayload) {
+  if (!SESSION_SECRET) {
+    return "";
+  }
+
+  return crypto
+    .createHmac("sha256", SESSION_SECRET)
+    .update(encodedPayload)
+    .digest("base64url");
+}
+
+function parseCookies(cookieHeader) {
+  return String(cookieHeader || "")
+    .split(";")
+    .map(part => part.trim())
+    .filter(Boolean)
+    .reduce((cookies, part) => {
+      const equalsIndex = part.indexOf("=");
+      if (equalsIndex === -1) return cookies;
+      cookies[part.slice(0, equalsIndex)] = decodeURIComponent(part.slice(equalsIndex + 1));
+      return cookies;
+    }, {});
+}
+
+function secureCompare(value, expectedValue) {
+  const valueBuffer = Buffer.from(String(value || ""));
+  const expectedBuffer = Buffer.from(String(expectedValue || ""));
+
+  if (valueBuffer.length !== expectedBuffer.length) {
+    return false;
+  }
+
+  return crypto.timingSafeEqual(valueBuffer, expectedBuffer);
+}
+
+function base64UrlEncode(value) {
+  return Buffer.from(value, "utf8").toString("base64url");
+}
+
+function base64UrlDecode(value) {
+  return Buffer.from(value, "base64url").toString("utf8");
 }
 
 async function handleParsePreferences(request, response) {
@@ -296,12 +446,60 @@ async function handleCustomerEvent(request, response) {
   });
 }
 
+async function handleDashboardLogin(request, response) {
+  if (!SESSION_SECRET) {
+    sendJson(response, 503, { error: "SESSION_SECRET is not configured" });
+    return;
+  }
+
+  const body = await readJsonBody(request, 10_000);
+  const restaurantSlug = sanitizeSlug(body.restaurantSlug);
+  const password = String(body.password || "");
+
+  if (!restaurantSlug || !password) {
+    sendJson(response, 400, { error: "restaurantSlug and password are required" });
+    return;
+  }
+
+  const role = getDashboardAccessRole(restaurantSlug, password);
+
+  if (!role) {
+    sendJson(response, 401, { error: "Invalid dashboard password" });
+    return;
+  }
+
+  const cookie = createDashboardSessionCookie({ restaurantSlug, role });
+
+  response.writeHead(200, {
+    "Content-Type": "application/json; charset=utf-8",
+    "Cache-Control": "no-store",
+    "X-Content-Type-Options": "nosniff",
+    "Set-Cookie": cookie
+  });
+  response.end(JSON.stringify({ ok: true, restaurantSlug, role }));
+}
+
+function handleDashboardLogout(response) {
+  response.writeHead(200, {
+    "Content-Type": "application/json; charset=utf-8",
+    "Cache-Control": "no-store",
+    "X-Content-Type-Options": "nosniff",
+    "Set-Cookie": `${DASHBOARD_SESSION_COOKIE}=; Path=/; HttpOnly; SameSite=Lax; Max-Age=0`
+  });
+  response.end(JSON.stringify({ ok: true }));
+}
+
 async function handleDashboardData(request, response) {
   const url = new URL(request.url, `http://${request.headers.host || "localhost"}`);
   const restaurantSlug = sanitizeSlug(url.searchParams.get("restaurant"));
 
   if (!restaurantSlug) {
     sendJson(response, 400, { error: "restaurant is required" });
+    return;
+  }
+
+  if (!isDashboardAuthorized(request, restaurantSlug)) {
+    sendJson(response, 401, { error: "Dashboard login required" });
     return;
   }
 
@@ -324,6 +522,11 @@ async function handleMenuData(request, response) {
     return;
   }
 
+  if (!isDashboardAuthorized(request, restaurantSlug)) {
+    sendJson(response, 401, { error: "Dashboard login required" });
+    return;
+  }
+
   const readResult = await readRestaurantMenu(restaurantSlug);
 
   sendJson(response, 200, {
@@ -339,6 +542,11 @@ async function handleMenuSave(request, response) {
 
   if (!restaurantSlug) {
     sendJson(response, 400, { error: "restaurantSlug is required" });
+    return;
+  }
+
+  if (!isDashboardAuthorized(request, restaurantSlug)) {
+    sendJson(response, 401, { error: "Dashboard login required" });
     return;
   }
 
@@ -1139,7 +1347,11 @@ function readJsonBody(request, maxBytes) {
 
 function serveStaticFile(request, response) {
   const rawPath = request.url.split("?")[0];
-  const requestPath = ROUTE_ALIASES.get(rawPath) || (isRestaurantTableRoute(rawPath) ? "/index.html" : (isDashboardRoute(rawPath) ? "/dashboard.html" : (rawPath === "/" ? "/index.html" : rawPath)));
+  const dashboardRestaurantSlug = getDashboardRestaurantSlugFromPath(rawPath);
+  const dashboardPath = dashboardRestaurantSlug
+    ? (isDashboardAuthorized(request, dashboardRestaurantSlug) ? "/dashboard.html" : "/dashboard-login.html")
+    : null;
+  const requestPath = ROUTE_ALIASES.get(rawPath) || (isRestaurantTableRoute(rawPath) ? "/index.html" : (dashboardPath || (rawPath === "/" ? "/index.html" : rawPath)));
   const decodedPath = decodeURIComponent(requestPath.split("?")[0]);
   const filePath = path.normalize(path.join(ROOT_DIR, decodedPath));
 
@@ -1171,6 +1383,20 @@ function isRestaurantTableRoute(rawPath) {
 
 function isDashboardRoute(rawPath) {
   return /^\/dashboard\/[a-zA-Z0-9_-]+\/?$/.test(rawPath) || /^\/[a-zA-Z0-9_-]+\/dashboard\/?$/.test(rawPath);
+}
+
+function getDashboardRestaurantSlugFromPath(rawPath) {
+  const dashboardFirstMatch = rawPath.match(/^\/dashboard\/([a-zA-Z0-9_-]+)\/?$/);
+  if (dashboardFirstMatch) {
+    return sanitizeSlug(dashboardFirstMatch[1]);
+  }
+
+  const dashboardSecondMatch = rawPath.match(/^\/([a-zA-Z0-9_-]+)\/dashboard\/?$/);
+  if (dashboardSecondMatch) {
+    return sanitizeSlug(dashboardSecondMatch[1]);
+  }
+
+  return "";
 }
 
 function sendJson(response, statusCode, data) {

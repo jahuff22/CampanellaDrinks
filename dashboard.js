@@ -19,6 +19,7 @@ const state = {
 };
 
 document.getElementById("refresh-button").addEventListener("click", loadDashboard);
+document.getElementById("logout-button").addEventListener("click", logoutDashboard);
 
 for (const button of document.querySelectorAll(".tab-button")) {
   button.addEventListener("click", () => setActiveTab(button.dataset.tab));
@@ -61,6 +62,11 @@ async function loadDashboard() {
     const response = await fetch(`/api/dashboard-data?restaurant=${encodeURIComponent(state.restaurantSlug)}`);
     const data = await response.json();
 
+    if (response.status === 401) {
+      window.location.reload();
+      return;
+    }
+
     if (!response.ok) throw new Error(data.error || "Dashboard data failed");
 
     state.events = Array.isArray(data.events) ? data.events : [];
@@ -71,6 +77,11 @@ async function loadDashboard() {
     renderDashboard({ events: [], receiptDataAvailable: false });
     showStatus("Dashboard data is unavailable. Check the read webhook setup or local event file.");
   }
+}
+
+async function logoutDashboard() {
+  await fetch("/api/dashboard-logout", { method: "POST" });
+  window.location.reload();
 }
 
 function renderDashboard(data) {

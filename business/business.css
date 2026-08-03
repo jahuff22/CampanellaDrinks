@@ -842,6 +842,10 @@ mark {
     max-width: 560px;
   }
 
+  .founder-grid {
+    margin-top: 2rem;
+  }
+
   .two-cards article,
   .steps article {
     border-right: 0;

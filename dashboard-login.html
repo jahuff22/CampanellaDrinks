@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>PROOF Dashboard Login</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="/dashboard.css?v=5">
+</head>
+<body>
+  <main class="dashboard-login-shell">
+    <section class="dashboard-login-panel">
+      <a class="brand" href="/">PROOF.</a>
+      <p class="kicker">Dashboard Access</p>
+      <h1 id="login-restaurant-title">Restaurant Console</h1>
+      <form id="dashboard-login-form" class="dashboard-login-form">
+        <label>
+          Password
+          <input id="dashboard-password" type="password" autocomplete="current-password" required>
+        </label>
+        <button type="submit">Log in</button>
+      </form>
+      <p id="dashboard-login-status" class="dashboard-login-status" hidden></p>
+    </section>
+  </main>
+  <script src="/dashboard-login.js?v=1"></script>
+</body>
+</html>

@@ -37,6 +37,71 @@ a {
   padding: 24px 0;
 }
 
+.dashboard-login-shell {
+  display: grid;
+  min-height: 100vh;
+  place-items: center;
+  padding: 24px;
+}
+
+.dashboard-login-panel {
+  width: min(460px, 100%);
+  border: 1px solid rgba(201, 165, 92, 0.56);
+  background: var(--panel);
+  box-shadow: var(--shadow);
+  padding: 34px;
+}
+
+.dashboard-login-panel .brand {
+  display: inline-block;
+  margin-bottom: 28px;
+}
+
+.dashboard-login-form {
+  display: grid;
+  gap: 16px;
+  margin-top: 26px;
+}
+
+.dashboard-login-form label {
+  display: grid;
+  gap: 8px;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.dashboard-login-form input {
+  min-height: 46px;
+  width: 100%;
+  border: 1px solid var(--line);
+  background: #070913;
+  color: var(--cream);
+  font: inherit;
+  padding: 0 12px;
+}
+
+.dashboard-login-form button {
+  min-height: 46px;
+  border: 1px solid var(--gold);
+  background: var(--gold);
+  color: #070913;
+  cursor: pointer;
+  font-weight: 700;
+}
+
+.dashboard-login-form button:disabled {
+  cursor: wait;
+  opacity: 0.7;
+}
+
+.dashboard-login-status {
+  margin: 16px 0 0;
+  color: var(--rust);
+  font-size: 13px;
+}
+
 .console-frame {
   min-height: calc(100vh - 48px);
   border: 1px solid rgba(201, 165, 92, 0.56);
