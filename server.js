@@ -40,8 +40,6 @@ const ROUTE_ALIASES = new Map([
   ["/landing/", "/landing/index.html"],
   ["/business", "/business/index.html"],
   ["/business/", "/business/index.html"],
-  ["/business2", "/business2/index.html"],
-  ["/business2/", "/business2/index.html"],
   ["/customer", "/index.html"],
   ["/customer/", "/index.html"]
 ]);
