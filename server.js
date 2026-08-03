@@ -223,7 +223,7 @@ function isDashboardAuthorized(request, restaurantSlug) {
     return false;
   }
 
-  return session.role === "admin" || session.restaurantSlug === restaurantSlug;
+  return session.restaurantSlug === restaurantSlug;
 }
 
 function readDashboardSession(request) {
