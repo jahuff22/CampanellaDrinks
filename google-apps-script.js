@@ -156,9 +156,9 @@ function getMenu(e) {
 
 function saveCustomer(event) {
   const sheet = getCustomerSheet();
-  const customerId = String(event.id || event.eventId || "").trim();
-  const row = customerEventToRow(event);
-  const targetRow = findCustomerRowByEventId(sheet, customerId);
+  const customerId = String(event.customerRecordId || event.eventId || event.id || "").trim();
+  const targetRow = findCustomerRow(sheet, customerId, event.email || "", event.saveAction || "");
+  const row = customerEventToRow(event, getExistingCustomerRecord(sheet, targetRow));
 
   if (targetRow === -1) {
     sheet.appendRow(row);
@@ -169,25 +169,25 @@ function saveCustomer(event) {
   return jsonResponse({ ok: true });
 }
 
-function customerEventToRow(event) {
+function customerEventToRow(event, existing) {
   return [
     new Date().toISOString(),
-    event.id || event.eventId || "",
-    event.createdAt || "",
-    event.email || "",
-    event.birthday || "",
-    event.sourcePath || "",
-    event.persona || "",
-    event.aboutYou || "",
-    JSON.stringify(event.guestInput?.sliderPreferences || {}),
-    JSON.stringify(event.guestInput?.importantTraits || {}),
-    event.guestInput?.qualitativeText || "",
-    JSON.stringify(event.guestInput?.parsedPreferences || {}),
-    JSON.stringify(event.recommendations || []),
-    JSON.stringify(event.spiritsAndModifiers || []),
-    event.bartenderScript || "",
-    JSON.stringify(event.recipe || {}),
-    JSON.stringify(event.feedback || {})
+    event.customerRecordId || event.eventId || event.id || existing.eventId || "",
+    event.createdAt || existing.createdAt || "",
+    event.email || existing.email || "",
+    event.birthday || existing.birthday || "",
+    event.sourcePath || existing.sourcePath || "",
+    event.persona || existing.persona || "",
+    event.aboutYou || existing.aboutYou || "",
+    JSON.stringify(event.guestInput?.sliderPreferences || parseJson(existing.sliderPreferences, {})),
+    JSON.stringify(event.guestInput?.importantTraits || parseJson(existing.importantTraits, {})),
+    event.guestInput?.qualitativeText || existing.qualitativeText || "",
+    JSON.stringify(event.guestInput?.parsedPreferences || parseJson(existing.parsedPreferences, {})),
+    JSON.stringify(event.recommendations || parseJson(existing.recommendations, [])),
+    JSON.stringify(event.spiritsAndModifiers || parseJson(existing.spiritsAndModifiers, [])),
+    event.bartenderScript || existing.bartenderScript || "",
+    JSON.stringify(event.recipe || parseJson(existing.recipe, {})),
+    JSON.stringify(event.feedback || parseJson(existing.feedback, {}))
   ];
 }
 
@@ -238,6 +238,19 @@ function getCustomerSheet() {
   return sheet;
 }
 
+function findCustomerRow(sheet, eventId, email, saveAction) {
+  const eventIdRow = findCustomerRowByEventId(sheet, eventId);
+  if (eventIdRow !== -1) {
+    return eventIdRow;
+  }
+
+  if (String(saveAction || "").toLowerCase() === "details") {
+    return findMostRecentCustomerRowByEmail(sheet, email);
+  }
+
+  return -1;
+}
+
 function findCustomerRowByEventId(sheet, eventId) {
   const normalizedEventId = String(eventId || "").trim();
   if (!normalizedEventId || sheet.getLastRow() < 2) {
@@ -265,6 +278,44 @@ function findCustomerRowByEventId(sheet, eventId) {
   }
 
   return -1;
+}
+
+function findMostRecentCustomerRowByEmail(sheet, email) {
+  const normalizedEmail = String(email || "").trim().toLowerCase();
+  if (!normalizedEmail || sheet.getLastRow() < 2) {
+    return -1;
+  }
+
+  const headers = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0];
+  const emailColumn = headers.indexOf("email") + 1;
+
+  if (emailColumn <= 0) {
+    return -1;
+  }
+
+  const values = sheet.getRange(2, emailColumn, sheet.getLastRow() - 1, 1).getValues();
+
+  for (let index = values.length - 1; index >= 0; index -= 1) {
+    if (String(values[index][0] || "").trim().toLowerCase() === normalizedEmail) {
+      return index + 2;
+    }
+  }
+
+  return -1;
+}
+
+function getExistingCustomerRecord(sheet, rowNumber) {
+  if (rowNumber === -1) {
+    return {};
+  }
+
+  const headers = sheet.getRange(1, 1, 1, CUSTOMER_HEADERS.length).getValues()[0];
+  const values = sheet.getRange(rowNumber, 1, 1, CUSTOMER_HEADERS.length).getValues()[0];
+
+  return headers.reduce((record, header, index) => {
+    record[header] = values[index];
+    return record;
+  }, {});
 }
 
 function findRowByValue(sheet, columnNumber, value) {

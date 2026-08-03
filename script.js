@@ -807,11 +807,11 @@ async function unlockCustomerResults(profileData, email) {
   unlocked.hidden = false;
   unlocked.innerHTML = createUnlockedCustomerHtml(profileData);
   populateInterestingDrinkOptions(profileData.recommendations);
-  await saveCustomerEvent(profileData, email);
+  await saveCustomerEvent(profileData, email, {}, "", "email");
 
   document.getElementById("customer-feedback-form").addEventListener("submit", async event => {
     event.preventDefault();
-    await saveCustomerEvent(profileData, email, getCustomerFeedback(), getCustomerBirthday());
+    await saveCustomerEvent(profileData, email, getCustomerFeedback(), getCustomerBirthday(), "details");
     document.getElementById("customer-save-status").textContent = "Saved. Thank you.";
   });
 }
@@ -899,15 +899,17 @@ function getCustomerBirthday() {
   return document.getElementById("customer-birthday")?.value || "";
 }
 
-async function saveCustomerEvent(profileData, email, feedback = {}, birthday = "") {
+async function saveCustomerEvent(profileData, email, feedback = {}, birthday = "", saveAction = "update") {
   try {
-    await fetch("/api/customer-events", {
+    const response = await fetch("/api/customer-events", {
       method: "POST",
       headers: {
         "Content-Type": "application/json"
       },
       body: JSON.stringify({
         ...profileData,
+        customerRecordId: profileData.eventId,
+        saveAction,
         email,
         birthday,
         feedback,
@@ -921,8 +923,13 @@ async function saveCustomerEvent(profileData, email, feedback = {}, birthday = "
       }),
       keepalive: true
     });
+
+    if (!response.ok) {
+      throw new Error(`Customer save failed with status ${response.status}`);
+    }
   } catch (error) {
     console.warn("Could not save customer event.", error);
+    throw error;
   }
 }
 
