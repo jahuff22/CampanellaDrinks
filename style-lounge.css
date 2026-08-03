@@ -667,6 +667,39 @@ h2 {
   font: inherit;
 }
 
+.customer-feedback-form .rating-field {
+  display: grid;
+  gap: 10px;
+}
+
+.customer-feedback-form .rating-scale {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 4px;
+  align-items: start;
+  color: rgba(255, 243, 223, 0.72);
+  font-size: 0.78rem;
+  line-height: 1.2;
+  text-align: center;
+}
+
+.customer-feedback-form .rating-scale span {
+  display: grid;
+  justify-items: center;
+  gap: 3px;
+  min-width: 0;
+}
+
+.customer-feedback-form .rating-scale b {
+  color: var(--gold);
+  font-size: 0.86rem;
+}
+
+.customer-feedback-form .rating-scale small {
+  color: rgba(255, 243, 223, 0.78);
+  font-size: 0.68rem;
+}
+
 .customer-email-form button,
 .customer-feedback-form button {
   min-height: 44px;

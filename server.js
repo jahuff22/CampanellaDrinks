@@ -1145,7 +1145,7 @@ function sanitizeMenuDrinks(drinks) {
         bitterness: sanitizeScore(drink?.scores?.bitterness),
         thickness: sanitizeScore(drink?.scores?.thickness),
         rarity: sanitizeScore(drink?.scores?.rarity),
-        masculinity: sanitizeScore(drink?.scores?.masculinity),
+        masculinity: sanitizeBinaryScore(drink?.scores?.masculinity),
         calories: sanitizeScore(drink?.scores?.calories)
       },
       description: sanitizeFreeText(drink?.description, 500),
@@ -1169,6 +1169,10 @@ function sanitizeScore(value) {
   const numberValue = Number(value);
   if (!Number.isFinite(numberValue)) return 4;
   return Math.min(Math.max(Math.round(numberValue), 1), 7);
+}
+
+function sanitizeBinaryScore(value) {
+  return Number(value) >= 1 ? 1 : 0;
 }
 
 function formatTableLabel(tableSlug) {

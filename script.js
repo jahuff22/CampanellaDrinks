@@ -437,11 +437,11 @@ function recommendDrinks(
 function isRemovedByFeaturePreference(drink, qualitativePreferences) {
   const featurePreferences = qualitativePreferences.featurePreferences || {};
 
-  if (featurePreferences.masculinity === "masculine" && drink.scores.masculinity <= 2) {
+  if (featurePreferences.masculinity === "masculine" && drink.scores.masculinity !== 1) {
     return true;
   }
 
-  if (featurePreferences.masculinity === "feminine" && drink.scores.masculinity >= 6) {
+  if (featurePreferences.masculinity === "feminine" && drink.scores.masculinity !== 0) {
     return true;
   }
 
@@ -456,16 +456,12 @@ function getFeaturePreferenceMultiplier(drink, qualitativePreferences) {
   const featurePreferences = qualitativePreferences.featurePreferences || {};
   let multiplier = 1;
 
-  if (featurePreferences.masculinity === "masculine" && drink.scores.masculinity >= 6) {
+  if (featurePreferences.masculinity === "masculine" && drink.scores.masculinity === 1) {
     multiplier *= 0.65;
-  } else if (featurePreferences.masculinity === "masculine" && drink.scores.masculinity === 5) {
-    multiplier *= 0.8;
   }
 
-  if (featurePreferences.masculinity === "feminine" && drink.scores.masculinity <= 2) {
+  if (featurePreferences.masculinity === "feminine" && drink.scores.masculinity === 0) {
     multiplier *= 0.65;
-  } else if (featurePreferences.masculinity === "feminine" && drink.scores.masculinity === 3) {
-    multiplier *= 0.8;
   }
 
   if (featurePreferences.calories === "low" && drink.scores.calories <= 2) {
@@ -845,8 +841,17 @@ function createUnlockedCustomerHtml(profileData) {
       <label>Which of the drinks interests you most?
         <select id="customer-interesting-drink"></select>
       </label>
-      <label>How much do you like these drinks?
-        <input id="customer-drink-rating" type="range" min="1" max="7" value="4">
+      <label class="rating-field">How happy are you with the recommendations?
+        <input id="customer-drink-rating" type="range" min="1" max="7" value="4" aria-describedby="customer-rating-scale">
+        <div id="customer-rating-scale" class="rating-scale" aria-hidden="true">
+          <span><b>1</b><small>I hate this</small></span>
+          <span>2</span>
+          <span>3</span>
+          <span>4</span>
+          <span>5</span>
+          <span>6</span>
+          <span><b>7</b><small>I love this</small></span>
+        </div>
       </label>
       <label>What is your favorite drink?
         <input id="customer-favorite-drink" type="text">
@@ -883,7 +888,8 @@ function createCustomerDrinkCard(drink) {
 
 function populateInterestingDrinkOptions(recommendations) {
   const select = document.getElementById("customer-interesting-drink");
-  select.innerHTML = recommendations.map(drink => `<option value="${escapeHtml(drink.name)}">${escapeHtml(drink.name)}</option>`).join("");
+  const placeholder = '<option value="" selected disabled>Choose a recommendation</option>';
+  select.innerHTML = placeholder + recommendations.map(drink => `<option value="${escapeHtml(drink.name)}">${escapeHtml(drink.name)}</option>`).join("");
 }
 
 function getCustomerFeedback() {
