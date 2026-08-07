@@ -418,8 +418,27 @@ const restaurantDrinkRows = {
         ["Cucumber Thai", "Bespoke", 3, 3, 4, 1, 4, 4, 5, 5, 0, "Sunseeker, Adventurer"],
         ["Le CouCou", "Bespoke", 3, 3, 2, 1, 3, 6, 7, 7, 1, "Adventurer (harmonsist flex)"],
         ["Mezcal Margarita", "Bespoke", 3, 3, 4, 1, 2, 3, 2, 3, 1, "Sunseeker, Adventurer flex"]
+    ],
+    gabriellas: [
+        ["Yuzu Zaza", "Signature", 3, 3, 4, 1, 2, 3, 3, 3, 0, "Sunseeker (adventurer adjacent)", "Gray Whale Gin, honeydew, kiwi, yuzu, fresh lemon"],
+        ["Ciao, Bella", "Signature", 3, 4, 3, 1, 2, 2, 2, 2, 0, "Sunseeker", "Tasmanian vodka, strawberry, mint, agave, lime"],
+        ["Tomato-Tini", "Signature", 4, 1, 3, 1, 3, 4, 4, 4, 1, "Adventurer (bittersweet flex)", "ALB Vodka, tomato, white balsamic, lemon, black pepper"],
+        ["POM.com", "Signature", 4, 4, 3, 2, 3, 2, 2, 2, 0, "Adventurer / bittersweet flex", "Highwest, St. Germain, pomegranate, Peychaud's"],
+        ["Scorpio Season", "Signature", 4, 4, 3, 1, 3, 3, 3, 3, 1, "Adventurer", "Tanteo Jalapeno, Grand Marnier, blood orange"],
+        ["Incompearable", "Signature", 3, 5, 3, 1, 3, 2, 2, 2, 0, "Harmonist (hedonist adjacent)", "Grey Goose Pear, St. Germain, pear, lemon"],
+        ["Mia Margarita", "Signature", 3, 4, 4, 1, 3, 1, 1, 1, 0, "Sunseeker", "Patron Silver, passionfruit, agave, fresh lime"],
+        ["Where's the Beach?!", "Signature", 3, 4, 3, 2, 2, 2, 2, 2, 0, "Sunseeker (bittersweet adjacent)", "Ketel One, Cointreau, Aperol, orange, lime"],
+        ["Class Act", "Signature", 2, 5, 2, 1, 2, 3, 3, 3, 0, "Harmonist / hedonist flex", "Prosecco, St. Germain, fig, plum, thyme, honey"],
+        ["Gondola Ride", "Signature", 3, 3, 3, 1, 2, 2, 2, 2, 0, "Sunseeker", "Hendrick's, watermelon, mint, lime"],
+        ["White Lotus", "Signature", 4, 4, 3, 1, 3, 3, 3, 3, 1, "Adventurer (purist adjacent)", "Mi Campo, Mezcal Union, pear, honey, lemon"],
+        ["Bad Berry", "Signature", 4, 4, 3, 1, 3, 2, 2, 2, 1, "Sunseeker / adventurer flex", "Don Julio Reposado, Grand Marnier, blackberry"],
+        ["Applewood Smoked Old Fashioned", "Signature", 6, 3, 1, 2, 3, 3, 3, 3, 1, "Purist", "Widow Jane, sugar, bitters, applewood smoke"]
     ]
 };
+
+const customCocktailSourceRows = typeof customCocktailRows !== "undefined"
+    ? customCocktailRows
+    : (typeof window !== "undefined" && Array.isArray(window.customCocktailRows) ? window.customCocktailRows : []);
 
 const restaurantDrinkSets = Object.fromEntries(
     Object.entries(restaurantDrinkRows).map(([restaurantSlug, rows]) => [
@@ -427,6 +446,10 @@ const restaurantDrinkSets = Object.fromEntries(
         rows.map(createRestaurantDrink)
     ])
 );
+
+if (customCocktailSourceRows.length) {
+    restaurantDrinkSets.custom = customCocktailSourceRows.map(createCustomCocktailDrink);
+}
 
 let drinks = getActiveDrinkSet();
 
@@ -452,7 +475,8 @@ function createRestaurantDrink(row) {
         rarityCombos,
         rarity,
         masculinity,
-        personas
+        personas,
+        ingredients
     ] = row;
 
     return {
@@ -473,11 +497,66 @@ function createRestaurantDrink(row) {
             calories: 4
         },
         description: `${type} cocktail scored for ${personas}.`,
-        ingredients: "Ingredient list not provided."
+        ingredients: ingredients || "Ingredient list not provided."
     };
 }
 
+function createCustomCocktailDrink(row) {
+    const recipeIngredients = extractRecipeIngredients(row.recipe);
+
+    return {
+        name: row.name,
+        liquor: row.style,
+        type: row.style,
+        style: row.style,
+        category: parsePersonaCategories(row.persona),
+        scores: {
+            strength: Number(row.strength) || 4,
+            sweetness: Number(row.sweetness) || 4,
+            sourness: Number(row.sourness) || 4,
+            bitterness: Number(row.bitterness) || 4,
+            thickness: Number(row.thickness) || 4,
+            rarity: Number(row.rarity) || 4,
+            masculinity: Number(row.masculinity) >= 1 ? 1 : 0,
+            calories: 4
+        },
+        description: `${row.style} custom cocktail scored for ${row.persona}.`,
+        ingredients: recipeIngredients.join(", "),
+        recipe: row.recipe,
+        process: row.process,
+        complexity: row.complexity || "Accessible",
+        customIngredients: recipeIngredients
+    };
+}
+
+function extractRecipeIngredients(recipe) {
+    return String(recipe || "")
+        .split(/\r?\n/g)
+        .map(cleanRecipeIngredient)
+        .filter(Boolean);
+}
+
+function cleanRecipeIngredient(value) {
+    return String(value || "")
+        .toLowerCase()
+        .replace(/\([^)]*\)/g, "")
+        .replace(/\btop with\b/g, "")
+        .replace(/\bsmall handful(?: of)?\b/g, "")
+        .replace(/\bmuddled\b/g, "")
+        .replace(/\bcombined\b/g, "")
+        .replace(/\bto top\b/g, "")
+        .replace(/\bserved alongside\b/g, "")
+        .replace(/\b\d+(?:\.\d+)?\s*(?:\/\s*\d+)?\s*(?:oz|ml|g|tsp|tbsp|barspoons?|barspoon|dashes|dash|drops|drop|pinch|slices?|wedges?|cups?|cup|bottle|gallon)\b/g, "")
+        .replace(/\b\d+\s*\/\s*\d+\s*(?:oz|ml|g|tsp|tbsp|barspoons?|barspoon|dashes|dash|drops|drop|pinch|slices?|wedges?|cups?|cup)?\b/g, "")
+        .replace(/\b\d+(?:\.\d+)?\b/g, "")
+        .replace(/[:,].*$/g, "")
+        .replace(/\s+/g, " ")
+        .trim();
+}
+
 function toMasculinityFlag(value) {
+    if (String(value).toLowerCase() === "yes") return 1;
+    if (String(value).toLowerCase() === "no") return 0;
     const numberValue = Number(value);
     if (numberValue === 1) return 1;
     if (numberValue === 0) return 0;
@@ -531,6 +610,9 @@ function getRestaurantSlugFromCurrentPath() {
     if (restaurantIndex !== -1) return sanitizeDrinkSetSlug(pathParts[restaurantIndex + 1]);
     if (pathParts[0] === "dashboard") return sanitizeDrinkSetSlug(pathParts[1]);
     if (pathParts[1] === "dashboard") return sanitizeDrinkSetSlug(pathParts[0]);
+    if (pathParts.length >= 1 && pathParts.length <= 2 && !isReservedDrinkSetPath(pathParts[0])) {
+        return sanitizeDrinkSetSlug(pathParts[0]);
+    }
     return "";
 }
 
@@ -540,6 +622,10 @@ function sanitizeDrinkSetSlug(value) {
         .replace(/[^a-z0-9_-]/g, "-")
         .replace(/-+/g, "-")
         .replace(/^-|-$/g, "");
+}
+
+function isReservedDrinkSetPath(value) {
+    return ["api", "alpha", "business", "customer", "dashboard", "landing", "shared"].includes(String(value || "").toLowerCase());
 }
 
 

@@ -653,7 +653,7 @@ function renderMenuLab(events) {
   }
 
   const recommendations = gaps
-    .map(gap => ({ ...gap, labRecipe: buildInventoryConstrainedLabRecipe(gap, inventory) }))
+    .map(gap => ({ ...gap, labRecipe: findCustomCocktailForGap(gap, inventory) }))
     .filter(gap => gap.labRecipe);
 
   if (!recommendations.length) {
@@ -666,7 +666,8 @@ function renderMenuLab(events) {
       <div class="lab-title">${escapeHtml(gap.shortTitle)}</div>
       <p>${escapeHtml(gap.brief)}</p>
       <p class="lab-ingredients"><strong>${escapeHtml(gap.labRecipe.name)}</strong><br>${escapeHtml(gap.labRecipe.ingredients.join(", "))}</p>
-      <p class="lab-complexity-note">${escapeHtml(gap.labRecipe.complexityLabel)} complexity. Uses only saved bar ingredients.</p>
+      <p>${escapeHtml(gap.labRecipe.process)}</p>
+      <p class="lab-complexity-note">${escapeHtml(gap.labRecipe.complexityLabel)} complexity. Uses only saved bar ingredients. Match distance: ${gap.labRecipe.distance.toFixed(1)}.</p>
     </article>
   `).join("");
 }
@@ -758,72 +759,77 @@ function buildLabBrief(group) {
   return `A drink for guests asking for ${traits}. The current menu is not giving this cluster a strong match.`;
 }
 
-function buildInventoryConstrainedLabRecipe(group, inventory) {
-  const maxIngredients = getMenuLabMaxIngredients();
-  const picks = [];
+function findCustomCocktailForGap(group, inventory) {
+  const customDrinks = getCustomCocktailPool();
+  const maxComplexity = getMenuLabMaxComplexity();
+  const candidates = customDrinks
+    .filter(drink => getDrinkComplexityRank(drink) <= maxComplexity)
+    .map(drink => ({
+      drink,
+      ingredients: getDrinkIngredientList(drink),
+      distance: calculateDrinkGapDistance(drink, group.average)
+    }))
+    .filter(candidate => candidate.ingredients.length && candidate.ingredients.every(ingredient => inventoryHasIngredient(inventory, ingredient)))
+    .sort((a, b) => a.distance - b.distance);
 
-  addFirstAvailableIngredient(picks, inventory, ["gin", "vodka", "tequila", "mezcal", "rum", "whiskey", "bourbon", "rye", "brandy", "cognac"]);
+  return candidates[0] ? buildLabRecipeFromCandidate(candidates[0]) : null;
+}
 
-  if (group.highTraits.includes("sourness")) {
-    addFirstAvailableIngredient(picks, inventory, ["lime", "lemon", "grapefruit", "orange", "citrus"]);
-  }
-
-  if (!group.lowTraits.includes("sweetness")) {
-    addFirstAvailableIngredient(picks, inventory, ["simple syrup", "honey", "agave", "orgeat", "grenadine", "pineapple", "orange liqueur", "cointreau", "curacao"]);
-  }
-
-  if (group.highTraits.includes("bitterness")) {
-    addFirstAvailableIngredient(picks, inventory, ["campari", "aperol", "amaro", "bitters", "vermouth"]);
-  }
-
-  if (group.highTraits.includes("thickness")) {
-    addFirstAvailableIngredient(picks, inventory, ["egg white", "cream", "coconut", "cream of coconut", "pineapple"]);
-  }
-
-  if (group.highTraits.includes("rarity")) {
-    addFirstAvailableIngredient(picks, inventory, ["chartreuse", "absinthe", "benedictine", "sherry", "lillet", "mezcal", "amaro"]);
-  }
-
-  if (!group.highTraits.includes("sourness") && !group.lowTraits.includes("sweetness")) {
-    addFirstAvailableIngredient(picks, inventory, ["soda water", "prosecco", "sparkling wine", "ginger beer", "vermouth"]);
-  }
-
-  const uniquePicks = [...new Set(picks)].slice(0, maxIngredients);
-  if (uniquePicks.length < 2) return null;
-
+function buildLabRecipeFromCandidate(candidate) {
   return {
-    name: `${buildGapShortTitle(group)} build`,
-    ingredients: uniquePicks,
-    complexityLabel: getComplexityLabel(uniquePicks.length)
+    name: candidate.drink.name,
+    ingredients: candidate.ingredients,
+    process: candidate.drink.process || candidate.drink.description || "",
+    complexityLabel: candidate.drink.complexity || "Accessible",
+    distance: candidate.distance
   };
 }
 
-function addFirstAvailableIngredient(picks, inventory, terms) {
-  const existing = new Set(picks.map(normalizeIngredientName));
+function getCustomCocktailPool() {
+  return Array.isArray(window.restaurantDrinkSets?.custom) ? window.restaurantDrinkSets.custom : [];
+}
 
-  for (const term of terms) {
-    const normalizedTerm = normalizeIngredientName(term);
-    const ingredient = inventory.find(item => normalizeIngredientName(item).includes(normalizedTerm));
-    if (ingredient && !existing.has(normalizeIngredientName(ingredient))) {
-      picks.push(ingredient);
-      return;
-    }
+function getMenuLabMaxComplexity() {
+  const rankBySetting = {
+    simple: 1,
+    standard: 2,
+    advanced: 3
+  };
+  return rankBySetting[state.menuLabComplexity] || rankBySetting.simple;
+}
+
+function getDrinkComplexityRank(drink) {
+  const normalized = String(drink.complexity || "").toLowerCase();
+  if (normalized === "accessible") return 1;
+  if (normalized === "craft") return 2;
+  if (normalized === "expert") return 3;
+  return 2;
+}
+
+function getDrinkIngredientList(drink) {
+  if (Array.isArray(drink.customIngredients) && drink.customIngredients.length) {
+    return normalizeIngredientList(drink.customIngredients);
   }
+
+  return normalizeIngredientList(splitIngredientText(drink.recipe || drink.ingredients));
 }
 
-function getMenuLabMaxIngredients() {
-  const maxByComplexity = {
-    simple: 3,
-    standard: 5,
-    advanced: 7
-  };
-  return maxByComplexity[state.menuLabComplexity] || maxByComplexity.simple;
+function calculateDrinkGapDistance(drink, averageScores) {
+  return Object.keys(traitLabels).reduce((sum, trait) => {
+    return sum + Math.abs(Number(drink.scores?.[trait] || 0) - Number(averageScores[trait] || 0));
+  }, 0);
 }
 
-function getComplexityLabel(ingredientCount) {
-  if (ingredientCount <= 3) return "Simple";
-  if (ingredientCount <= 5) return "Standard";
-  return "Advanced";
+function inventoryHasIngredient(inventory, ingredient) {
+  const normalizedIngredient = normalizeIngredientName(ingredient);
+  if (!normalizedIngredient) return false;
+
+  return inventory.some(item => {
+    const normalizedItem = normalizeIngredientName(item);
+    return normalizedItem === normalizedIngredient ||
+      normalizedItem.includes(normalizedIngredient) ||
+      normalizedIngredient.includes(normalizedItem);
+  });
 }
 
 function deriveBarIngredientsFromMenu(drinks) {
@@ -853,7 +859,12 @@ function splitIngredientText(value) {
 function cleanIngredientName(value) {
   return String(value || "")
     .toLowerCase()
+    .replace(/\([^)]*\)/g, "")
+    .replace(/\btop with\b/g, "")
     .replace(/\b(optional|fresh|grated|slice|wedge|wheel|twist|leaves|cube|crushed|rinse|rim)\b/g, "")
+    .replace(/\b\d+(?:\.\d+)?\s*(?:\/\s*\d+)?\s*(?:oz|ml|g|tsp|tbsp|barspoons?|barspoon|dashes|dash|drops|drop|pinch|slices?|wedges?|cups?|cup|bottle|gallon)\b/g, "")
+    .replace(/\b\d+\s*\/\s*\d+\s*(?:oz|ml|g|tsp|tbsp|barspoons?|barspoon|dashes|dash|drops|drop|pinch|slices?|wedges?|cups?|cup)?\b/g, "")
+    .replace(/\b\d+(?:\.\d+)?\b/g, "")
     .replace(/\s+/g, " ")
     .replace(/^\s+|\s+$/g, "");
 }
