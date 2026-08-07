@@ -544,6 +544,7 @@ h2 {
 }
 
 .coordinate-actions button,
+.drink-info-button,
 .remove-drink-button {
   min-height: 34px;
   padding: 0 12px;
@@ -633,7 +634,10 @@ td {
 }
 
 .coordinate-text-input,
-.coordinate-score-input {
+.coordinate-score-input,
+.drink-detail-editor input,
+.drink-detail-editor select,
+.drink-detail-editor textarea {
   width: 100%;
   min-height: 32px;
   border: 1px solid var(--line);
@@ -657,6 +661,60 @@ td {
 .remove-drink-button {
   min-height: 30px;
   color: var(--rust);
+}
+
+.drink-info-button {
+  width: 30px;
+  min-height: 30px;
+  margin-right: 6px;
+  border-color: var(--gold);
+  border-radius: 999px;
+  color: var(--gold);
+  font-weight: 700;
+  padding: 0;
+}
+
+.drink-info-button[aria-expanded="true"] {
+  background: var(--gold);
+  color: #070913;
+}
+
+.drink-detail-row td {
+  background: #090d19;
+  padding: 16px;
+}
+
+.drink-detail-editor {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.drink-detail-editor label {
+  display: grid;
+  gap: 7px;
+}
+
+.drink-detail-editor label:nth-child(-n + 4) {
+  grid-column: span 3;
+}
+
+.drink-detail-editor span {
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.drink-detail-editor textarea {
+  min-height: 86px;
+  padding: 8px 10px;
+  resize: vertical;
+}
+
+.drink-detail-editor input,
+.drink-detail-editor select {
+  padding: 0 8px;
 }
 
 .lab-grid {
@@ -764,8 +822,13 @@ td {
 
   .summary-strip,
   .spend-grid,
-  .lab-grid {
+  .lab-grid,
+  .drink-detail-editor {
     grid-template-columns: 1fr;
+  }
+
+  .drink-detail-editor label:nth-child(-n + 4) {
+    grid-column: span 1;
   }
 
   .persona-row {

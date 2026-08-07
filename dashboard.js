@@ -17,7 +17,8 @@ const state = {
   mapXAxis: "bitterness",
   mapYAxis: "sweetness",
   barIngredients: [],
-  menuLabComplexity: "simple"
+  menuLabComplexity: "simple",
+  expandedDrinkIndex: null
 };
 
 document.getElementById("refresh-button").addEventListener("click", loadDashboard);
@@ -39,6 +40,7 @@ document.getElementById("map-y-axis").addEventListener("change", event => {
 document.getElementById("add-drink-button").addEventListener("click", addDrink);
 document.getElementById("save-menu-button").addEventListener("click", saveMenu);
 document.getElementById("coordinate-table").addEventListener("input", handleCoordinateInput);
+document.getElementById("coordinate-table").addEventListener("change", handleCoordinateInput);
 document.getElementById("coordinate-table").addEventListener("click", handleCoordinateClick);
 document.getElementById("bar-ingredients-input").addEventListener("input", handleBarIngredientsInput);
 
@@ -483,10 +485,63 @@ function renderCoordinates() {
       </td>
       ${Object.keys(traitLabels).map(trait => renderScoreCell(drinkIndex, trait, drink.scores?.[trait])).join("")}
       <td>
+        <button class="drink-info-button" type="button" data-drink-index="${drinkIndex}" aria-expanded="${state.expandedDrinkIndex === drinkIndex}" aria-label="Edit ${escapeAttribute(drink.name)} details">i</button>
         <button class="remove-drink-button" type="button" data-drink-index="${drinkIndex}">Remove</button>
       </td>
     </tr>
+    ${state.expandedDrinkIndex === drinkIndex ? renderDrinkDetailRow(drink, drinkIndex) : ""}
   `).join("");
+}
+
+function renderDrinkDetailRow(drink, drinkIndex) {
+  return `
+    <tr class="drink-detail-row">
+      <td colspan="10">
+        <div class="drink-detail-editor">
+          <label>
+            <span>Description</span>
+            <textarea data-drink-index="${drinkIndex}" data-field="description" rows="3">${escapeHtml(drink.description || "")}</textarea>
+          </label>
+          <label>
+            <span>Ingredients</span>
+            <textarea data-drink-index="${drinkIndex}" data-field="ingredients" rows="3">${escapeHtml(drink.ingredients || "")}</textarea>
+          </label>
+          <label>
+            <span>Process</span>
+            <textarea data-drink-index="${drinkIndex}" data-field="process" rows="3">${escapeHtml(drink.process || "")}</textarea>
+          </label>
+          <label>
+            <span>Recipe</span>
+            <textarea data-drink-index="${drinkIndex}" data-field="recipe" rows="3">${escapeHtml(drink.recipe || "")}</textarea>
+          </label>
+          <label>
+            <span>Segment</span>
+            <input data-drink-index="${drinkIndex}" data-field="category" value="${escapeAttribute(getCategoryText(drink))}">
+          </label>
+          <label>
+            <span>Complexity</span>
+            <select data-drink-index="${drinkIndex}" data-field="complexity">
+              ${["", "Accessible", "Craft", "Expert"].map(value => `
+                <option value="${escapeAttribute(value)}" ${String(drink.complexity || "") === value ? "selected" : ""}>${value || "None"}</option>
+              `).join("")}
+            </select>
+          </label>
+          <label>
+            <span>Base / Type</span>
+            <input data-drink-index="${drinkIndex}" data-field="type" value="${escapeAttribute(drink.type || drink.liquor || "")}">
+          </label>
+          <label>
+            <span>Masculinity</span>
+            <input type="number" min="0" max="1" step="1" data-drink-index="${drinkIndex}" data-score="masculinity" value="${Number(drink.scores?.masculinity) || 0}">
+          </label>
+          <label>
+            <span>Calories</span>
+            <input type="number" min="1" max="7" step="1" data-drink-index="${drinkIndex}" data-score="calories" value="${Number(drink.scores?.calories) || 4}">
+          </label>
+        </div>
+      </td>
+    </tr>
+  `;
 }
 
 function renderScoreCell(drinkIndex, trait, value) {
@@ -517,7 +572,9 @@ function handleCoordinateInput(event) {
 
   if (input.dataset.score) {
     const score = input.dataset.score;
-    const value = clamp(Math.round(Number(input.value) || 1), 1, 7);
+    const min = score === "masculinity" ? 0 : 1;
+    const max = score === "masculinity" ? 1 : 7;
+    const value = clamp(Math.round(Number(input.value) || min), min, max);
     input.value = value;
     drink.scores = drink.scores || {};
     drink.scores[score] = value;
@@ -530,6 +587,19 @@ function handleCoordinateInput(event) {
     drink.liquor = drink.type;
   } else if (input.dataset.field === "category") {
     drink.category = parseCategoryInput(input.value);
+  } else if (input.dataset.field === "description") {
+    drink.description = input.value.trim();
+  } else if (input.dataset.field === "ingredients") {
+    drink.ingredients = input.value.trim();
+    drink.customIngredients = parseIngredientInput(input.value);
+    state.barIngredients = mergeIngredientLists(state.barIngredients, drink.customIngredients);
+    renderBarIngredientsInput();
+  } else if (input.dataset.field === "process") {
+    drink.process = input.value.trim();
+  } else if (input.dataset.field === "recipe") {
+    drink.recipe = input.value.trim();
+  } else if (input.dataset.field === "complexity") {
+    drink.complexity = input.value;
   }
 
   markMenuDirty();
@@ -538,6 +608,14 @@ function handleCoordinateInput(event) {
 }
 
 function handleCoordinateClick(event) {
+  const infoButton = event.target.closest(".drink-info-button");
+  if (infoButton) {
+    const drinkIndex = Number(infoButton.dataset.drinkIndex);
+    state.expandedDrinkIndex = state.expandedDrinkIndex === drinkIndex ? null : drinkIndex;
+    renderCoordinates();
+    return;
+  }
+
   const button = event.target.closest(".remove-drink-button");
   if (!button) return;
 
@@ -545,6 +623,11 @@ function handleCoordinateClick(event) {
   if (!menuDrinks[drinkIndex]) return;
 
   menuDrinks.splice(drinkIndex, 1);
+  if (state.expandedDrinkIndex === drinkIndex) {
+    state.expandedDrinkIndex = null;
+  } else if (state.expandedDrinkIndex > drinkIndex) {
+    state.expandedDrinkIndex -= 1;
+  }
   setActiveMenuDrinks(menuDrinks);
   markMenuDirty();
   renderCoordinates();
@@ -554,8 +637,9 @@ function handleCoordinateClick(event) {
 }
 
 function addDrink() {
+  const newDrinkIndex = menuDrinks.length;
   menuDrinks.push({
-    name: `New Drink ${menuDrinks.length + 1}`,
+    name: `New Drink ${newDrinkIndex + 1}`,
     liquor: "Custom",
     type: "Custom",
     category: ["Harmonist"],
@@ -566,18 +650,27 @@ function addDrink() {
       bitterness: 4,
       thickness: 4,
       rarity: 4,
-      masculinity: 4,
+      masculinity: 0,
       calories: 4
     },
     description: "Custom drink added from the dashboard.",
-    ingredients: "Ingredient list not provided."
+    ingredients: "",
+    process: "",
+    recipe: "",
+    complexity: "Accessible"
   });
 
   setActiveMenuDrinks(menuDrinks);
+  state.expandedDrinkIndex = newDrinkIndex;
   markMenuDirty();
   renderCoordinates();
   renderMenuMap(state.events);
   renderMenuLab(state.events);
+  const newInput = document.querySelector(`[data-drink-index="${newDrinkIndex}"][data-field="name"]`);
+  if (newInput) {
+    newInput.focus();
+    newInput.select();
+  }
 }
 
 async function saveMenu() {
@@ -847,6 +940,10 @@ function normalizeIngredientList(ingredients) {
     .map(cleanIngredientName)
     .filter(Boolean)
     .sort((a, b) => a.localeCompare(b)))];
+}
+
+function mergeIngredientLists(...ingredientLists) {
+  return normalizeIngredientList(ingredientLists.flat());
 }
 
 function splitIngredientText(value) {

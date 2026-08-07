@@ -1175,9 +1175,21 @@ function sanitizeMenuDrinks(drinks) {
         calories: sanitizeScore(drink?.scores?.calories)
       },
       description: sanitizeFreeText(drink?.description, 500),
-      ingredients: sanitizeFreeText(drink?.ingredients, 500)
+      ingredients: sanitizeFreeText(drink?.ingredients, 1000),
+      process: sanitizeFreeText(drink?.process, 1200),
+      recipe: sanitizeFreeText(drink?.recipe, 1200),
+      complexity: sanitizeDrinkComplexity(drink?.complexity),
+      customIngredients: sanitizeBarIngredients(drink?.customIngredients)
     };
   }).filter(Boolean);
+}
+
+function sanitizeDrinkComplexity(value) {
+  const normalized = sanitizeFreeText(value, 40).toLowerCase();
+  if (normalized === "accessible") return "Accessible";
+  if (normalized === "craft") return "Craft";
+  if (normalized === "expert") return "Expert";
+  return "";
 }
 
 function sanitizeBarIngredients(ingredients) {
