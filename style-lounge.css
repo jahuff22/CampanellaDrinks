@@ -524,44 +524,50 @@ h2 {
   color: var(--muted);
 }
 
-.persona-closing {
-  margin: 0;
-  color: #f0a1a8;
-  font-size: 18px;
-  font-style: italic;
-  line-height: 1.35;
-}
-
-.taste-profile-bars {
+.palate-chart {
   display: grid;
-  gap: 39px;
+  place-items: center;
+  width: 100%;
 }
 
-.taste-row {
-  display: grid;
-  grid-template-columns: 96px minmax(0, 1fr);
-  gap: 24px;
-  align-items: center;
-}
-
-.taste-row > span {
-  color: #fff7df;
-  font-size: 17px;
-  line-height: 1.2;
-}
-
-.taste-meter {
-  height: 26px;
-  overflow: hidden;
-  border-radius: 999px;
-  background: rgba(27, 20, 34, 0.42);
-}
-
-.taste-meter span {
+.palate-wheel {
   display: block;
-  height: 100%;
-  border-radius: inherit;
-  background: #d1b06d;
+  width: min(100%, 390px);
+  max-height: 390px;
+  overflow: visible;
+}
+
+.palate-wheel-bg {
+  fill: rgba(27, 20, 34, 0.42);
+}
+
+.palate-slice {
+  fill: rgba(27, 20, 34, 0.08);
+}
+
+.palate-slice.is-filled {
+  fill: #d1b06d;
+}
+
+.palate-grid-line,
+.palate-outer-line {
+  fill: none;
+  stroke: rgba(27, 20, 34, 0.72);
+  stroke-width: 1.4;
+  vector-effect: non-scaling-stroke;
+}
+
+.palate-outer-line {
+  stroke: rgba(232, 185, 94, 0.58);
+  stroke-width: 1.6;
+}
+
+.palate-label {
+  fill: #fff7df;
+  font-family: Optima, Candara, "Avenir Next", "Segoe UI", system-ui, sans-serif;
+  font-size: 12px;
+  font-weight: 850;
+  letter-spacing: 0;
 }
 
 .recommendations-section {
@@ -902,13 +908,8 @@ h2 {
     font-size: 42px;
   }
 
-  .taste-profile-bars {
-    gap: 24px;
-  }
-
-  .taste-row {
-    grid-template-columns: 78px minmax(0, 1fr);
-    gap: 14px;
+  .palate-wheel {
+    width: min(100%, 320px);
   }
 
   .recommendations-heading {

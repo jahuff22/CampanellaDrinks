@@ -51,7 +51,7 @@ initializeDashboard();
 async function initializeDashboard() {
   const restaurantName = formatSlug(state.restaurantSlug);
   document.getElementById("restaurant-title").textContent = restaurantName || "Restaurant";
-  document.getElementById("quiz-link").href = `/r/${state.restaurantSlug}`;
+  document.getElementById("quiz-link").href = `/${state.restaurantSlug}`;
   initializeMapControls();
 
   if (typeof loadSavedDrinkSetForActiveRestaurant === "function") {

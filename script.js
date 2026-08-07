@@ -3,13 +3,14 @@ function createSliders() {
 
   for (const trait of traits) {
     const text = questionText[trait];
+    const prompt = getQuestionPromptText(trait, text);
 
     const sliderBlock = document.createElement("div");
     sliderBlock.className = "slider-block";
 
     sliderBlock.innerHTML = `
       <div class="slider-content">
-        <p class="question-prompt">${text.prompt}</p>
+        <p class="question-prompt">${prompt}</p>
 
         <div class="slider-labels">
           <span>${text.low}</span>
@@ -79,6 +80,21 @@ function createSliders() {
   }
 }
 
+function getQuestionPromptText(trait, text) {
+  if (!isCustomerMode()) return text.prompt;
+
+  const customerPrompts = {
+    strength: "When considering the strength of my ideal cocktail",
+    sweetness: "When considering the sweetness of my ideal cocktail",
+    sourness: "When considering the sourness of my ideal cocktail",
+    bitterness: "When considering the bitterness of my ideal cocktail",
+    thickness: "When considering the texture of my ideal cocktail",
+    rarity: "When considering how adventurous my ideal cocktail is"
+  };
+
+  return customerPrompts[trait] || text.prompt;
+}
+
 function calculateDistance(userPreferences, importantTraits, drink) {
   let sum = 0;
 
@@ -107,12 +123,40 @@ function getServiceContextFromPath() {
   const pathParts = window.location.pathname.split("/").filter(Boolean);
   const restaurantIndex = pathParts.indexOf("r");
   const tableIndex = pathParts.indexOf("t");
+  const cleanPathParts = getCleanRestaurantPathParts(pathParts);
 
   return {
-    restaurantSlug: restaurantIndex !== -1 ? pathParts[restaurantIndex + 1] || "unassigned" : "unassigned",
-    tableSlug: tableIndex !== -1 ? pathParts[tableIndex + 1] || null : null,
+    restaurantSlug: restaurantIndex !== -1 ? pathParts[restaurantIndex + 1] || "unassigned" : cleanPathParts.restaurantSlug,
+    tableSlug: tableIndex !== -1 ? pathParts[tableIndex + 1] || null : cleanPathParts.tableSlug,
     sourcePath: window.location.pathname
   };
+}
+
+function getCleanRestaurantPathParts(pathParts) {
+  const reservedPaths = new Set(["api", "alpha", "business", "customer", "dashboard", "landing", "shared"]);
+
+  if (pathParts.length < 1 || pathParts.length > 2) {
+    return {
+      restaurantSlug: "unassigned",
+      tableSlug: null
+    };
+  }
+
+  if (reservedPaths.has(pathParts[0].toLowerCase()) || !pathParts.every(isCleanRouteSlug)) {
+    return {
+      restaurantSlug: "unassigned",
+      tableSlug: null
+    };
+  }
+
+  return {
+    restaurantSlug: pathParts[0],
+    tableSlug: pathParts[1] || null
+  };
+}
+
+function isCleanRouteSlug(value) {
+  return /^[a-zA-Z0-9_-]+$/.test(value);
 }
 
 function getGuestSessionId(context) {
@@ -549,39 +593,33 @@ async function saveRecommendationEvent(payload) {
 const personaProfiles = {
   Purist: {
     title: "Purist",
-    intro: "You like strong, classic drinks with structure and restraint.",
-    avoidance: "You steer clear of overly sweet, overly sour, and fussier drinks that hide the base spirit.",
-    closing: "...then your matches."
+    intro: "You enjoy the warmth and burn of alcohol and gravitate toward strong, structured drinks that let the base spirit speak for itself.",
+    avoidance: "You steer clear of excessive sweetness, acidity, and fussy ingredients that soften or conceal the star of the show: booze."
   },
   Sunseeker: {
     title: "Sunseeker",
-    intro: "You love citrus, neutral spirits, and refreshing flavors.",
-    avoidance: "You steer clear of smoky flavors, bitter aperitivos, and the harsh flavor of alcohol.",
-    closing: "...then your matches."
+    intro: "You gravitate toward bright, refreshing drinks where citrus and freshness take center stage. If it tastes like summer in a glass, you’ll take it!",
+    avoidance: "You steer clear of cocktails that feel heavy, flat, or dominated by the harshness of alcohol."
   },
   Hedonist: {
     title: "Hedonist",
     intro: "You love lush, sweet, creamy cocktails with texture and a little drama.",
-    avoidance: "You steer clear of dry, sharp, spirit-forward drinks that ask you to work too hard.",
-    closing: "...then your matches."
+    avoidance: "You steer clear of dry, sharp, spirit-forward drinks that ask you to work too hard."
   },
   Bittersweet: {
     title: "Bittersweet",
-    intro: "You love bitter complexity when it has sweetness, depth, and a real point of view.",
-    avoidance: "You steer clear of one-note strong drinks and simple sours that do not linger.",
-    closing: "...then your matches."
+    intro: "Most people are naturally wired to avoid bitterness. You’re drawn to it, especially when a touch of sweetness turns its sharp edges into something rich and compelling.",
+    avoidance: "You want a drink with tension, depth, and a finish that gives you something new to notice with every sip."
   },
   Adventurer: {
     title: "Adventurer",
-    intro: "You like drinks with unusual ingredients, bold structure, and a little edge.",
-    avoidance: "You steer clear of overly predictable cocktails that do exactly what you expect.",
-    closing: "...then your matches."
+    intro: "You want your drink to surprise you. Maybe that means it has an ingredient you’ve never heard of, a flavor combination that shouldn’t work but does, or a surprising finish you didn’t see coming.",
+    avoidance: "If you already know exactly how a cocktail will taste, you’ve probably lost interest."
   },
   Harmonist: {
     title: "Harmonist",
-    intro: "You are open-ended, flexible, and happy across a wide range of drinks.",
-    avoidance: "You steer clear of being pinned down too tightly, and your matches can move in a few directions.",
-    closing: "...then your matches."
+    intro: "You want your cocktails like we all want our people: even-keeled and dependable. If a cocktail is balanced - not drifting too far in any singular direction - that’s the drink for you.",
+    avoidance: "You steer clear of cocktails with bold and overwhelming profiles, opting for something classic and easy drinking."
   }
 };
 
@@ -606,29 +644,114 @@ function getDrinkCategories(drink) {
 }
 
 function createTasteProfile(userPreferences) {
+  return [
+    { label: "Strength", value: Number(userPreferences.strength) },
+    { label: "Sweet", value: Number(userPreferences.sweetness) },
+    { label: "Sour", value: Number(userPreferences.sourness) },
+    { label: "Bitter", value: Number(userPreferences.bitterness) },
+    { label: "Body", value: Number(userPreferences.thickness) },
+    { label: "Rarity", value: Number(userPreferences.rarity) }
+  ];
+}
+
+function createPalateChart(tasteProfile) {
+  const center = 160;
+  const radius = 98;
+  const labelRadius = 130;
+  const levels = 7;
+  const sliceAngle = 360 / tasteProfile.length;
+  const filledSlices = [];
+  const gridCircles = [];
+  const radialLines = [];
+  const labels = [];
+
+  tasteProfile.forEach((dimension, index) => {
+    const startAngle = -90 + index * sliceAngle;
+    const endAngle = startAngle + sliceAngle;
+    const labelPoint = polarPoint(center, center, labelRadius, startAngle + sliceAngle / 2);
+    const value = clampPreferenceValue(dimension.value);
+
+    for (let level = 1; level <= levels; level += 1) {
+      filledSlices.push(`
+        <path
+          class="palate-slice${level <= value ? " is-filled" : ""}"
+          d="${createPalateSlicePath(center, center, ((level - 1) / levels) * radius, (level / levels) * radius, startAngle, endAngle)}"
+        ></path>
+      `);
+    }
+
+    labels.push(`
+      <text
+        class="palate-label"
+        x="${labelPoint.x.toFixed(2)}"
+        y="${labelPoint.y.toFixed(2)}"
+        text-anchor="middle"
+        dominant-baseline="middle"
+      >${dimension.label}</text>
+    `);
+  });
+
+  for (let level = 1; level < levels; level += 1) {
+    gridCircles.push(`<circle class="palate-grid-line" cx="${center}" cy="${center}" r="${((level / levels) * radius).toFixed(2)}"></circle>`);
+  }
+
+  for (let index = 0; index < tasteProfile.length; index += 1) {
+    const point = polarPoint(center, center, radius, -90 + index * sliceAngle);
+    radialLines.push(`<line class="palate-grid-line" x1="${center}" y1="${center}" x2="${point.x.toFixed(2)}" y2="${point.y.toFixed(2)}"></line>`);
+  }
+
+  return `
+    <svg class="palate-wheel" viewBox="0 0 320 320" role="img" aria-label="Palate profile across six flavor dimensions">
+      <circle class="palate-wheel-bg" cx="${center}" cy="${center}" r="${radius}"></circle>
+      <g>${filledSlices.join("")}</g>
+      <g>
+        ${gridCircles.join("")}
+        ${radialLines.join("")}
+        <circle class="palate-outer-line" cx="${center}" cy="${center}" r="${radius}"></circle>
+      </g>
+      <g>${labels.join("")}</g>
+    </svg>
+  `;
+}
+
+function clampPreferenceValue(value) {
+  const numberValue = Number(value);
+  if (!Number.isFinite(numberValue)) return 0;
+  return Math.min(Math.max(Math.round(numberValue), 0), 7);
+}
+
+function polarPoint(centerX, centerY, radius, angleDegrees) {
+  const angleRadians = (angleDegrees * Math.PI) / 180;
   return {
-    Strength: getPreferencePercentage(userPreferences.strength),
-    Sweet: getPreferencePercentage(userPreferences.sweetness),
-    Sour: getPreferencePercentage(userPreferences.sourness),
-    Bitter: getPreferencePercentage(userPreferences.bitterness),
-    Body: getPreferencePercentage(userPreferences.thickness),
-    Rarity: getPreferencePercentage(userPreferences.rarity)
+    x: centerX + radius * Math.cos(angleRadians),
+    y: centerY + radius * Math.sin(angleRadians)
   };
 }
 
-function getPreferencePercentage(value) {
-  return Math.round((Number(value) / 7) * 100);
-}
+function createPalateSlicePath(centerX, centerY, innerRadius, outerRadius, startAngle, endAngle) {
+  const outerStart = polarPoint(centerX, centerY, outerRadius, startAngle);
+  const outerEnd = polarPoint(centerX, centerY, outerRadius, endAngle);
 
-function createTasteProfileRows(tasteProfile) {
-  return Object.entries(tasteProfile).map(([label, value]) => `
-    <div class="taste-row">
-      <span>${label}</span>
-      <div class="taste-meter" aria-label="${label}: ${value}%">
-        <span style="width: ${value}%"></span>
-      </div>
-    </div>
-  `).join("");
+  if (innerRadius === 0) {
+    return [
+      `M ${centerX} ${centerY}`,
+      `L ${outerStart.x.toFixed(2)} ${outerStart.y.toFixed(2)}`,
+      `A ${outerRadius.toFixed(2)} ${outerRadius.toFixed(2)} 0 0 1 ${outerEnd.x.toFixed(2)} ${outerEnd.y.toFixed(2)}`,
+      "Z"
+    ].join(" ");
+  }
+
+  const innerStart = polarPoint(centerX, centerY, innerRadius, startAngle);
+  const innerEnd = polarPoint(centerX, centerY, innerRadius, endAngle);
+
+  return [
+    `M ${innerStart.x.toFixed(2)} ${innerStart.y.toFixed(2)}`,
+    `L ${outerStart.x.toFixed(2)} ${outerStart.y.toFixed(2)}`,
+    `A ${outerRadius.toFixed(2)} ${outerRadius.toFixed(2)} 0 0 1 ${outerEnd.x.toFixed(2)} ${outerEnd.y.toFixed(2)}`,
+    `L ${innerEnd.x.toFixed(2)} ${innerEnd.y.toFixed(2)}`,
+    `A ${innerRadius.toFixed(2)} ${innerRadius.toFixed(2)} 0 0 0 ${innerStart.x.toFixed(2)} ${innerStart.y.toFixed(2)}`,
+    "Z"
+  ].join(" ");
 }
 
 function displayPersonaProfile(personaCategory, userPreferences) {
@@ -642,12 +765,11 @@ function displayPersonaProfile(personaCategory, userPreferences) {
       <h2>${profile.title}</h2>
       <p class="persona-intro">${profile.intro}</p>
       <p class="persona-avoidance">${profile.avoidance}</p>
-      <p class="persona-closing">${profile.closing}</p>
     </div>
     <div class="taste-profile-card">
-      <p class="eyebrow">YOUR TASTE PROFILE</p>
-      <div class="taste-profile-bars">
-        ${createTasteProfileRows(tasteProfile)}
+      <p class="eyebrow">Palate Profile</p>
+      <div class="palate-chart">
+        ${createPalateChart(tasteProfile)}
       </div>
     </div>
   `;
@@ -750,11 +872,13 @@ function displayCustomerResults(profileData, notice) {
   resultsDiv.className = "customer-results";
   resultsDiv.innerHTML = `
     <section class="customer-card customer-intro-card">
-      <p class="eyebrow">Cocktail Persona</p>
+      <p class="eyebrow">Learn more about your palate</p>
       <h2>You're a ${escapeHtml(profileData.persona)}</h2>
       <p><strong>About you:</strong> ${escapeHtml(profileData.aboutYou)}</p>
       <form id="customer-email-form" class="customer-email-form">
-        <label for="customer-email">Enter your email for your cocktail recommendations, your personal bartender script, and a custom recipe built just for your palate.</label>
+        <p>Your personalized palate profile is based on your preferences and sensitivities within the flavor dimensions.</p>
+        <p>Enter your email and we’ll send you three classic cocktail matches, a personal script for ordering at bars and restaurants, and a custom cocktail recipe built for your palate.</p>
+        <label for="customer-email">Email address</label>
         <div class="customer-email-row">
           <input id="customer-email" type="email" autocomplete="email" required placeholder="you@example.com">
           <button type="submit">Send my drinks</button>
@@ -792,7 +916,7 @@ function displayCustomerResults(profileData, notice) {
     }
   });
 
-  document.querySelector(".recommendations-heading h2").textContent = "Your Palate";
+  document.querySelector(".recommendations-heading h2").textContent = "";
   document.getElementById("quiz-screen").hidden = true;
   document.getElementById("results-screen").hidden = false;
   window.scrollTo({ top: 0, behavior: "smooth" });
@@ -824,10 +948,6 @@ function createUnlockedCustomerHtml(profileData) {
     <section class="customer-card">
       <h2>Your Bartender Script</h2>
       <p>${escapeHtml(profileData.bartenderScript)}</p>
-    </section>
-    <section class="customer-card">
-      <h2>Try these spirits and modifiers</h2>
-      <ul>${profileData.spiritsAndModifiers.map(item => `<li>${escapeHtml(item)}</li>`).join("")}</ul>
     </section>
     <section class="customer-card">
       <h2>A recipe for your palate</h2>

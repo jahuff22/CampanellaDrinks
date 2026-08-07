@@ -38,10 +38,25 @@ const MIME_TYPES = {
 const ROUTE_ALIASES = new Map([
   ["/landing", "/landing/index.html"],
   ["/landing/", "/landing/index.html"],
-  ["/business", "/business/index.html"],
-  ["/business/", "/business/index.html"],
+  ["/alpha", "/index.html"],
+  ["/alpha/", "/index.html"],
   ["/customer", "/index.html"],
   ["/customer/", "/index.html"]
+]);
+
+const ROUTE_REDIRECTS = new Map([
+  ["/business", "/"],
+  ["/business/", "/"]
+]);
+
+const RESERVED_RESTAURANT_PATHS = new Set([
+  "api",
+  "alpha",
+  "business",
+  "customer",
+  "dashboard",
+  "landing",
+  "shared"
 ]);
 
 const preferenceSchema = {
@@ -1377,11 +1392,20 @@ function readJsonBody(request, maxBytes) {
 
 function serveStaticFile(request, response) {
   const rawPath = request.url.split("?")[0];
+  const redirectPath = ROUTE_REDIRECTS.get(rawPath);
+  if (redirectPath) {
+    response.writeHead(302, {
+      Location: redirectPath
+    });
+    response.end();
+    return;
+  }
+
   const dashboardRestaurantSlug = getDashboardRestaurantSlugFromPath(rawPath);
   const dashboardPath = dashboardRestaurantSlug
     ? (isDashboardAuthorized(request, dashboardRestaurantSlug) ? "/dashboard.html" : "/dashboard-login.html")
     : null;
-  const requestPath = ROUTE_ALIASES.get(rawPath) || (isRestaurantTableRoute(rawPath) ? "/index.html" : (dashboardPath || (rawPath === "/" ? "/index.html" : rawPath)));
+  const requestPath = ROUTE_ALIASES.get(rawPath) || dashboardPath || (isRestaurantTableRoute(rawPath) ? "/index.html" : (rawPath === "/" ? "/business/index.html" : rawPath));
   const decodedPath = decodeURIComponent(requestPath.split("?")[0]);
   const filePath = path.normalize(path.join(ROOT_DIR, decodedPath));
 
@@ -1408,7 +1432,16 @@ function serveStaticFile(request, response) {
 }
 
 function isRestaurantTableRoute(rawPath) {
-  return /^\/r\/[a-zA-Z0-9_-]+(?:\/t\/[a-zA-Z0-9_-]+)?\/?$/.test(rawPath);
+  if (/^\/r\/[a-zA-Z0-9_-]+(?:\/t\/[a-zA-Z0-9_-]+)?\/?$/.test(rawPath)) {
+    return true;
+  }
+
+  const pathParts = rawPath.split("/").filter(Boolean);
+
+  if (pathParts.length < 1 || pathParts.length > 2) return false;
+  if (RESERVED_RESTAURANT_PATHS.has(pathParts[0].toLowerCase())) return false;
+
+  return pathParts.every(part => /^[a-zA-Z0-9_-]+$/.test(part));
 }
 
 function isDashboardRoute(rawPath) {
