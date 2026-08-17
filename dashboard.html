@@ -3,7 +3,7 @@
 <head>
   <title>PROOF Console</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="stylesheet" href="/dashboard.css?v=8">
+  <link rel="stylesheet" href="/dashboard.css?v=9">
 </head>
 <body>
   <main class="console-shell">
@@ -55,7 +55,6 @@
       <section id="personas" class="tab-panel is-active">
         <div class="personas-top">
           <div class="panel-heading">
-            <h1>Who walks into your restaurant</h1>
             <p>Palate groups from completed PROOF sessions, with menu coverage and obvious gaps.</p>
           </div>
           <section class="spend-panel" aria-label="Drink spend comparison">
@@ -71,8 +70,7 @@
 
       <section id="menu-map" class="tab-panel">
         <div class="panel-heading">
-          <h1>Your guests and your cocktails, on the same map.</h1>
-          <p>Choose any two taste axes to compare guest demand against the current cocktail list.</p>
+          <p>Choose any two taste axes to compare guest demand against the current cocktail list. By default, PROOF selects the axes that best show where guest demand appears furthest from the current menu.</p>
         </div>
         <div class="map-controls" aria-label="Menu map axes">
           <label>
@@ -98,7 +96,6 @@
 
       <section id="per-drink" class="tab-panel">
         <div class="panel-heading">
-          <h1>What we recommend / what they order</h1>
           <p>Every guest is shown ranked drinks. Receipt-linked order behavior appears when POS data is connected.</p>
         </div>
         <div class="table-wrap">
@@ -116,11 +113,14 @@
             <tbody id="drink-performance"></tbody>
           </table>
         </div>
+        <div class="action-explainer">
+          <strong>How ACTION works</strong>
+          <p>KEEP means a drink is recommended often and, when receipt data is connected, appears to convert into orders. FIX means guests match with it strongly but do not order it enough. WATCH means there is useful signal but not enough certainty yet. LEARN appears when receipt data is missing or volume is still low.</p>
+        </div>
       </section>
 
       <section id="coordinates" class="tab-panel">
         <div class="panel-heading">
-          <h1>Every drink, every axis - editable</h1>
           <p>Current menu coordinates used by recommendations and gap detection.</p>
         </div>
         <div class="coordinate-actions">
@@ -151,8 +151,7 @@
 
       <section id="menu-lab" class="tab-panel">
         <div class="panel-heading">
-          <h1>Where the fixes land</h1>
-          <p>Menu Lab turns underserved demand into briefs your beverage team can evaluate.</p>
+          <p>Menu lab fills gaps in your menu with craft cocktails recipes, using ingredients you already have on hand.</p>
         </div>
         <div class="lab-controls">
           <label class="lab-inventory-control">
@@ -161,9 +160,9 @@
           </label>
           <fieldset class="lab-complexity-control">
             <legend>Complexity</legend>
-            <button class="complexity-button is-active" type="button" data-complexity="simple">Simple</button>
-            <button class="complexity-button" type="button" data-complexity="standard">Standard</button>
-            <button class="complexity-button" type="button" data-complexity="advanced">Advanced</button>
+            <button class="complexity-button is-active" type="button" data-complexity="simple" aria-pressed="true">Simple</button>
+            <button class="complexity-button" type="button" data-complexity="standard" aria-pressed="false">Standard</button>
+            <button class="complexity-button" type="button" data-complexity="advanced" aria-pressed="false">Advanced</button>
           </fieldset>
         </div>
         <div id="menu-lab-list" class="lab-grid"></div>
@@ -173,6 +172,6 @@
 
   <script src="/custom-cocktails.js?v=1"></script>
   <script src="/drinks.js?v=5"></script>
-  <script src="/dashboard.js?v=11"></script>
+  <script src="/dashboard.js?v=13"></script>
 </body>
 </html>

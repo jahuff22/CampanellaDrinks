@@ -16,8 +16,10 @@ const state = {
   activeTab: "personas",
   mapXAxis: "bitterness",
   mapYAxis: "sweetness",
+  mapAxesTouched: false,
   barIngredients: [],
-  menuLabComplexity: "simple",
+  menuLabComplexities: ["simple"],
+  menuLabRecipeOffsets: {},
   expandedDrinkIndex: null
 };
 
@@ -29,11 +31,13 @@ for (const button of document.querySelectorAll(".tab-button")) {
 }
 
 document.getElementById("map-x-axis").addEventListener("change", event => {
+  state.mapAxesTouched = true;
   state.mapXAxis = event.target.value;
   renderMenuMap(state.events);
 });
 
 document.getElementById("map-y-axis").addEventListener("change", event => {
+  state.mapAxesTouched = true;
   state.mapYAxis = event.target.value;
   renderMenuMap(state.events);
 });
@@ -43,6 +47,7 @@ document.getElementById("coordinate-table").addEventListener("input", handleCoor
 document.getElementById("coordinate-table").addEventListener("change", handleCoordinateInput);
 document.getElementById("coordinate-table").addEventListener("click", handleCoordinateClick);
 document.getElementById("bar-ingredients-input").addEventListener("input", handleBarIngredientsInput);
+document.getElementById("menu-lab-list").addEventListener("click", handleMenuLabClick);
 
 for (const button of document.querySelectorAll(".complexity-button")) {
   button.addEventListener("click", () => setMenuLabComplexity(button.dataset.complexity));
@@ -134,10 +139,17 @@ function handleBarIngredientsInput(event) {
 function setMenuLabComplexity(complexity) {
   if (!["simple", "standard", "advanced"].includes(complexity)) return;
 
-  state.menuLabComplexity = complexity;
+  if (state.menuLabComplexities.includes(complexity)) {
+    if (state.menuLabComplexities.length === 1) return;
+    state.menuLabComplexities = state.menuLabComplexities.filter(value => value !== complexity);
+  } else {
+    state.menuLabComplexities = [...state.menuLabComplexities, complexity];
+  }
 
   for (const button of document.querySelectorAll(".complexity-button")) {
-    button.classList.toggle("is-active", button.dataset.complexity === complexity);
+    const isActive = state.menuLabComplexities.includes(button.dataset.complexity);
+    button.classList.toggle("is-active", isActive);
+    button.setAttribute("aria-pressed", String(isActive));
   }
 
   renderMenuLab(state.events);
@@ -156,6 +168,7 @@ function renderDashboard(data) {
 
   renderReceiptSection(events, Boolean(data.receiptDataAvailable));
   renderPersonas(events, segmentCounts);
+  setDefaultMapAxes(events);
   renderMenuMap(events);
   renderPerDrink(events);
   renderCoordinates();
@@ -223,6 +236,65 @@ function initializeMapControls() {
   yAxis.innerHTML = options;
   xAxis.value = state.mapXAxis;
   yAxis.value = state.mapYAxis;
+}
+
+function setDefaultMapAxes(events) {
+  if (state.mapAxesTouched || !events.length) return;
+
+  const gaps = findMenuGaps(events);
+  const scoredPairs = getTraitPairs().map(([xAxis, yAxis]) => {
+    const gapScore = gaps.reduce((score, gap) => {
+      return score + getGapTraitWeight(gap, xAxis) + getGapTraitWeight(gap, yAxis);
+    }, 0);
+    return {
+      xAxis,
+      yAxis,
+      score: gapScore + getAxisSeparationScore(events, xAxis, yAxis)
+    };
+  });
+  const bestPair = scoredPairs.sort((a, b) => b.score - a.score)[0];
+
+  if (!bestPair || bestPair.score <= 0) return;
+
+  state.mapXAxis = bestPair.xAxis;
+  state.mapYAxis = bestPair.yAxis;
+  document.getElementById("map-x-axis").value = state.mapXAxis;
+  document.getElementById("map-y-axis").value = state.mapYAxis;
+}
+
+function getTraitPairs() {
+  const traits = Object.keys(traitLabels);
+  const pairs = [];
+
+  for (let firstIndex = 0; firstIndex < traits.length; firstIndex += 1) {
+    for (let secondIndex = firstIndex + 1; secondIndex < traits.length; secondIndex += 1) {
+      pairs.push([traits[firstIndex], traits[secondIndex]]);
+    }
+  }
+
+  return pairs;
+}
+
+function getGapTraitWeight(gap, trait) {
+  return (gap.highTraits || []).includes(trait) || (gap.lowTraits || []).includes(trait) ? gap.count || 1 : 0;
+}
+
+function getAxisSeparationScore(events, xAxis, yAxis) {
+  const guestCenter = getPointCenter(events.map(event => {
+    const preferences = event.guestInput?.sliderPreferences || {};
+    return {
+      x: normalizeScore(Number(preferences[xAxis])),
+      y: normalizeScore(Number(preferences[yAxis]))
+    };
+  }).filter(point => Number.isFinite(point.x) && Number.isFinite(point.y)));
+  const drinkCenter = getPointCenter(menuDrinks.map(drink => ({
+    x: normalizeScore(drink.scores?.[xAxis]),
+    y: normalizeScore(drink.scores?.[yAxis])
+  })).filter(point => Number.isFinite(point.x) && Number.isFinite(point.y)));
+
+  if (!guestCenter || !drinkCenter) return 0;
+
+  return Math.hypot(guestCenter.x - drinkCenter.x, guestCenter.y - drinkCenter.y) / 10;
 }
 
 function countSegments(events) {
@@ -335,12 +407,12 @@ function renderPersonas(events, segmentCounts) {
 
 function getPersonaNote(segment) {
   const examples = {
-    Purist: "Usually shown / Old Fashioned",
-    Sunseeker: "Usually shown / Margarita",
-    Hedonist: "Usually shown / Espresso Martini",
-    Bittersweet: "Usually shown / Negroni",
-    Adventurer: "Usually shown / Last Word",
-    Harmonist: "Usually shown / Vodka Soda"
+    Purist: "Usually shown: Old Fashioned",
+    Sunseeker: "Usually shown: Margarita",
+    Hedonist: "Usually shown: Espresso Martini",
+    Bittersweet: "Usually shown: Negroni",
+    Adventurer: "Usually shown: Last Word",
+    Harmonist: "Usually shown: Vodka Soda"
   };
   return escapeHtml(examples[segment] || "Covered by current menu");
 }
@@ -379,6 +451,8 @@ function renderMenuMap(events) {
     <span class="axis-label axis-right">MORE ${escapeHtml(xLabel).toUpperCase()}</span>
     <span class="axis-label axis-top">MORE ${escapeHtml(yLabel).toUpperCase()}</span>
     <span class="axis-label axis-bottom">LESS ${escapeHtml(yLabel).toUpperCase()}</span>
+    ${renderPointCluster(guestPoints, "guest")}
+    ${renderPointCluster(drinkPoints, "drink")}
     ${drinkPoints.map(point => renderPoint(point)).join("")}
     ${guestPoints.map(point => renderPoint(point)).join("")}
   `;
@@ -390,6 +464,43 @@ function renderPoint(point) {
   const left = clamp(point.x, 4, 96);
   const top = clamp(100 - point.y, 4, 96);
   return `<i class="map-point ${point.type}" title="${escapeHtml(point.label)}" style="left:${left}%;top:${top}%"></i>`;
+}
+
+function renderPointCluster(points, type) {
+  const bounds = getPointBounds(points);
+  if (!bounds) return "";
+
+  return `<span class="map-cluster ${type}" style="left:${bounds.left}%;top:${bounds.top}%;width:${bounds.width}%;height:${bounds.height}%"></span>`;
+}
+
+function getPointBounds(points) {
+  const validPoints = points.filter(point => Number.isFinite(point.x) && Number.isFinite(point.y));
+  if (!validPoints.length) return null;
+
+  const xValues = validPoints.map(point => clamp(point.x, 4, 96));
+  const yValues = validPoints.map(point => clamp(100 - point.y, 4, 96));
+  const minX = Math.min(...xValues);
+  const maxX = Math.max(...xValues);
+  const minY = Math.min(...yValues);
+  const maxY = Math.max(...yValues);
+  const padding = validPoints.length === 1 ? 7 : 5;
+
+  return {
+    left: clamp(minX - padding, 2, 98),
+    top: clamp(minY - padding, 2, 98),
+    width: clamp(maxX - minX + padding * 2, 8, 96),
+    height: clamp(maxY - minY + padding * 2, 8, 96)
+  };
+}
+
+function getPointCenter(points) {
+  const validPoints = points.filter(point => Number.isFinite(point.x) && Number.isFinite(point.y));
+  if (!validPoints.length) return null;
+
+  return {
+    x: average(validPoints.map(point => point.x)),
+    y: average(validPoints.map(point => point.y))
+  };
 }
 
 function renderMapSummary(guestPoints, drinkPoints, xLabel, yLabel) {
@@ -756,11 +867,19 @@ function renderMenuLab(events) {
   }
 
   const recommendations = gaps
-    .map(gap => ({ ...gap, labRecipe: findCustomCocktailForGap(gap, inventory) }))
+    .map(gap => {
+      const labRecipes = findCustomCocktailsForGap(gap, inventory);
+      const offset = state.menuLabRecipeOffsets[gap.key] || 0;
+      return {
+        ...gap,
+        labRecipes,
+        labRecipe: labRecipes.length ? labRecipes[offset % labRecipes.length] : null
+      };
+    })
     .filter(gap => gap.labRecipe);
 
   if (!recommendations.length) {
-    container.innerHTML = `<p class="empty-note">No in-inventory Menu Lab recommendations at this complexity. Add ingredients or raise the complexity setting.</p>`;
+    container.innerHTML = `<p class="empty-note">No in-inventory Menu Lab recommendations at the selected complexity levels. Add ingredients or select another complexity.</p>`;
     return;
   }
 
@@ -771,8 +890,20 @@ function renderMenuLab(events) {
       <p class="lab-ingredients"><strong>${escapeHtml(gap.labRecipe.name)}</strong><br>${escapeHtml(gap.labRecipe.ingredients.join(", "))}</p>
       <p>${escapeHtml(gap.labRecipe.process)}</p>
       <p class="lab-complexity-note">${escapeHtml(gap.labRecipe.complexityLabel)} complexity. Uses only saved bar ingredients. Match distance: ${gap.labRecipe.distance.toFixed(1)}.</p>
+      <button class="lab-regenerate-button" type="button" data-gap-key="${escapeAttribute(gap.key)}" ${gap.labRecipes.length <= 1 ? "disabled" : ""}>Generate different cocktail</button>
     </article>
   `).join("");
+}
+
+function handleMenuLabClick(event) {
+  const button = event.target.closest(".lab-regenerate-button");
+  if (!button) return;
+
+  const gapKey = button.dataset.gapKey;
+  if (!gapKey) return;
+
+  state.menuLabRecipeOffsets[gapKey] = (state.menuLabRecipeOffsets[gapKey] || 0) + 1;
+  renderMenuLab(state.events);
 }
 
 function findMenuGaps(events) {
@@ -862,11 +993,10 @@ function buildLabBrief(group) {
   return `A drink for guests asking for ${traits}. The current menu is not giving this cluster a strong match.`;
 }
 
-function findCustomCocktailForGap(group, inventory) {
+function findCustomCocktailsForGap(group, inventory) {
   const customDrinks = getCustomCocktailPool();
-  const maxComplexity = getMenuLabMaxComplexity();
   const candidates = customDrinks
-    .filter(drink => getDrinkComplexityRank(drink) <= maxComplexity)
+    .filter(drink => getSelectedMenuLabComplexityRanks().includes(getDrinkComplexityRank(drink)))
     .map(drink => ({
       drink,
       ingredients: getDrinkIngredientList(drink),
@@ -875,7 +1005,7 @@ function findCustomCocktailForGap(group, inventory) {
     .filter(candidate => candidate.ingredients.length && candidate.ingredients.every(ingredient => inventoryHasIngredient(inventory, ingredient)))
     .sort((a, b) => a.distance - b.distance);
 
-  return candidates[0] ? buildLabRecipeFromCandidate(candidates[0]) : null;
+  return candidates.slice(0, 8).map(buildLabRecipeFromCandidate);
 }
 
 function buildLabRecipeFromCandidate(candidate) {
@@ -892,13 +1022,13 @@ function getCustomCocktailPool() {
   return Array.isArray(window.restaurantDrinkSets?.custom) ? window.restaurantDrinkSets.custom : [];
 }
 
-function getMenuLabMaxComplexity() {
+function getSelectedMenuLabComplexityRanks() {
   const rankBySetting = {
     simple: 1,
     standard: 2,
     advanced: 3
   };
-  return rankBySetting[state.menuLabComplexity] || rankBySetting.simple;
+  return state.menuLabComplexities.map(complexity => rankBySetting[complexity]).filter(Boolean);
 }
 
 function getDrinkComplexityRank(drink) {
