@@ -660,24 +660,16 @@ function createPalateChart(tasteProfile) {
   const labelRadius = 130;
   const levels = 7;
   const sliceAngle = 360 / tasteProfile.length;
-  const filledSlices = [];
+  const blobPoints = [];
   const labels = [];
 
   tasteProfile.forEach((dimension, index) => {
-    const startAngle = -90 + index * sliceAngle + 4;
-    const endAngle = startAngle + sliceAngle - 8;
-    const labelPoint = polarPoint(center, center, labelRadius, startAngle + sliceAngle / 2);
+    const angle = -90 + index * sliceAngle;
+    const labelPoint = polarPoint(center, center, labelRadius, angle);
     const value = clampPreferenceValue(dimension.value);
-    const outerRadius = (value / levels) * radius;
+    const outerRadius = ((value + 0.35) / levels) * radius;
 
-    if (outerRadius > 0) {
-      filledSlices.push(`
-        <path
-          class="palate-slice is-filled"
-          d="${createPalateSlicePath(center, center, outerRadius, startAngle, endAngle)}"
-        ></path>
-      `);
-    }
+    blobPoints.push(polarPoint(center, center, outerRadius, angle));
 
     labels.push(`
       <text
@@ -693,7 +685,7 @@ function createPalateChart(tasteProfile) {
   return `
     <svg class="palate-wheel" viewBox="0 0 320 320" role="img" aria-label="Palate profile across six flavor dimensions">
       <circle class="palate-wheel-bg" cx="${center}" cy="${center}" r="${radius}"></circle>
-      <g>${filledSlices.join("")}</g>
+      <path class="palate-blob" d="${createSmoothClosedPath(blobPoints)}"></path>
       <circle class="palate-outer-line" cx="${center}" cy="${center}" r="${radius}"></circle>
       <g>${labels.join("")}</g>
     </svg>
@@ -714,21 +706,24 @@ function polarPoint(centerX, centerY, radius, angleDegrees) {
   };
 }
 
-function createPalateSlicePath(centerX, centerY, outerRadius, startAngle, endAngle) {
-  const innerRadius = Math.min(18, outerRadius * 0.42);
-  const innerStart = polarPoint(centerX, centerY, innerRadius, startAngle + 7);
-  const innerEnd = polarPoint(centerX, centerY, innerRadius, endAngle - 7);
-  const outerStart = polarPoint(centerX, centerY, outerRadius, startAngle);
-  const outerEnd = polarPoint(centerX, centerY, outerRadius, endAngle);
+function createSmoothClosedPath(points) {
+  if (!points.length) return "";
 
-  return [
-    `M ${innerStart.x.toFixed(2)} ${innerStart.y.toFixed(2)}`,
-    `Q ${centerX} ${centerY} ${outerStart.x.toFixed(2)} ${outerStart.y.toFixed(2)}`,
-    `A ${outerRadius.toFixed(2)} ${outerRadius.toFixed(2)} 0 0 1 ${outerEnd.x.toFixed(2)} ${outerEnd.y.toFixed(2)}`,
-    `Q ${centerX} ${centerY} ${innerEnd.x.toFixed(2)} ${innerEnd.y.toFixed(2)}`,
-    `A ${innerRadius.toFixed(2)} ${innerRadius.toFixed(2)} 0 0 0 ${innerStart.x.toFixed(2)} ${innerStart.y.toFixed(2)}`,
-    "Z"
-  ].join(" ");
+  const commands = [`M ${points[0].x.toFixed(2)} ${points[0].y.toFixed(2)}`];
+
+  for (let index = 0; index < points.length; index += 1) {
+    const current = points[index];
+    const next = points[(index + 1) % points.length];
+    const midpoint = {
+      x: (current.x + next.x) / 2,
+      y: (current.y + next.y) / 2
+    };
+
+    commands.push(`Q ${current.x.toFixed(2)} ${current.y.toFixed(2)} ${midpoint.x.toFixed(2)} ${midpoint.y.toFixed(2)}`);
+  }
+
+  commands.push("Z");
+  return commands.join(" ");
 }
 
 function displayPersonaProfile(personaCategory, userPreferences) {

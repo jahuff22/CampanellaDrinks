@@ -565,14 +565,10 @@ h2 {
   fill: rgba(27, 20, 34, 0.34);
 }
 
-.palate-slice {
-  fill: rgba(27, 20, 34, 0.08);
-}
-
-.palate-slice.is-filled {
+.palate-blob {
   fill: #d1b06d;
   stroke: #8f6b2f;
-  stroke-width: 2.6;
+  stroke-width: 4;
   stroke-linejoin: round;
   stroke-linecap: round;
   vector-effect: non-scaling-stroke;
