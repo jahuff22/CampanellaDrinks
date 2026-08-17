@@ -43,7 +43,9 @@ const CUSTOMER_HEADERS = [
   "spiritsAndModifiers",
   "bartenderScript",
   "recipe",
-  "feedback"
+  "feedback",
+  "firstName",
+  "lastName"
 ];
 
 function doPost(e) {
@@ -85,6 +87,10 @@ function doGet(e) {
     return getMenu(e);
   }
 
+  if (String(e.parameter.type || "") === "customer") {
+    return getCustomers();
+  }
+
   const restaurantSlug = String(e.parameter.restaurant || "").toLowerCase().trim();
   const sheet = getSheet();
   const rows = sheet.getDataRange().getValues();
@@ -96,6 +102,18 @@ function doGet(e) {
   return jsonResponse({
     ok: true,
     events
+  });
+}
+
+function getCustomers() {
+  const sheet = getCustomerSheet();
+  const rows = sheet.getDataRange().getValues();
+  const headers = rows.shift();
+  const customers = rows.map(row => rowToCustomerEvent(headers, row));
+
+  return jsonResponse({
+    ok: true,
+    events: customers
   });
 }
 
@@ -192,7 +210,9 @@ function customerEventToRow(event, existing) {
     JSON.stringify(event.spiritsAndModifiers || parseJson(existing.spiritsAndModifiers, [])),
     event.bartenderScript || existing.bartenderScript || "",
     JSON.stringify(event.recipe || parseJson(existing.recipe, {})),
-    JSON.stringify(event.feedback || parseJson(existing.feedback, {}))
+    JSON.stringify(event.feedback || parseJson(existing.feedback, {})),
+    event.firstName || existing.firstName || "",
+    event.lastName || existing.lastName || ""
   ];
 }
 
@@ -372,6 +392,39 @@ function rowToEvent(headers, row) {
     },
     recommendations: parseJson(record.recommendations, []),
     pos: parseJson(record.pos, {})
+  };
+}
+
+function rowToCustomerEvent(headers, row) {
+  const record = headers.reduce((values, header, index) => {
+    values[header] = row[index];
+    return values;
+  }, {});
+
+  return {
+    id: String(record.eventId || ""),
+    eventId: String(record.eventId || ""),
+    customerRecordId: String(record.eventId || ""),
+    createdAt: String(record.createdAt || ""),
+    recordType: "customer",
+    email: String(record.email || ""),
+    birthday: String(record.birthday || ""),
+    firstName: String(record.firstName || ""),
+    lastName: String(record.lastName || ""),
+    sourcePath: String(record.sourcePath || "/customer"),
+    persona: String(record.persona || ""),
+    aboutYou: String(record.aboutYou || ""),
+    guestInput: {
+      qualitativeText: String(record.qualitativeText || ""),
+      sliderPreferences: parseJson(record.sliderPreferences, {}),
+      importantTraits: parseJson(record.importantTraits, {}),
+      parsedPreferences: parseJson(record.parsedPreferences, {})
+    },
+    recommendations: parseJson(record.recommendations, []),
+    spiritsAndModifiers: parseJson(record.spiritsAndModifiers, []),
+    bartenderScript: String(record.bartenderScript || ""),
+    recipe: parseJson(record.recipe, {}),
+    feedback: parseJson(record.feedback, {})
   };
 }
 

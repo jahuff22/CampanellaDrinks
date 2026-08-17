@@ -9,364 +9,827 @@ const traits = [
 
 const defaultDrinks = [
     {
-        name: "Amaretto Sour",
-        liquor: "Amaretto",
-        category: ["Sunseeker", "Hedonist"],
-        scores: { strength: 3, sweetness: 4, sourness: 4, bitterness: 1, thickness: 2, rarity: 2, masculinity: 0, calories: 5 },
-        description: "A nutty, sweet-tart sour built around amaretto, citrus, and a soft shaken texture.",
-        ingredients: "Amaretto, lemon juice, simple syrup, optional bourbon, optional egg white."
+        "name": "Amaretto Sour",
+        "liquor": "Classic",
+        "type": "Classic",
+        "category": [
+            "Sunseeker",
+            "Hedonist"
+        ],
+        "scores": {
+            "strength": 3,
+            "sweetness": 4,
+            "sourness": 4,
+            "bitterness": 1,
+            "thickness": 2,
+            "rarity": 4,
+            "masculinity": 0,
+            "calories": 3
+        },
+        "description": "Amaretto, lemon juice and simple syrup, shaken with egg white.",
+        "ingredients": "Amaretto, lemon juice and simple syrup, shaken with egg white."
     },
     {
-        name: "Americano",
-        liquor: "Campari",
-        category: ["Bittersweet"],
-        scores: { strength: 1, sweetness: 3, sourness: 1, bitterness: 5, thickness: 2, rarity: 2, masculinity: 1, calories: 2 },
-        description: "A light, bitter aperitivo lengthening Campari and sweet vermouth with soda water.",
-        ingredients: "Campari, sweet vermouth, soda water, orange slice."
+        "name": "Americano",
+        "liquor": "Classic",
+        "type": "Classic",
+        "category": [
+            "Bittersweet"
+        ],
+        "scores": {
+            "strength": 1,
+            "sweetness": 3,
+            "sourness": 1,
+            "bitterness": 5,
+            "thickness": 2,
+            "rarity": 2,
+            "masculinity": 1,
+            "calories": 3
+        },
+        "description": "Campari and sweet vermouth, topped with soda water.",
+        "ingredients": "Campari and sweet vermouth, topped with soda water."
     },
     {
-        name: "Aperol Spritz",
-        liquor: "Aperol",
-        category: ["Bittersweet", "Sunseeker", "Harmonist"],
-        scores: { strength: 2, sweetness: 4, sourness: 1, bitterness: 2, thickness: 1, rarity: 1, masculinity: 0, calories: 3 },
-        description: "A bright, sparkling low-ABV spritz with orange bittersweetness.",
-        ingredients: "Aperol, prosecco, soda water, orange slice."
+        "name": "Hugo Spritz",
+        "liquor": "Classic",
+        "type": "Classic",
+        "category": [
+            "Sunseeker",
+            "Harmonist"
+        ],
+        "scores": {
+            "strength": 2,
+            "sweetness": 4,
+            "sourness": 2,
+            "bitterness": 1,
+            "thickness": 1,
+            "rarity": 1,
+            "masculinity": 0,
+            "calories": 3
+        },
+        "description": "Elderflower liqueur, lemon and mint, topped with prosecco and club soda.",
+        "ingredients": "Elderflower liqueur, lemon and mint, topped with prosecco and club soda."
     },
     {
-        name: "Aviation",
-        liquor: "Gin",
-        category: ["Sunseeker", "Purist", "Harmonist"],
-        scores: { strength: 5, sweetness: 3, sourness: 4, bitterness: 1, thickness: 2, rarity: 6, masculinity: 0, calories: 4 },
-        description: "A floral gin sour with maraschino, lemon, and violet liqueur.",
-        ingredients: "Gin, maraschino liqueur, lemon juice, creme de violette."
+        "name": "Bee's Knees",
+        "liquor": "Classic",
+        "type": "Classic",
+        "category": [
+            "Sunseeker",
+            "Harmonist"
+        ],
+        "scores": {
+            "strength": 4,
+            "sweetness": 4,
+            "sourness": 4,
+            "bitterness": 1,
+            "thickness": 2,
+            "rarity": 3,
+            "masculinity": 0,
+            "calories": 3
+        },
+        "description": "Gin, honey syrup and lemon juice.",
+        "ingredients": "Gin, honey syrup and lemon juice."
     },
     {
-        name: "Bee's Knees",
-        liquor: "Gin",
-        category: ["Sunseeker", "Harmonist"],
-        scores: { strength: 4, sweetness: 4, sourness: 4, bitterness: 1, thickness: 2, rarity: 3, masculinity: 0, calories: 4 },
-        description: "A honeyed gin sour that is bright, simple, and lightly floral.",
-        ingredients: "Gin, lemon juice, honey syrup."
+        "name": "Boulevardier",
+        "liquor": "Classic",
+        "type": "Classic",
+        "category": [
+            "Purist",
+            "Bittersweet"
+        ],
+        "scores": {
+            "strength": 6,
+            "sweetness": 3,
+            "sourness": 1,
+            "bitterness": 6,
+            "thickness": 3,
+            "rarity": 3,
+            "masculinity": 1,
+            "calories": 3
+        },
+        "description": "Bourbon, Campari and sweet vermouth.",
+        "ingredients": "Bourbon, Campari and sweet vermouth."
     },
     {
-        name: "Boulevardier",
-        liquor: "Whiskey",
-        category: ["Purist", "Bittersweet"],
-        scores: { strength: 6, sweetness: 3, sourness: 1, bitterness: 6, thickness: 3, rarity: 3, masculinity: 1, calories: 4 },
-        description: "A whiskey-based Negroni variation with deep bittersweet richness.",
-        ingredients: "Bourbon or rye whiskey, Campari, sweet vermouth, orange peel."
+        "name": "Bramble",
+        "liquor": "Classic",
+        "type": "Classic",
+        "category": [
+            "Sunseeker"
+        ],
+        "scores": {
+            "strength": 4,
+            "sweetness": 4,
+            "sourness": 4,
+            "bitterness": 1,
+            "thickness": 2,
+            "rarity": 3,
+            "masculinity": 0,
+            "calories": 3
+        },
+        "description": "Gin, lemon juice and simple syrup, topped with blackberry liqueur.",
+        "ingredients": "Gin, lemon juice and simple syrup, topped with blackberry liqueur."
     },
     {
-        name: "Bramble",
-        liquor: "Gin",
-        category: ["Sunseeker"],
-        scores: { strength: 4, sweetness: 4, sourness: 4, bitterness: 1, thickness: 2, rarity: 3, masculinity: 0, calories: 4 },
-        description: "A blackberry gin sour with crushed ice and a fruity finish.",
-        ingredients: "Gin, lemon juice, simple syrup, blackberry liqueur."
+        "name": "Brandy Alexander",
+        "liquor": "Classic",
+        "type": "Classic",
+        "category": [
+            "Hedonist"
+        ],
+        "scores": {
+            "strength": 3,
+            "sweetness": 6,
+            "sourness": 1,
+            "bitterness": 1,
+            "thickness": 7,
+            "rarity": 2,
+            "masculinity": 0,
+            "calories": 7
+        },
+        "description": "Brandy, crème de cacao and cream.",
+        "ingredients": "Brandy, crème de cacao and cream."
     },
     {
-        name: "Brandy Alexander",
-        liquor: "Brandy",
-        category: ["Hedonist"],
-        scores: { strength: 3, sweetness: 6, sourness: 1, bitterness: 1, thickness: 7, rarity: 2, masculinity: 0, calories: 7 },
-        description: "A creamy dessert cocktail combining brandy, creme de cacao, and cream.",
-        ingredients: "Brandy or cognac, dark creme de cacao, cream, grated nutmeg."
+        "name": "Clover Club",
+        "liquor": "Classic",
+        "type": "Classic",
+        "category": [
+            "Sunseeker",
+            "Harmonist"
+        ],
+        "scores": {
+            "strength": 4,
+            "sweetness": 4,
+            "sourness": 4,
+            "bitterness": 1,
+            "thickness": 3,
+            "rarity": 3,
+            "masculinity": 0,
+            "calories": 4
+        },
+        "description": "Gin, lemon juice, raspberry syrup and egg white.",
+        "ingredients": "Gin, lemon juice, raspberry syrup and egg white."
     },
     {
-        name: "Caipirinha",
-        liquor: "Cachaca",
-        category: ["Sunseeker"],
-        scores: { strength: 3, sweetness: 3, sourness: 4, bitterness: 1, thickness: 2, rarity: 3, masculinity: 1, calories: 4 },
-        description: "A Brazilian lime cocktail made by muddling citrus and sugar with cachaca.",
-        ingredients: "Cachaca, lime wedges, sugar."
+        "name": "Corpse Reviver #2",
+        "liquor": "Classic",
+        "type": "Classic",
+        "category": [
+            "Sunseeker"
+        ],
+        "scores": {
+            "strength": 4,
+            "sweetness": 4,
+            "sourness": 5,
+            "bitterness": 1,
+            "thickness": 3,
+            "rarity": 4,
+            "masculinity": 1,
+            "calories": 4
+        },
+        "description": "Gin, Cointreau, Lillet Blanc and lemon juice, with an absinthe rinse.",
+        "ingredients": "Gin, Cointreau, Lillet Blanc and lemon juice, with an absinthe rinse."
     },
     {
-        name: "Clover Club",
-        liquor: "Gin",
-        category: ["Sunseeker", "Harmonist"],
-        scores: { strength: 4, sweetness: 4, sourness: 4, bitterness: 1, thickness: 3, rarity: 3, masculinity: 0, calories: 4 },
-        description: "A silky raspberry gin sour with a soft foam.",
-        ingredients: "Gin, lemon juice, raspberry syrup or grenadine, egg white."
+        "name": "Cosmopolitan",
+        "liquor": "Classic",
+        "type": "Classic",
+        "category": [
+            "Sunseeker"
+        ],
+        "scores": {
+            "strength": 3,
+            "sweetness": 3,
+            "sourness": 3,
+            "bitterness": 1,
+            "thickness": 2,
+            "rarity": 1,
+            "masculinity": 0,
+            "calories": 3
+        },
+        "description": "Vodka, triple sec, lime juice and cranberry juice.",
+        "ingredients": "Vodka, triple sec, lime juice and cranberry juice."
     },
     {
-        name: "Corpse Reviver #2",
-        liquor: "Gin",
-        category: ["Sunseeker"],
-        scores: { strength: 4, sweetness: 4, sourness: 5, bitterness: 1, thickness: 3, rarity: 4, masculinity: 0, calories: 4 },
-        description: "A tart equal-parts gin cocktail with citrus, orange liqueur, aromatized wine, and absinthe.",
-        ingredients: "Gin, Cointreau, Lillet Blanc or Cocchi Americano, lemon juice, absinthe rinse."
+        "name": "Daiquiri",
+        "liquor": "Classic",
+        "type": "Classic",
+        "category": [
+            "Sunseeker"
+        ],
+        "scores": {
+            "strength": 3,
+            "sweetness": 3,
+            "sourness": 4,
+            "bitterness": 1,
+            "thickness": 2,
+            "rarity": 1,
+            "masculinity": 0,
+            "calories": 3
+        },
+        "description": "White rum, lime juice and simple syrup.",
+        "ingredients": "White rum, lime juice and simple syrup."
     },
     {
-        name: "Cosmopolitan",
-        liquor: "Vodka",
-        category: ["Sunseeker"],
-        scores: { strength: 3, sweetness: 3, sourness: 3, bitterness: 1, thickness: 2, rarity: 1, masculinity: 0, calories: 4 },
-        description: "A pink vodka-citrus cocktail with cranberry and orange liqueur.",
-        ingredients: "Vodka, cranberry juice, Cointreau, lime juice."
+        "name": "Dark 'n' Stormy",
+        "liquor": "Classic",
+        "type": "Classic",
+        "category": [
+            "Sunseeker"
+        ],
+        "scores": {
+            "strength": 2,
+            "sweetness": 3,
+            "sourness": 2,
+            "bitterness": 1,
+            "thickness": 2,
+            "rarity": 2,
+            "masculinity": 1,
+            "calories": 3
+        },
+        "description": "Dark rum topped with ginger beer, with a lime squeeze.",
+        "ingredients": "Dark rum topped with ginger beer, with a lime squeeze."
     },
     {
-        name: "Daiquiri",
-        liquor: "White rum",
-        category: ["Sunseeker"],
-        scores: { strength: 3, sweetness: 3, sourness: 4, bitterness: 1, thickness: 2, rarity: 1, masculinity: 0, calories: 3 },
-        description: "A clean rum sour made with lime and sugar, served shaken and chilled.",
-        ingredients: "White rum, lime juice, simple syrup."
+        "name": "Carajillo",
+        "liquor": "Classic",
+        "type": "Classic",
+        "category": [
+            "Hedonist",
+            "Bittersweet",
+            "Harmonist"
+        ],
+        "scores": {
+            "strength": 3,
+            "sweetness": 5,
+            "sourness": 1,
+            "bitterness": 2,
+            "thickness": 4,
+            "rarity": 1,
+            "masculinity": 1,
+            "calories": 5
+        },
+        "description": "Espresso and Licor 43.",
+        "ingredients": "Espresso and Licor 43."
     },
     {
-        name: "Dark 'n' Stormy",
-        liquor: "Dark rum",
-        category: ["Sunseeker"],
-        scores: { strength: 2, sweetness: 3, sourness: 2, bitterness: 1, thickness: 2, rarity: 2, masculinity: 1, calories: 4 },
-        description: "A bold rum highball pairing dark rum with spicy ginger beer and lime.",
-        ingredients: "Dark rum, ginger beer, lime juice or lime wedge."
+        "name": "French 75",
+        "liquor": "Classic",
+        "type": "Classic",
+        "category": [
+            "Sunseeker"
+        ],
+        "scores": {
+            "strength": 3,
+            "sweetness": 3,
+            "sourness": 3,
+            "bitterness": 1,
+            "thickness": 2,
+            "rarity": 2,
+            "masculinity": 0,
+            "calories": 3
+        },
+        "description": "Gin, lemon juice and simple syrup, topped with champagne.",
+        "ingredients": "Gin, lemon juice and simple syrup, topped with champagne."
     },
     {
-        name: "Espresso Martini",
-        liquor: "Vodka",
-        category: ["Harmonist", "Bittersweet", "Hedonist"],
-        scores: { strength: 3, sweetness: 5, sourness: 1, bitterness: 2, thickness: 4, rarity: 1, masculinity: 0, calories: 5 },
-        description: "A modern classic shaking vodka, coffee liqueur, and espresso into a foamy cocktail.",
-        ingredients: "Vodka, coffee liqueur, fresh espresso, simple syrup."
+        "name": "French Martini",
+        "liquor": "Classic",
+        "type": "Classic",
+        "category": [
+            "Sunseeker",
+            "Hedonist"
+        ],
+        "scores": {
+            "strength": 3,
+            "sweetness": 5,
+            "sourness": 2,
+            "bitterness": 1,
+            "thickness": 2,
+            "rarity": 2,
+            "masculinity": 0,
+            "calories": 4
+        },
+        "description": "Vodka, pineapple juice and Chambord.",
+        "ingredients": "Vodka, pineapple juice and Chambord."
     },
     {
-        name: "French 75",
-        liquor: "Gin",
-        category: ["Sunseeker"],
-        scores: { strength: 3, sweetness: 3, sourness: 3, bitterness: 1, thickness: 2, rarity: 2, masculinity: 0, calories: 4 },
-        description: "A sparkling gin sour topped with Champagne or dry sparkling wine.",
-        ingredients: "Gin, lemon juice, simple syrup, Champagne or sparkling wine, lemon twist."
+        "name": "Gimlet",
+        "liquor": "Classic",
+        "type": "Classic",
+        "category": [
+            "Purist",
+            "Sunseeker"
+        ],
+        "scores": {
+            "strength": 5,
+            "sweetness": 2,
+            "sourness": 4,
+            "bitterness": 1,
+            "thickness": 2,
+            "rarity": 3,
+            "masculinity": 1,
+            "calories": 2
+        },
+        "description": "Gin, lime juice, simple syrup.",
+        "ingredients": "Gin, lime juice, simple syrup."
     },
     {
-        name: "French Martini",
-        liquor: "Vodka",
-        category: ["Sunseeker", "Hedonist"],
-        scores: { strength: 3, sweetness: 5, sourness: 2, bitterness: 1, thickness: 2, rarity: 2, masculinity: 0, calories: 5 },
-        description: "A fruity vodka cocktail with raspberry liqueur and pineapple.",
-        ingredients: "Vodka, raspberry liqueur, pineapple juice."
+        "name": "Gold Rush",
+        "liquor": "Classic",
+        "type": "Classic",
+        "category": [
+            "Purist",
+            "Sunseeker"
+        ],
+        "scores": {
+            "strength": 4,
+            "sweetness": 4,
+            "sourness": 4,
+            "bitterness": 1,
+            "thickness": 2,
+            "rarity": 3,
+            "masculinity": 1,
+            "calories": 3
+        },
+        "description": "Bourbon, honey syrup and lemon juice.",
+        "ingredients": "Bourbon, honey syrup and lemon juice."
     },
     {
-        name: "Gibson",
-        liquor: "Gin",
-        category: ["Purist"],
-        scores: { strength: 7, sweetness: 1, sourness: 1, bitterness: 1, thickness: 2, rarity: 3, masculinity: 1, calories: 2 },
-        description: "A dry martini variation garnished with a cocktail onion.",
-        ingredients: "Gin, dry vermouth, cocktail onion."
+        "name": "Grasshopper",
+        "liquor": "Classic",
+        "type": "Classic",
+        "category": [
+            "Hedonist"
+        ],
+        "scores": {
+            "strength": 2,
+            "sweetness": 6,
+            "sourness": 1,
+            "bitterness": 1,
+            "thickness": 6,
+            "rarity": 3,
+            "masculinity": 0,
+            "calories": 6
+        },
+        "description": "Crème de menthe, crème de cacao and cream.",
+        "ingredients": "Crème de menthe, crème de cacao and cream."
     },
     {
-        name: "Gimlet",
-        liquor: "Gin",
-        category: ["Purist", "Sunseeker"],
-        scores: { strength: 5, sweetness: 2, sourness: 4, bitterness: 1, thickness: 2, rarity: 3, masculinity: 1, calories: 3 },
-        description: "A compact gin-and-lime sour that can be bracing and dry.",
-        ingredients: "Gin, lime juice, simple syrup or lime cordial."
+        "name": "Last Word",
+        "liquor": "Classic",
+        "type": "Classic",
+        "category": [
+            "Sunseeker",
+            "Adventurer"
+        ],
+        "scores": {
+            "strength": 5,
+            "sweetness": 4,
+            "sourness": 5,
+            "bitterness": 2,
+            "thickness": 2,
+            "rarity": 6,
+            "masculinity": 1,
+            "calories": 3
+        },
+        "description": "Equal parts gin, green Chartreuse, maraschino liqueur and lime juice.",
+        "ingredients": "Equal parts gin, green Chartreuse, maraschino liqueur and lime juice."
     },
     {
-        name: "Gold Rush",
-        liquor: "Whiskey",
-        category: ["Sunseeker", "Purist"],
-        scores: { strength: 4, sweetness: 4, sourness: 4, bitterness: 1, thickness: 3, rarity: 3, masculinity: 1, calories: 4 },
-        description: "A bourbon sour sweetened with honey syrup.",
-        ingredients: "Bourbon, lemon juice, honey syrup."
+        "name": "Lemon Drop",
+        "liquor": "Classic",
+        "type": "Classic",
+        "category": [
+            "Sunseeker"
+        ],
+        "scores": {
+            "strength": 3,
+            "sweetness": 4,
+            "sourness": 4,
+            "bitterness": 1,
+            "thickness": 2,
+            "rarity": 1,
+            "masculinity": 0,
+            "calories": 3
+        },
+        "description": "Vodka, triple sec and lemon juice, sugar rim.",
+        "ingredients": "Vodka, triple sec and lemon juice, sugar rim."
     },
     {
-        name: "Grasshopper",
-        liquor: "Creme de menthe",
-        category: ["Hedonist"],
-        scores: { strength: 2, sweetness: 6, sourness: 1, bitterness: 1, thickness: 6, rarity: 3, masculinity: 0, calories: 7 },
-        description: "A mint-chocolate cream cocktail with a dessert-like profile.",
-        ingredients: "Green creme de menthe, white creme de cacao, cream."
+        "name": "Mai Tai",
+        "liquor": "Classic",
+        "type": "Classic",
+        "category": [
+            "Sunseeker",
+            "Adventurer"
+        ],
+        "scores": {
+            "strength": 4,
+            "sweetness": 5,
+            "sourness": 4,
+            "bitterness": 1,
+            "thickness": 3,
+            "rarity": 4,
+            "masculinity": 1,
+            "calories": 4
+        },
+        "description": "Rum, orange curaçao, orgeat and lime juice.",
+        "ingredients": "Rum, orange curaçao, orgeat and lime juice."
     },
     {
-        name: "Last Word",
-        liquor: "Gin",
-        category: ["Sunseeker", "Adventurer"],
-        scores: { strength: 5, sweetness: 4, sourness: 5, bitterness: 2, thickness: 4, rarity: 6, masculinity: 0, calories: 4 },
-        description: "A sharp, herbal, equal-parts cocktail balancing gin, Chartreuse, maraschino, and lime.",
-        ingredients: "Gin, green Chartreuse, maraschino liqueur, lime juice."
+        "name": "Jungle Bird",
+        "liquor": "Classic",
+        "type": "Classic",
+        "category": [
+            "Bittersweet",
+            "Adventurer"
+        ],
+        "scores": {
+            "strength": 4,
+            "sweetness": 4,
+            "sourness": 3,
+            "bitterness": 4,
+            "thickness": 3,
+            "rarity": 5,
+            "masculinity": 1,
+            "calories": 4
+        },
+        "description": "Dark rum, Campari, pineapple juice, lime juice and simple syrup.",
+        "ingredients": "Dark rum, Campari, pineapple juice, lime juice and simple syrup."
     },
     {
-        name: "Lemon Drop",
-        liquor: "Vodka",
-        category: ["Sunseeker"],
-        scores: { strength: 3, sweetness: 4, sourness: 4, bitterness: 1, thickness: 2, rarity: 2, masculinity: 0, calories: 4 },
-        description: "A bright vodka sour with lemon and a sugared rim.",
-        ingredients: "Vodka, lemon juice, orange liqueur or simple syrup, sugar rim."
+        "name": "Mezcal Negroni",
+        "liquor": "Classic",
+        "type": "Classic",
+        "category": [
+            "Bittersweet",
+            "Adventurer"
+        ],
+        "scores": {
+            "strength": 5,
+            "sweetness": 3,
+            "sourness": 1,
+            "bitterness": 7,
+            "thickness": 3,
+            "rarity": 5,
+            "masculinity": 1,
+            "calories": 3
+        },
+        "description": "Mezcal, Campari and sweet vermouth.",
+        "ingredients": "Mezcal, Campari and sweet vermouth."
     },
     {
-        name: "Mai Tai",
-        liquor: "Rum",
-        category: ["Sunseeker", "Adventurer"],
-        scores: { strength: 4, sweetness: 5, sourness: 4, bitterness: 1, thickness: 3, rarity: 4, masculinity: 0, calories: 5 },
-        description: "A classic tiki cocktail mixing rum with lime, orange liqueur, and almond orgeat.",
-        ingredients: "Aged rum, lime juice, orange curacao, orgeat, simple syrup, mint."
+        "name": "Mint Julep",
+        "liquor": "Classic",
+        "type": "Classic",
+        "category": [
+            "Purist"
+        ],
+        "scores": {
+            "strength": 7,
+            "sweetness": 3,
+            "sourness": 1,
+            "bitterness": 1,
+            "thickness": 3,
+            "rarity": 1,
+            "masculinity": 1,
+            "calories": 3
+        },
+        "description": "Bourbon, mint and simple syrup, over crushed ice.",
+        "ingredients": "Bourbon, mint and simple syrup, over crushed ice."
     },
     {
-        name: "Jungle Bird",
-        liquor: "Rum",
-        category: ["Adventurer", "Bittersweet"],
-        scores: { strength: 4, sweetness: 4, sourness: 3, bitterness: 4, thickness: 3, rarity: 4, masculinity: 0, calories: 5 },
-        description: "A tropical rum drink sharpened with Campari bitterness.",
-        ingredients: "Dark rum, Campari, pineapple juice, lime juice, simple syrup."
+        "name": "Mojito",
+        "liquor": "Classic",
+        "type": "Classic",
+        "category": [
+            "Sunseeker"
+        ],
+        "scores": {
+            "strength": 3,
+            "sweetness": 4,
+            "sourness": 3,
+            "bitterness": 1,
+            "thickness": 2,
+            "rarity": 1,
+            "masculinity": 1,
+            "calories": 3
+        },
+        "description": "White rum, lime, mint and sugar, topped with soda water.",
+        "ingredients": "White rum, lime, mint and sugar, topped with soda water."
     },
     {
-        name: "Mezcal Negroni",
-        liquor: "Mezcal",
-        category: ["Bittersweet", "Adventurer"],
-        scores: { strength: 5, sweetness: 3, sourness: 1, bitterness: 7, thickness: 3, rarity: 4, masculinity: 1, calories: 3 },
-        description: "A smoky mezcal variation on the classic Negroni.",
-        ingredients: "Mezcal, Campari, sweet vermouth, orange peel."
+        "name": "Moscow Mule",
+        "liquor": "Classic",
+        "type": "Classic",
+        "category": [
+            "Sunseeker"
+        ],
+        "scores": {
+            "strength": 2,
+            "sweetness": 3,
+            "sourness": 2,
+            "bitterness": 1,
+            "thickness": 2,
+            "rarity": 1,
+            "masculinity": 1,
+            "calories": 3
+        },
+        "description": "Vodka and lime juice, topped with ginger beer.",
+        "ingredients": "Vodka and lime juice, topped with ginger beer."
     },
     {
-        name: "Mint Julep",
-        liquor: "Bourbon",
-        category: ["Purist"],
-        scores: { strength: 7, sweetness: 3, sourness: 1, bitterness: 1, thickness: 3, rarity: 1, masculinity: 1, calories: 4 },
-        description: "A cold bourbon drink served over crushed ice with mint and sugar.",
-        ingredients: "Bourbon, mint leaves, simple syrup or sugar, crushed ice."
+        "name": "Naked and Famous",
+        "liquor": "Classic",
+        "type": "Classic",
+        "category": [
+            "Adventurer"
+        ],
+        "scores": {
+            "strength": 4,
+            "sweetness": 3,
+            "sourness": 4,
+            "bitterness": 3,
+            "thickness": 2,
+            "rarity": 7,
+            "masculinity": 1,
+            "calories": 3
+        },
+        "description": "Equal parts mezcal, Aperol, yellow Chartreuse and lime juice.",
+        "ingredients": "Equal parts mezcal, Aperol, yellow Chartreuse and lime juice."
     },
     {
-        name: "Mojito",
-        liquor: "White rum",
-        category: ["Sunseeker"],
-        scores: { strength: 3, sweetness: 4, sourness: 3, bitterness: 1, thickness: 2, rarity: 1, masculinity: 1, calories: 4 },
-        description: "A refreshing Cuban highball built around rum, mint, lime, sugar, and soda.",
-        ingredients: "White rum, lime juice, mint leaves, sugar or simple syrup, soda water."
+        "name": "Negroni",
+        "liquor": "Classic",
+        "type": "Classic",
+        "category": [
+            "Purist",
+            "Bittersweet"
+        ],
+        "scores": {
+            "strength": 5,
+            "sweetness": 3,
+            "sourness": 1,
+            "bitterness": 7,
+            "thickness": 3,
+            "rarity": 1,
+            "masculinity": 1,
+            "calories": 3
+        },
+        "description": "Gin, Campari and sweet vermouth.",
+        "ingredients": "Gin, Campari and sweet vermouth."
     },
     {
-        name: "Moscow Mule",
-        liquor: "Vodka",
-        category: ["Sunseeker"],
-        scores: { strength: 2, sweetness: 3, sourness: 2, bitterness: 1, thickness: 2, rarity: 1, masculinity: 1, calories: 4 },
-        description: "A spicy, fizzy vodka highball with ginger beer and lime.",
-        ingredients: "Vodka, ginger beer, lime juice, lime wedge."
+        "name": "Old Fashioned",
+        "liquor": "Classic",
+        "type": "Classic",
+        "category": [
+            "Purist"
+        ],
+        "scores": {
+            "strength": 6,
+            "sweetness": 3,
+            "sourness": 1,
+            "bitterness": 2,
+            "thickness": 3,
+            "rarity": 1,
+            "masculinity": 1,
+            "calories": 3
+        },
+        "description": "Bourbon (or rye), sugar and bitters.",
+        "ingredients": "Bourbon (or rye), sugar and bitters."
     },
     {
-        name: "Naked and Famous",
-        liquor: "Mezcal",
-        category: ["Adventurer"],
-        scores: { strength: 4, sweetness: 3, sourness: 4, bitterness: 3, thickness: 2, rarity: 6, masculinity: 0, calories: 4 },
-        description: "A smoky, herbal equal-parts mezcal cocktail with citrus and bittersweet liqueur.",
-        ingredients: "Mezcal, Aperol, yellow Chartreuse, lime juice."
+        "name": "Painkiller",
+        "liquor": "Classic",
+        "type": "Classic",
+        "category": [
+            "Hedonist"
+        ],
+        "scores": {
+            "strength": 3,
+            "sweetness": 6,
+            "sourness": 2,
+            "bitterness": 1,
+            "thickness": 6,
+            "rarity": 3,
+            "masculinity": 0,
+            "calories": 6
+        },
+        "description": "Dark rum, pineapple juice, orange juice and cream of coconut.",
+        "ingredients": "Dark rum, pineapple juice, orange juice and cream of coconut."
     },
     {
-        name: "Negroni",
-        liquor: "Gin",
-        category: ["Bittersweet", "Purist"],
-        scores: { strength: 5, sweetness: 3, sourness: 1, bitterness: 7, thickness: 3, rarity: 1, masculinity: 1, calories: 3 },
-        description: "A bittersweet Italian aperitif cocktail made in equal parts gin, Campari, and sweet vermouth.",
-        ingredients: "Gin, Campari, sweet vermouth, orange peel."
+        "name": "Paloma",
+        "liquor": "Classic",
+        "type": "Classic",
+        "category": [
+            "Sunseeker"
+        ],
+        "scores": {
+            "strength": 2,
+            "sweetness": 3,
+            "sourness": 4,
+            "bitterness": 2,
+            "thickness": 2,
+            "rarity": 2,
+            "masculinity": 0,
+            "calories": 3
+        },
+        "description": "Tequila and grapefruit soda with a squeeze of lime.",
+        "ingredients": "Tequila and grapefruit soda with a squeeze of lime."
     },
     {
-        name: "Old Fashioned",
-        liquor: "Whiskey",
-        category: ["Purist"],
-        scores: { strength: 6, sweetness: 3, sourness: 1, bitterness: 2, thickness: 3, rarity: 1, masculinity: 1, calories: 3 },
-        description: "A spirit-forward whiskey cocktail lightly sweetened and seasoned with bitters.",
-        ingredients: "Bourbon or rye whiskey, sugar cube or simple syrup, Angostura bitters, orange peel."
+        "name": "Paper Plane",
+        "liquor": "Classic",
+        "type": "Classic",
+        "category": [
+            "Bittersweet",
+            "Adventurer"
+        ],
+        "scores": {
+            "strength": 4,
+            "sweetness": 3,
+            "sourness": 4,
+            "bitterness": 5,
+            "thickness": 2,
+            "rarity": 6,
+            "masculinity": 1,
+            "calories": 3
+        },
+        "description": "Equal parts bourbon, Aperol, Amaro Nonino and lemon juice.",
+        "ingredients": "Equal parts bourbon, Aperol, Amaro Nonino and lemon juice."
     },
     {
-        name: "Painkiller",
-        liquor: "Rum",
-        category: ["Hedonist"],
-        scores: { strength: 3, sweetness: 6, sourness: 2, bitterness: 1, thickness: 5, rarity: 3, masculinity: 0, calories: 7 },
-        description: "A rich tropical rum drink with pineapple, orange, coconut, and nutmeg.",
-        ingredients: "Dark rum, pineapple juice, orange juice, cream of coconut, nutmeg."
+        "name": "Penicillin",
+        "liquor": "Classic",
+        "type": "Classic",
+        "category": [
+            "Purist",
+            "Adventurer"
+        ],
+        "scores": {
+            "strength": 4,
+            "sweetness": 4,
+            "sourness": 4,
+            "bitterness": 3,
+            "thickness": 4,
+            "rarity": 7,
+            "masculinity": 1,
+            "calories": 4
+        },
+        "description": "Blended scotch, lemon juice and honey-ginger syrup, floated with smoky scotch.",
+        "ingredients": "Blended scotch, lemon juice and honey-ginger syrup, floated with smoky scotch."
     },
     {
-        name: "Paloma",
-        liquor: "Tequila",
-        category: ["Sunseeker"],
-        scores: { strength: 2, sweetness: 3, sourness: 4, bitterness: 2, thickness: 2, rarity: 2, masculinity: 0, calories: 4 },
-        description: "A refreshing tequila highball with grapefruit, lime, and a lightly salty edge.",
-        ingredients: "Tequila, grapefruit soda or grapefruit juice, lime juice, salt."
+        "name": "Pisco Sour",
+        "liquor": "Classic",
+        "type": "Classic",
+        "category": [
+            "Sunseeker",
+            "Harmonist"
+        ],
+        "scores": {
+            "strength": 3,
+            "sweetness": 3,
+            "sourness": 4,
+            "bitterness": 1,
+            "thickness": 3,
+            "rarity": 3,
+            "masculinity": 0,
+            "calories": 3
+        },
+        "description": "Pisco, lime juice, simple syrup and egg white, topped with angostura bitters",
+        "ingredients": "Pisco, lime juice, simple syrup and egg white, topped with angostura bitters"
     },
     {
-        name: "Paper Plane",
-        liquor: "Bourbon",
-        category: ["Bittersweet", "Adventurer"],
-        scores: { strength: 4, sweetness: 3, sourness: 4, bitterness: 4, thickness: 2, rarity: 4, masculinity: 0, calories: 4 },
-        description: "A modern equal-parts bourbon cocktail with citrus and bittersweet amaro.",
-        ingredients: "Bourbon, Aperol, Amaro Nonino, lemon juice."
+        "name": "Sazerac",
+        "liquor": "Classic",
+        "type": "Classic",
+        "category": [
+            "Purist",
+            "Bittersweet"
+        ],
+        "scores": {
+            "strength": 7,
+            "sweetness": 2,
+            "sourness": 1,
+            "bitterness": 3,
+            "thickness": 3,
+            "rarity": 4,
+            "masculinity": 1,
+            "calories": 3
+        },
+        "description": "Rye whiskey, sugar and Peychaud's bitters, with an absinthe rinse.",
+        "ingredients": "Rye whiskey, sugar and Peychaud's bitters, with an absinthe rinse."
     },
     {
-        name: "Penicillin",
-        liquor: "Scotch",
-        category: ["Adventurer", "Purist"],
-        scores: { strength: 4, sweetness: 4, sourness: 4, bitterness: 3, thickness: 4, rarity: 7, masculinity: 1, calories: 5 },
-        description: "A smoky Scotch sour with honey, ginger, and lemon.",
-        ingredients: "Blended Scotch, peated Scotch, lemon juice, honey-ginger syrup."
+        "name": "Sidecar",
+        "liquor": "Classic",
+        "type": "Classic",
+        "category": [
+            "Purist",
+            "Sunseeker"
+        ],
+        "scores": {
+            "strength": 5,
+            "sweetness": 3,
+            "sourness": 4,
+            "bitterness": 1,
+            "thickness": 2,
+            "rarity": 3,
+            "masculinity": 1,
+            "calories": 3
+        },
+        "description": "Cognac, triple sec and lemon juice.",
+        "ingredients": "Cognac, triple sec and lemon juice."
     },
     {
-        name: "Pisco Sour",
-        liquor: "Pisco",
-        category: ["Sunseeker", "Harmonist"],
-        scores: { strength: 3, sweetness: 3, sourness: 4, bitterness: 1, thickness: 3, rarity: 3, masculinity: 0, calories: 4 },
-        description: "A frothy grape brandy sour with citrus and bitters.",
-        ingredients: "Pisco, lime or lemon juice, simple syrup, egg white, bitters."
+        "name": "Tom Collins",
+        "liquor": "Classic",
+        "type": "Classic",
+        "category": [
+            "Sunseeker",
+            "Harmonist"
+        ],
+        "scores": {
+            "strength": 2,
+            "sweetness": 3,
+            "sourness": 4,
+            "bitterness": 1,
+            "thickness": 2,
+            "rarity": 2,
+            "masculinity": 1,
+            "calories": 3
+        },
+        "description": "Gin, lemon juice and simple syrup, topped with soda water.",
+        "ingredients": "Gin, lemon juice and simple syrup, topped with soda water."
     },
     {
-        name: "Ranch Water",
-        liquor: "Tequila",
-        category: ["Harmonist", "Sunseeker"],
-        scores: { strength: 2, sweetness: 1, sourness: 3, bitterness: 1, thickness: 1, rarity: 2, masculinity: 0, calories: 2 },
-        description: "A dry tequila highball with lime and sparkling mineral water.",
-        ingredients: "Tequila, lime juice, sparkling mineral water."
+        "name": "Gin Fizz",
+        "liquor": "Classic",
+        "type": "Classic",
+        "category": [
+            "Sunseeker",
+            "Harmonist"
+        ],
+        "scores": {
+            "strength": 3,
+            "sweetness": 3,
+            "sourness": 4,
+            "bitterness": 1,
+            "thickness": 3,
+            "rarity": 4,
+            "masculinity": 0,
+            "calories": 3
+        },
+        "description": "Gin, lemon juice and simple syrup, shaken with egg white, topped with soda water.",
+        "ingredients": "Gin, lemon juice and simple syrup, shaken with egg white, topped with soda water."
     },
     {
-        name: "Sazerac",
-        liquor: "Rye whiskey",
-        category: ["Purist", "Bittersweet"],
-        scores: { strength: 7, sweetness: 2, sourness: 1, bitterness: 3, thickness: 3, rarity: 4, masculinity: 1, calories: 3 },
-        description: "A New Orleans classic combining rye, sugar, bitters, and an absinthe-rinsed glass.",
-        ingredients: "Rye whiskey, sugar cube or simple syrup, Peychaud's bitters, absinthe rinse, lemon peel."
+        "name": "Vieux Carré",
+        "liquor": "Classic",
+        "type": "Classic",
+        "category": [
+            "Purist",
+            "Bittersweet"
+        ],
+        "scores": {
+            "strength": 6,
+            "sweetness": 3,
+            "sourness": 1,
+            "bitterness": 2,
+            "thickness": 3,
+            "rarity": 4,
+            "masculinity": 1,
+            "calories": 3
+        },
+        "description": "Rye whiskey, cognac, sweet vermouth, Bénédictine and bitters.",
+        "ingredients": "Rye whiskey, cognac, sweet vermouth, Bénédictine and bitters."
     },
     {
-        name: "Sidecar",
-        liquor: "Cognac",
-        category: ["Sunseeker", "Purist"],
-        scores: { strength: 5, sweetness: 3, sourness: 4, bitterness: 1, thickness: 2, rarity: 3, masculinity: 1, calories: 4 },
-        description: "A tart, elegant brandy sour made with cognac, orange liqueur, and lemon.",
-        ingredients: "Cognac, orange liqueur, lemon juice, optional sugar rim."
-    },
-    {
-        name: "Tom Collins",
-        liquor: "Gin",
-        category: ["Sunseeker", "Harmonist"],
-        scores: { strength: 2, sweetness: 3, sourness: 4, bitterness: 1, thickness: 2, rarity: 2, masculinity: 0, calories: 4 },
-        description: "A tall gin sour lengthened with soda water for a crisp, fizzy finish.",
-        ingredients: "Gin, lemon juice, simple syrup, soda water, lemon wheel, cherry."
-    },
-    {
-        name: "Gin Fizz",
-        liquor: "Gin",
-        category: ["Sunseeker", "Harmonist"],
-        scores: { strength: 3, sweetness: 3, sourness: 4, bitterness: 1, thickness: 2, rarity: 3, masculinity: 0, calories: 4 },
-        description: "A lively gin sour shaken and topped with soda water.",
-        ingredients: "Gin, lemon juice, simple syrup, soda water."
-    },
-    {
-        name: "Vieux Carre",
-        liquor: "Rye whiskey",
-        category: ["Purist", "Bittersweet"],
-        scores: { strength: 6, sweetness: 3, sourness: 1, bitterness: 2, thickness: 3, rarity: 4, masculinity: 1, calories: 4 },
-        description: "A rich New Orleans stirred drink with rye, cognac, vermouth, Benedictine, and bitters.",
-        ingredients: "Rye whiskey, cognac, sweet vermouth, Benedictine, Peychaud's bitters, Angostura bitters."
-    },
-    {
-        name: "Whiskey Sour",
-        liquor: "Whiskey",
-        category: ["Sunseeker"],
-        scores: { strength: 3, sweetness: 3, sourness: 4, bitterness: 1, thickness: 4, rarity: 1, masculinity: 1, calories: 4 },
-        description: "A classic sour balancing whiskey with lemon and sugar, often given a silky texture with egg white.",
-        ingredients: "Bourbon or rye whiskey, lemon juice, simple syrup, optional egg white, bitters."
-    },
-    {
-        name: "White Russian",
-        liquor: "Vodka",
-        category: ["Hedonist"],
-        scores: { strength: 4, sweetness: 5, sourness: 1, bitterness: 2, thickness: 6, rarity: 1, masculinity: 0, calories: 7 },
-        description: "A creamy vodka and coffee liqueur drink with dessert-like richness.",
-        ingredients: "Vodka, coffee liqueur, cream."
+        "name": "Whiskey Sour",
+        "liquor": "Classic",
+        "type": "Classic",
+        "category": [
+            "Sunseeker"
+        ],
+        "scores": {
+            "strength": 3,
+            "sweetness": 3,
+            "sourness": 4,
+            "bitterness": 1,
+            "thickness": 4,
+            "rarity": 1,
+            "masculinity": 1,
+            "calories": 4
+        },
+        "description": "Bourbon, lemon juice and simple syrup (egg white optional).",
+        "ingredients": "Bourbon, lemon juice and simple syrup (egg white optional)."
     }
 ];
 
@@ -608,12 +1071,18 @@ function getRestaurantSlugFromCurrentPath() {
     const pathParts = window.location.pathname.split("/").filter(Boolean);
     const restaurantIndex = pathParts.indexOf("r");
     if (restaurantIndex !== -1) return sanitizeDrinkSetSlug(pathParts[restaurantIndex + 1]);
-    if (pathParts[0] === "dashboard") return sanitizeDrinkSetSlug(pathParts[1]);
-    if (pathParts[1] === "dashboard") return sanitizeDrinkSetSlug(pathParts[0]);
+    if (pathParts[0] === "customer" || pathParts[0] === "consumer") return "customer";
+    if (pathParts[0] === "dashboard") return normalizeDrinkSetSlug(pathParts[1]);
+    if (pathParts[1] === "dashboard") return normalizeDrinkSetSlug(pathParts[0]);
     if (pathParts.length >= 1 && pathParts.length <= 2 && !isReservedDrinkSetPath(pathParts[0])) {
         return sanitizeDrinkSetSlug(pathParts[0]);
     }
     return "";
+}
+
+function normalizeDrinkSetSlug(value) {
+    const slug = sanitizeDrinkSetSlug(value);
+    return slug === "consumer" ? "customer" : slug;
 }
 
 function sanitizeDrinkSetSlug(value) {

@@ -53,7 +53,8 @@ initializeDashboard();
 async function initializeDashboard() {
   const restaurantName = formatSlug(state.restaurantSlug);
   document.getElementById("restaurant-title").textContent = restaurantName || "Restaurant";
-  document.getElementById("quiz-link").href = `/${state.restaurantSlug}`;
+  document.getElementById("quiz-link").href = isCustomerDashboard() ? "/customer" : `/${state.restaurantSlug}`;
+  document.getElementById("quiz-link").textContent = isCustomerDashboard() ? "Customer quiz" : "Guest quiz";
   initializeMapControls();
 
   if (typeof loadSavedDrinkSetForActiveRestaurant === "function") {
@@ -83,7 +84,7 @@ async function loadDashboard() {
 
     state.events = Array.isArray(data.events) ? data.events : [];
     renderDashboard(data);
-    showStatus(`Showing ${state.events.length} PROOF sessions for ${formatSlug(state.restaurantSlug)}. Source: ${data.source}.`);
+    showStatus(`Showing ${state.events.length} ${isCustomerDashboard() ? "customer profiles" : "PROOF sessions"} for ${formatSlug(state.restaurantSlug)}. Source: ${data.source}.`);
   } catch (error) {
     state.events = [];
     renderDashboard({ events: [], receiptDataAvailable: false });
@@ -175,9 +176,18 @@ function setActiveTab(tabId) {
 
 function getRestaurantSlugFromPath() {
   const parts = window.location.pathname.split("/").filter(Boolean);
-  if (parts[0] === "dashboard" && parts[1]) return sanitizeSlug(parts[1]);
-  if (parts[1] === "dashboard" && parts[0]) return sanitizeSlug(parts[0]);
+  if (parts[0] === "dashboard" && parts[1]) return normalizeDashboardSlug(parts[1]);
+  if (parts[1] === "dashboard" && parts[0]) return normalizeDashboardSlug(parts[0]);
   return "unassigned";
+}
+
+function isCustomerDashboard() {
+  return state.restaurantSlug === "customer";
+}
+
+function normalizeDashboardSlug(value) {
+  const slug = sanitizeSlug(value);
+  return slug === "consumer" ? "customer" : slug;
 }
 
 function sanitizeSlug(value) {

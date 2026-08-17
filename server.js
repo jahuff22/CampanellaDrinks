@@ -19,6 +19,7 @@ const DASHBOARD_PASSWORDS = parseDashboardPasswords(process.env.DASHBOARD_PASSWO
 const SESSION_SECRET = process.env.SESSION_SECRET || "";
 const DASHBOARD_SESSION_COOKIE = "proof_dashboard_session";
 const DASHBOARD_SESSION_TTL_SECONDS = 60 * 60 * 12;
+const CUSTOMER_DASHBOARD_SLUG = "customer";
 const PAID_FEATURE_CUTOFF_DOLLARS = Math.min(Number(process.env.AI_MONTHLY_LIMIT_DOLLARS || 5), 5);
 const HARD_MONTHLY_CAP_DOLLARS = Math.min(Number(process.env.AI_HARD_MONTHLY_CAP_DOLLARS || 6), 6);
 const INPUT_PRICE_PER_1M = Number(process.env.AI_INPUT_PRICE_PER_1M || 0.2);
@@ -48,7 +49,13 @@ const ROUTE_ALIASES = new Map([
 
 const ROUTE_REDIRECTS = new Map([
   ["/business", "/"],
-  ["/business/", "/"]
+  ["/business/", "/"],
+  ["/consumer", "/customer"],
+  ["/consumer/", "/customer"],
+  ["/dashboard/consumer", "/dashboard/customer"],
+  ["/dashboard/consumer/", "/dashboard/customer"],
+  ["/consumer/dashboard", "/dashboard/customer"],
+  ["/consumer/dashboard/", "/dashboard/customer"]
 ]);
 
 const RESERVED_RESTAURANT_PATHS = new Set([
@@ -102,10 +109,26 @@ const preferenceSchema = {
   required: ["remove", "like", "require", "featurePreferences"]
 };
 
+const bartenderScriptSchema = {
+  type: "object",
+  additionalProperties: false,
+  properties: {
+    script: {
+      type: "string"
+    }
+  },
+  required: ["script"]
+};
+
 const server = http.createServer(async (request, response) => {
   try {
     if (request.method === "POST" && request.url === "/api/parse-preferences") {
       await handleParsePreferences(request, response);
+      return;
+    }
+
+    if (request.method === "POST" && request.url === "/api/bartender-script") {
+      await handleBartenderScript(request, response);
       return;
     }
 
@@ -437,6 +460,107 @@ async function handleParsePreferences(request, response) {
   });
 }
 
+async function handleBartenderScript(request, response) {
+  const apiKey = process.env.OPENAI_API_KEY;
+
+  if (!apiKey) {
+    sendJson(response, 503, { error: "OPENAI_API_KEY is not configured" });
+    return;
+  }
+
+  const body = await readJsonBody(request, 8_000);
+  const preferences = sanitizeSliderPreferences(body.preferences);
+  const examples = sanitizeBartenderScriptExamples(body.examples);
+
+  if (!preferences) {
+    sendJson(response, 400, { error: "Valid slider preferences are required" });
+    return;
+  }
+
+  const promptText = JSON.stringify({ preferences, examples });
+  const usage = loadUsageForCurrentMonth();
+  const estimatedCallCost = Math.max(estimateCallCostDollars(promptText), RESERVED_CALL_COST_DOLLARS);
+
+  if (
+    usage.estimatedCostDollars >= PAID_FEATURE_CUTOFF_DOLLARS ||
+    usage.estimatedCostDollars + estimatedCallCost > PAID_FEATURE_CUTOFF_DOLLARS ||
+    usage.estimatedCostDollars + estimatedCallCost > HARD_MONTHLY_CAP_DOLLARS
+  ) {
+    sendJson(response, 429, {
+      code: "AI_USAGE_LIMIT_REACHED",
+      error: "AI usage limit reached"
+    });
+    return;
+  }
+
+  const aiResponse = await fetch("https://api.openai.com/v1/responses", {
+    method: "POST",
+    headers: {
+      "Authorization": `Bearer ${apiKey}`,
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      model: MODEL,
+      input: [
+        {
+          role: "system",
+          content: [
+            {
+              type: "input_text",
+              text: [
+                "Write one bartender script for a cocktail guest.",
+                "The script should sound like the examples: casual, direct, first-person, and one or two sentences.",
+                "Length should usually be 12 to 28 words, never more than 40 words.",
+                "Do not name a specific cocktail.",
+                "Do not explain the scoring system.",
+                "Use the guest's 1-7 slider preferences for sweetness, sourness, bitterness, strength, thickness, and rarity.",
+                "Return JSON only."
+              ].join(" ")
+            }
+          ]
+        },
+        {
+          role: "user",
+          content: [
+            {
+              type: "input_text",
+              text: promptText
+            }
+          ]
+        }
+      ],
+      max_output_tokens: 90,
+      text: {
+        format: {
+          type: "json_schema",
+          name: "bartender_script",
+          strict: true,
+          schema: bartenderScriptSchema
+        }
+      }
+    })
+  });
+
+  const data = await aiResponse.json();
+
+  if (!aiResponse.ok) {
+    console.error("OpenAI bartender script error:", data);
+    sendJson(response, 502, { error: "AI bartender script generation failed" });
+    return;
+  }
+
+  const parsed = extractResponseJson(data);
+  const script = sanitizeFreeText(parsed.script, 280);
+  const cost = calculateCostDollars(data.usage);
+
+  usage.calls += 1;
+  usage.estimatedCostDollars = roundMoney(usage.estimatedCostDollars + cost);
+  usage.lastCallAt = new Date().toISOString();
+  saveUsage(usage);
+
+  sendJson(response, 200, { script });
+}
+
 async function handleRecommendationEvent(request, response) {
   const body = await readJsonBody(request, 25_000);
   const event = createRecommendationEvent(body);
@@ -518,13 +642,15 @@ async function handleDashboardData(request, response) {
     return;
   }
 
-  const readResult = await readRecommendationEvents(restaurantSlug);
+  const readResult = restaurantSlug === CUSTOMER_DASHBOARD_SLUG
+    ? await readCustomerDashboardEvents()
+    : await readRecommendationEvents(restaurantSlug);
 
   sendJson(response, 200, {
     restaurantSlug,
     events: readResult.events,
     source: readResult.source,
-    receiptDataAvailable: hasReceiptData(readResult.events)
+    receiptDataAvailable: restaurantSlug === CUSTOMER_DASHBOARD_SLUG ? false : hasReceiptData(readResult.events)
   });
 }
 
@@ -712,6 +838,75 @@ async function readRecommendationEvents(restaurantSlug) {
   return readRecommendationEventsFromLocalFile(restaurantSlug);
 }
 
+async function readCustomerDashboardEvents() {
+  if (RECOMMENDATION_EVENTS_READ_URL) {
+    const remoteResult = await readCustomerDashboardEventsFromRemote();
+    if (remoteResult.ok) return remoteResult;
+  }
+
+  return readCustomerDashboardEventsFromLocalFile();
+}
+
+async function readCustomerDashboardEventsFromRemote() {
+  try {
+    const url = new URL(RECOMMENDATION_EVENTS_READ_URL);
+    url.searchParams.set("type", "customer");
+
+    const remoteResponse = await fetch(url);
+    if (!remoteResponse.ok) {
+      console.error("Customer dashboard read failed:", remoteResponse.status);
+      return { ok: false };
+    }
+
+    const data = await remoteResponse.json();
+    const rawEvents = Array.isArray(data.events) ? data.events : Array.isArray(data.customers) ? data.customers : Array.isArray(data) ? data : [];
+
+    return {
+      ok: true,
+      source: "remote-webhook",
+      events: rawEvents.map(sanitizeCustomerDashboardEvent).filter(Boolean)
+    };
+  } catch (error) {
+    console.error("Customer dashboard read error:", error);
+    return { ok: false };
+  }
+}
+
+async function readCustomerDashboardEventsFromLocalFile() {
+  try {
+    const content = await fs.promises.readFile(CUSTOMER_EVENTS_FILE, "utf8");
+    const events = content
+      .split(/\r?\n/)
+      .filter(Boolean)
+      .map(line => {
+        try {
+          return JSON.parse(line);
+        } catch (error) {
+          return null;
+        }
+      })
+      .filter(Boolean)
+      .map(sanitizeCustomerDashboardEvent)
+      .filter(Boolean);
+
+    return {
+      ok: true,
+      source: "local-jsonl",
+      events
+    };
+  } catch (error) {
+    if (error.code !== "ENOENT") {
+      console.error("Could not read customer events locally:", error);
+    }
+
+    return {
+      ok: true,
+      source: "local-jsonl",
+      events: []
+    };
+  }
+}
+
 async function readRecommendationEventsFromRemote(restaurantSlug) {
   try {
     const url = new URL(RECOMMENDATION_EVENTS_READ_URL);
@@ -807,6 +1002,43 @@ function sanitizeDashboardEvent(event) {
   };
 }
 
+function sanitizeCustomerDashboardEvent(event) {
+  if (!event || typeof event !== "object") return null;
+
+  const guestInput = event.guestInput || {};
+  const session = event.session || {};
+
+  return {
+    id: sanitizeIdentifier(event.id || event.eventId || event.customerRecordId),
+    createdAt: sanitizeFreeText(event.createdAt, 40),
+    restaurant: {
+      slug: CUSTOMER_DASHBOARD_SLUG
+    },
+    table: null,
+    session: {
+      id: sanitizeIdentifier(session.id || event.customerRecordId || event.eventId || event.id),
+      sourcePath: sanitizePath(session.sourcePath || event.sourcePath) || "/customer"
+    },
+    guestInput: {
+      sliderPreferences: sanitizeNumericMap(guestInput.sliderPreferences || event.sliderPreferences, 1, 7),
+      importantTraits: sanitizeBooleanMap(guestInput.importantTraits || event.importantTraits),
+      qualitativeText: sanitizeFreeText(guestInput.qualitativeText || event.qualitativeText, 500),
+      parsedPreferences: sanitizeParsedPreferences(guestInput.parsedPreferences || event.parsedPreferences)
+    },
+    recommendations: sanitizeRecommendations(event.recommendations),
+    customer: {
+      email: sanitizeEmail(event.email),
+      birthday: sanitizeFreeText(event.birthday, 40),
+      firstName: sanitizeFreeText(event.firstName, 80),
+      lastName: sanitizeFreeText(event.lastName, 80),
+      persona: sanitizeFreeText(event.persona, 60),
+      aboutYou: sanitizeFreeText(event.aboutYou, 500),
+      feedback: sanitizeCustomerFeedback(event.feedback)
+    },
+    pos: {}
+  };
+}
+
 function sanitizePosData(pos) {
   if (!pos || typeof pos !== "object") return {};
 
@@ -820,6 +1052,17 @@ function sanitizePosData(pos) {
     drinkSubtotal: Number.isFinite(Number(pos.drinkSubtotal)) ? Number(pos.drinkSubtotal) : null,
     checkSubtotal: Number.isFinite(Number(pos.checkSubtotal)) ? Number(pos.checkSubtotal) : null,
     usedProof: pos.usedProof === true
+  };
+}
+
+function sanitizeCustomerFeedback(feedback) {
+  if (!feedback || typeof feedback !== "object") return {};
+
+  return {
+    mostInterestingDrink: sanitizeFreeText(feedback.mostInterestingDrink, 120),
+    drinkRating: Number.isFinite(Number(feedback.drinkRating)) ? Math.min(Math.max(Number(feedback.drinkRating), 1), 7) : null,
+    favoriteDrink: sanitizeFreeText(feedback.favoriteDrink, 200),
+    notes: sanitizeFreeText(feedback.notes, 500)
   };
 }
 
@@ -1026,6 +1269,8 @@ function createCustomerEvent(body) {
     createdAt: new Date().toISOString(),
     email: sanitizeEmail(body.email),
     birthday: sanitizeFreeText(body.birthday, 40),
+    firstName: sanitizeFreeText(body.firstName, 80),
+    lastName: sanitizeFreeText(body.lastName, 80),
     sourcePath: sanitizePath(body.sourcePath) || "/customer",
     persona: sanitizeFreeText(body.persona, 60),
     aboutYou: sanitizeFreeText(body.aboutYou, 500),
@@ -1265,6 +1510,30 @@ function sanitizePreferences(preferences) {
     require: sanitizeTerms(preferences.require),
     featurePreferences: sanitizeFeaturePreferences(preferences.featurePreferences)
   };
+}
+
+function sanitizeSliderPreferences(preferences) {
+  if (!preferences || typeof preferences !== "object") return null;
+
+  const sanitized = {};
+  for (const trait of ["sweetness", "sourness", "bitterness", "strength", "thickness", "rarity"]) {
+    const value = Number(preferences[trait]);
+    if (!Number.isFinite(value)) return null;
+    sanitized[trait] = Math.min(Math.max(Math.round(value), 1), 7);
+  }
+
+  return sanitized;
+}
+
+function sanitizeBartenderScriptExamples(examples) {
+  if (!Array.isArray(examples)) return [];
+
+  return examples.slice(0, 5).map(example => {
+    return {
+      preferences: sanitizeSliderPreferences(example?.preferences),
+      script: sanitizeFreeText(example?.script, 220)
+    };
+  }).filter(example => example.preferences && example.script);
 }
 
 function sanitizeFeaturePreferences(featurePreferences) {

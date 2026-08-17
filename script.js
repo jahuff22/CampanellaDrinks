@@ -661,21 +661,20 @@ function createPalateChart(tasteProfile) {
   const levels = 7;
   const sliceAngle = 360 / tasteProfile.length;
   const filledSlices = [];
-  const gridCircles = [];
-  const radialLines = [];
   const labels = [];
 
   tasteProfile.forEach((dimension, index) => {
-    const startAngle = -90 + index * sliceAngle;
-    const endAngle = startAngle + sliceAngle;
+    const startAngle = -90 + index * sliceAngle + 4;
+    const endAngle = startAngle + sliceAngle - 8;
     const labelPoint = polarPoint(center, center, labelRadius, startAngle + sliceAngle / 2);
     const value = clampPreferenceValue(dimension.value);
+    const outerRadius = (value / levels) * radius;
 
-    for (let level = 1; level <= levels; level += 1) {
+    if (outerRadius > 0) {
       filledSlices.push(`
         <path
-          class="palate-slice${level <= value ? " is-filled" : ""}"
-          d="${createPalateSlicePath(center, center, ((level - 1) / levels) * radius, (level / levels) * radius, startAngle, endAngle)}"
+          class="palate-slice is-filled"
+          d="${createPalateSlicePath(center, center, outerRadius, startAngle, endAngle)}"
         ></path>
       `);
     }
@@ -691,24 +690,11 @@ function createPalateChart(tasteProfile) {
     `);
   });
 
-  for (let level = 1; level < levels; level += 1) {
-    gridCircles.push(`<circle class="palate-grid-line" cx="${center}" cy="${center}" r="${((level / levels) * radius).toFixed(2)}"></circle>`);
-  }
-
-  for (let index = 0; index < tasteProfile.length; index += 1) {
-    const point = polarPoint(center, center, radius, -90 + index * sliceAngle);
-    radialLines.push(`<line class="palate-grid-line" x1="${center}" y1="${center}" x2="${point.x.toFixed(2)}" y2="${point.y.toFixed(2)}"></line>`);
-  }
-
   return `
     <svg class="palate-wheel" viewBox="0 0 320 320" role="img" aria-label="Palate profile across six flavor dimensions">
       <circle class="palate-wheel-bg" cx="${center}" cy="${center}" r="${radius}"></circle>
       <g>${filledSlices.join("")}</g>
-      <g>
-        ${gridCircles.join("")}
-        ${radialLines.join("")}
-        <circle class="palate-outer-line" cx="${center}" cy="${center}" r="${radius}"></circle>
-      </g>
+      <circle class="palate-outer-line" cx="${center}" cy="${center}" r="${radius}"></circle>
       <g>${labels.join("")}</g>
     </svg>
   `;
@@ -728,27 +714,18 @@ function polarPoint(centerX, centerY, radius, angleDegrees) {
   };
 }
 
-function createPalateSlicePath(centerX, centerY, innerRadius, outerRadius, startAngle, endAngle) {
+function createPalateSlicePath(centerX, centerY, outerRadius, startAngle, endAngle) {
+  const innerRadius = Math.min(18, outerRadius * 0.42);
+  const innerStart = polarPoint(centerX, centerY, innerRadius, startAngle + 7);
+  const innerEnd = polarPoint(centerX, centerY, innerRadius, endAngle - 7);
   const outerStart = polarPoint(centerX, centerY, outerRadius, startAngle);
   const outerEnd = polarPoint(centerX, centerY, outerRadius, endAngle);
 
-  if (innerRadius === 0) {
-    return [
-      `M ${centerX} ${centerY}`,
-      `L ${outerStart.x.toFixed(2)} ${outerStart.y.toFixed(2)}`,
-      `A ${outerRadius.toFixed(2)} ${outerRadius.toFixed(2)} 0 0 1 ${outerEnd.x.toFixed(2)} ${outerEnd.y.toFixed(2)}`,
-      "Z"
-    ].join(" ");
-  }
-
-  const innerStart = polarPoint(centerX, centerY, innerRadius, startAngle);
-  const innerEnd = polarPoint(centerX, centerY, innerRadius, endAngle);
-
   return [
     `M ${innerStart.x.toFixed(2)} ${innerStart.y.toFixed(2)}`,
-    `L ${outerStart.x.toFixed(2)} ${outerStart.y.toFixed(2)}`,
+    `Q ${centerX} ${centerY} ${outerStart.x.toFixed(2)} ${outerStart.y.toFixed(2)}`,
     `A ${outerRadius.toFixed(2)} ${outerRadius.toFixed(2)} 0 0 1 ${outerEnd.x.toFixed(2)} ${outerEnd.y.toFixed(2)}`,
-    `L ${innerEnd.x.toFixed(2)} ${innerEnd.y.toFixed(2)}`,
+    `Q ${centerX} ${centerY} ${innerEnd.x.toFixed(2)} ${innerEnd.y.toFixed(2)}`,
     `A ${innerRadius.toFixed(2)} ${innerRadius.toFixed(2)} 0 0 0 ${innerStart.x.toFixed(2)} ${innerStart.y.toFixed(2)}`,
     "Z"
   ].join(" ");
@@ -759,9 +736,10 @@ function displayPersonaProfile(personaCategory, userPreferences) {
   const profileElement = document.getElementById("persona-profile");
   const tasteProfile = createTasteProfile(userPreferences);
 
+  profileElement.hidden = false;
   profileElement.innerHTML = `
     <div class="persona-summary">
-      <p class="eyebrow">YOU'RE A</p>
+      <p class="eyebrow">YOU'RE ${getPersonaArticle(profile.title).toUpperCase()}</p>
       <h2>${profile.title}</h2>
       <p class="persona-intro">${profile.intro}</p>
       <p class="persona-avoidance">${profile.avoidance}</p>
@@ -773,6 +751,10 @@ function displayPersonaProfile(personaCategory, userPreferences) {
       </div>
     </div>
   `;
+}
+
+function getPersonaArticle(persona) {
+  return persona === "Adventurer" ? "an" : "a";
 }
 
 function createDrinkResultElement(drink) {
@@ -836,7 +818,7 @@ function isCustomerMode() {
   return window.location.pathname.split("/").filter(Boolean)[0] === "customer";
 }
 
-function createCustomerProfileData(userPreferences, qualitativeText, qualitativePreferences, recommendations) {
+async function createCustomerProfileData(userPreferences, qualitativeText, qualitativePreferences, recommendations) {
   const persona = calculatePersona(recommendations);
   const strongLikes = getStrongPreferencePhrases(userPreferences, "high");
   const strongAvoids = [
@@ -844,7 +826,7 @@ function createCustomerProfileData(userPreferences, qualitativeText, qualitative
     ...(qualitativePreferences.remove || [])
   ];
   const aboutYou = createAboutYouSentence(persona, userPreferences);
-  const bartenderScript = createBartenderScript(strongLikes, strongAvoids);
+  const bartenderScript = await createBartenderScript(userPreferences, strongLikes, strongAvoids);
   const spiritsAndModifiers = createSpiritsAndModifiers(recommendations, userPreferences);
   const recipe = createCustomRecipe(persona, userPreferences, spiritsAndModifiers);
 
@@ -872,9 +854,6 @@ function displayCustomerResults(profileData, notice) {
   resultsDiv.className = "customer-results";
   resultsDiv.innerHTML = `
     <section class="customer-card customer-intro-card">
-      <p class="eyebrow">Learn more about your palate</p>
-      <h2>You're a ${escapeHtml(profileData.persona)}</h2>
-      <p><strong>About you:</strong> ${escapeHtml(profileData.aboutYou)}</p>
       <form id="customer-email-form" class="customer-email-form">
         <p>Your personalized palate profile is based on your preferences and sensitivities within the flavor dimensions.</p>
         <p>Enter your email and we’ll send you three classic cocktail matches, a personal script for ordering at bars and restaurants, and a custom cocktail recipe built for your palate.</p>
@@ -885,7 +864,6 @@ function displayCustomerResults(profileData, notice) {
         </div>
       </form>
     </section>
-    <section id="customer-unlocked-results" class="customer-unlocked-results" hidden></section>
   `;
 
   document.getElementById("customer-email-form").addEventListener("submit", async event => {
@@ -903,7 +881,7 @@ function displayCustomerResults(profileData, notice) {
     }
 
     try {
-      await unlockCustomerResults(profileData, email);
+      await showCustomerSubscriptionConfirmation(profileData, email);
       if (submitButton) {
         submitButton.textContent = "Sent";
       }
@@ -922,28 +900,37 @@ function displayCustomerResults(profileData, notice) {
   window.scrollTo({ top: 0, behavior: "smooth" });
 }
 
-async function unlockCustomerResults(profileData, email) {
-  const unlocked = document.getElementById("customer-unlocked-results");
-  unlocked.hidden = false;
-  unlocked.innerHTML = createUnlockedCustomerHtml(profileData);
+async function showCustomerSubscriptionConfirmation(profileData, email) {
+  document.getElementById("persona-profile").hidden = true;
+  displayNotice("");
+
+  const resultsDiv = document.getElementById("results");
+  resultsDiv.className = "customer-results";
+  resultsDiv.innerHTML = createCustomerConfirmationHtml(profileData);
   populateInterestingDrinkOptions(profileData.recommendations);
-  await saveCustomerEvent(profileData, email, {}, "", "email");
+  await saveCustomerEvent(profileData, email, {}, {}, "email");
 
   document.getElementById("customer-feedback-form").addEventListener("submit", async event => {
     event.preventDefault();
-    await saveCustomerEvent(profileData, email, getCustomerFeedback(), getCustomerBirthday(), "details");
+    await saveCustomerEvent(profileData, email, getCustomerFeedback(), getCustomerDetails(), "details");
     document.getElementById("customer-save-status").textContent = "Saved. Thank you.";
   });
+
+  window.scrollTo({ top: 0, behavior: "smooth" });
 }
 
-function createUnlockedCustomerHtml(profileData) {
+function createCustomerConfirmationHtml(profileData) {
   return `
+    <section class="customer-card">
+      <h2>Thank you for subscribing to PROOF!</h2>
+      <p>Your results have been emailed to you.</p>
+    </section>
     <section class="customer-card">
       <h2>Your Perfect Classics</h2>
       <div class="customer-drink-grid">
         ${profileData.recommendations.map(createCustomerDrinkCard).join("")}
       </div>
-      <p>Any decent bar in America can make these. Just ask.</p>
+      <p class="customer-classics-note">Any decent bar in America can make these. Just ask!</p>
     </section>
     <section class="customer-card">
       <h2>Your Bartender Script</h2>
@@ -981,9 +968,20 @@ function createUnlockedCustomerHtml(profileData) {
       </label>
       <p>Thanks for letting us read your palate. We'll keep you up to date with PROOF bars near you, plus the occasional thought on why people like what they like.</p>
       <h2>One more thing.</h2>
-      <label>Tell us your birthday and we'll send you a celebratory cocktail built for your palate.
-        <input id="customer-birthday" type="date">
-      </label>
+      <div class="customer-name-birthday-group">
+        <p>Tell us your name and birthday and we'll send you a celebratory cocktail built for your palate.</p>
+        <div class="customer-name-birthday-row">
+          <label>First name
+            <input id="customer-first-name" type="text" autocomplete="given-name">
+          </label>
+          <label>Last name
+            <input id="customer-last-name" type="text" autocomplete="family-name">
+          </label>
+          <label>Birthday
+            <input id="customer-birthday" type="date">
+          </label>
+        </div>
+      </div>
       <button type="submit">Save details</button>
       <span id="customer-save-status"></span>
     </form>
@@ -1021,11 +1019,15 @@ function getCustomerFeedback() {
   };
 }
 
-function getCustomerBirthday() {
-  return document.getElementById("customer-birthday")?.value || "";
+function getCustomerDetails() {
+  return {
+    firstName: document.getElementById("customer-first-name")?.value.trim() || "",
+    lastName: document.getElementById("customer-last-name")?.value.trim() || "",
+    birthday: document.getElementById("customer-birthday")?.value || ""
+  };
 }
 
-async function saveCustomerEvent(profileData, email, feedback = {}, birthday = "", saveAction = "update") {
+async function saveCustomerEvent(profileData, email, feedback = {}, details = {}, saveAction = "update") {
   try {
     const response = await fetch("/api/customer-events", {
       method: "POST",
@@ -1037,7 +1039,9 @@ async function saveCustomerEvent(profileData, email, feedback = {}, birthday = "
         customerRecordId: profileData.eventId,
         saveAction,
         email,
-        birthday,
+        firstName: details.firstName || "",
+        lastName: details.lastName || "",
+        birthday: details.birthday || "",
         feedback,
         recommendations: profileData.recommendations.map(drink => ({
           name: drink.name,
@@ -1083,7 +1087,86 @@ function getStrongPreferencePhrases(preferences, direction) {
     .filter(Boolean);
 }
 
-function createBartenderScript(likes, avoids) {
+const bartenderScriptSamples = [
+  { preferences: { sweetness: 1, sourness: 1, bitterness: 1, strength: 2, thickness: 2, rarity: 1 }, script: "I want something light and easy. Nothing sweet, nothing bitter, just crisp and refreshing I can sip all night." },
+  { preferences: { sweetness: 7, sourness: 2, bitterness: 2, strength: 2, thickness: 6, rarity: 1 }, script: "I have a sweet tooth and I want something rich and creamy, more dessert than drink, and I don't wanna taste the alcohol." },
+  { preferences: { sweetness: 2, sourness: 6, bitterness: 1, strength: 4, thickness: 2, rarity: 2 }, script: "Make me something tart and bone-dry. heavy on the citrus, barely any sugar." },
+  { preferences: { sweetness: 1, sourness: 2, bitterness: 7, strength: 6, thickness: 3, rarity: 3 }, script: "Give me the most bitter and spirit forward thing you make." },
+  { preferences: { sweetness: 4, sourness: 4, bitterness: 4, strength: 4, thickness: 4, rarity: 4 }, script: "I like a well-balanced drink — a little sweet, a little sour, moderately strong, where no flavor profile takes over." },
+  { preferences: { sweetness: 6, sourness: 5, bitterness: 1, strength: 3, thickness: 5, rarity: 2 }, script: "Something sweet and tart, ideally with a nice foam on top." },
+  { preferences: { sweetness: 1, sourness: 3, bitterness: 6, strength: 7, thickness: 2, rarity: 6 }, script: "I want the strongest, driest, most bitter cocktail you have." },
+  { preferences: { sweetness: 3, sourness: 6, bitterness: 5, strength: 5, thickness: 3, rarity: 7 }, script: "Surprise me with something obscure and herbal — tart with some bitterness." },
+  { preferences: { sweetness: 7, sourness: 1, bitterness: 1, strength: 1, thickness: 7, rarity: 3 }, script: "I want dessert in a glass. Thick, creamy, very sweet, and barely alcoholic." },
+  { preferences: { sweetness: 2, sourness: 5, bitterness: 2, strength: 3, thickness: 1, rarity: 1 }, script: "Something and fizzy and citrusy and refreshing — a classic, low ABV spritz would be ideal." },
+  { preferences: { sweetness: 5, sourness: 4, bitterness: 6, strength: 4, thickness: 3, rarity: 5 }, script: "I love something fruity, sour, bitter — something that is bold and unexpected." },
+  { preferences: { sweetness: 1, sourness: 1, bitterness: 3, strength: 7, thickness: 3, rarity: 2 }, script: "I like an intense, spirit forward cocktail with a touch of bitterness if possible." },
+  { preferences: { sweetness: 6, sourness: 2, bitterness: 2, strength: 6, thickness: 4, rarity: 6 }, script: "Something rich, sweet, and strong and ideally, unique and unexpected." },
+  { preferences: { sweetness: 3, sourness: 7, bitterness: 3, strength: 3, thickness: 2, rarity: 4 }, script: "As sour as you can make it — I want my mouth to pucker!" },
+  { preferences: { sweetness: 2, sourness: 3, bitterness: 7, strength: 5, thickness: 2, rarity: 5 }, script: "Bitter and strong is my thing, and I'm not afraid of some funk or unexpected flavors." },
+  { preferences: { sweetness: 7, sourness: 5, bitterness: 3, strength: 2, thickness: 5, rarity: 7 }, script: "I'm looking for something sweet and tart and unusual, with a silky texture or foam." },
+  { preferences: { sweetness: 4, sourness: 2, bitterness: 2, strength: 6, thickness: 6, rarity: 1 }, script: "I'll take somehing smooth and creamy — and ideally, strong and boozy." },
+  { preferences: { sweetness: 5, sourness: 6, bitterness: 4, strength: 5, thickness: 4, rarity: 3 }, script: "I like a proper sour — plenty of citrus, some sweetness, and ideally, a nice foam!" },
+  { preferences: { sweetness: 1, sourness: 4, bitterness: 5, strength: 3, thickness: 1, rarity: 4 }, script: "A bitter, low ABV spritz is perfect, and I'm not afraid of unique or unfamiliar flavors if possible." },
+  { preferences: { sweetness: 6, sourness: 3, bitterness: 1, strength: 7, thickness: 5, rarity: 2 }, script: "Tropical and sweet, and don't hold back on the booze." },
+  { preferences: { sweetness: 3, sourness: 5, bitterness: 6, strength: 6, thickness: 2, rarity: 6 }, script: "Bartender's choice, as long as it's obscure and not too sweet." },
+  { preferences: { sweetness: 5, sourness: 4, bitterness: 2, strength: 2, thickness: 7, rarity: 1 }, script: "Something creamy and/or frothy with a bit of sweetness and citrus, and light on the alcohol." },
+  { preferences: { sweetness: 2, sourness: 2, bitterness: 4, strength: 7, thickness: 4, rarity: 7 }, script: "Give me something rare and boozy — dry, a touch bitter, and complex." },
+  { preferences: { sweetness: 7, sourness: 7, bitterness: 1, strength: 4, thickness: 3, rarity: 4 }, script: "I want a sour: sweet, refreshing, tropical - summer in a glass!" },
+  { preferences: { sweetness: 4, sourness: 3, bitterness: 7, strength: 7, thickness: 6, rarity: 5 }, script: "I'll take the biggest, boldest, most unexpected thing thing on your menu. Bitter, bold, high-proof." }
+];
+
+async function createBartenderScript(preferences, likes, avoids) {
+  const nearestSamples = getNearestBartenderScriptSamples(preferences);
+  const nearestSample = nearestSamples[0];
+
+  if (nearestSample && nearestSample.distance <= 2) {
+    return nearestSample.script;
+  }
+
+  try {
+    const response = await fetch("/api/bartender-script", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        preferences,
+        examples: nearestSamples.slice(0, 5).map(sample => ({
+          preferences: sample.preferences,
+          script: sample.script
+        }))
+      })
+    });
+    const data = await response.json();
+
+    if (response.ok && typeof data.script === "string" && data.script.trim()) {
+      return data.script.trim();
+    }
+  } catch (error) {
+    console.warn("Could not generate bartender script.", error);
+  }
+
+  return createFallbackBartenderScript(likes, avoids, nearestSample);
+}
+
+function getNearestBartenderScriptSamples(preferences) {
+  return bartenderScriptSamples
+    .map(sample => ({
+      ...sample,
+      distance: calculateBartenderScriptDistance(preferences, sample.preferences)
+    }))
+    .sort((a, b) => a.distance - b.distance);
+}
+
+function calculateBartenderScriptDistance(preferences, samplePreferences) {
+  return ["sweetness", "sourness", "bitterness", "strength", "thickness", "rarity"].reduce((total, trait) => {
+    return total + Math.abs(Number(preferences[trait]) - Number(samplePreferences[trait]));
+  }, 0);
+}
+
+function createFallbackBartenderScript(likes, avoids, nearestSample) {
+  if (nearestSample?.script) return nearestSample.script;
+
   const likeParts = likes.length ? likes.slice(0, 3) : ["balanced", "refreshing", "well-structured"];
   const skip = avoids.length ? avoids[0] : "anything too far from your mood";
   return `Ask for something ${likeParts.join(", ")} - and skip anything with ${skip}.`;
@@ -1101,6 +1184,17 @@ function createSpiritsAndModifiers(recommendations, preferences) {
 }
 
 function createCustomRecipe(persona, preferences, spiritsAndModifiers) {
+  const matchedCocktail = findCustomCocktailMatch(persona, preferences);
+
+  if (matchedCocktail) {
+    return {
+      name: matchedCocktail.name,
+      description: createCustomCocktailDescription(matchedCocktail),
+      ingredients: splitRecipeLines(matchedCocktail.recipe),
+      method: matchedCocktail.process || "Build, shake, or stir according to the drink's service style."
+    };
+  }
+
   const base = spiritsAndModifiers[0] || "gin";
   const citrus = preferences.sourness >= 4 ? "3/4 oz fresh lemon or lime" : "1/4 oz citrus";
   const sweet = preferences.sweetness >= 5 ? "3/4 oz honey syrup" : "1/2 oz simple syrup";
@@ -1112,6 +1206,44 @@ function createCustomRecipe(persona, preferences, spiritsAndModifiers) {
     ingredients: [`2 oz ${base}`, citrus, sweet, texture, "1 dash bitters or saline"],
     method: "Shake with ice, strain into a chilled glass, and adjust the sweet/sour balance to taste."
   };
+}
+
+function findCustomCocktailMatch(persona, preferences) {
+  const rows = typeof window !== "undefined" && Array.isArray(window.customCocktailRows)
+    ? window.customCocktailRows
+    : [];
+
+  return rows
+    .filter(row => normalizeSearchText(row.complexity) !== "expert")
+    .map(row => ({
+      row,
+      distance: calculateCustomCocktailDistance(persona, preferences, row)
+    }))
+    .sort((a, b) => a.distance - b.distance)[0]?.row || null;
+}
+
+function calculateCustomCocktailDistance(persona, preferences, cocktail) {
+  const traitDistance = ["strength", "sweetness", "sourness", "bitterness", "thickness", "rarity"].reduce((total, trait) => {
+    const userValue = Number(preferences[trait]);
+    const cocktailValue = Number(cocktail[trait]);
+    if (!Number.isFinite(userValue) || !Number.isFinite(cocktailValue)) return total + 9;
+    return total + (userValue - cocktailValue) ** 2;
+  }, 0);
+  const personaPenalty = normalizeSearchText(cocktail.persona) === normalizeSearchText(persona) ? 0 : 4;
+
+  return traitDistance + personaPenalty;
+}
+
+function createCustomCocktailDescription(cocktail) {
+  const style = cocktail.style ? `${cocktail.style.toLowerCase()}-style ` : "";
+  return `A ${style}custom cocktail from the PROOF master sheet, matched to your palate profile.`;
+}
+
+function splitRecipeLines(recipe) {
+  return String(recipe || "")
+    .split(/\r?\n/)
+    .map(line => line.trim())
+    .filter(Boolean);
 }
 
 function escapeHtml(value) {
@@ -1166,7 +1298,7 @@ async function initializeQuiz() {
 
     if (isCustomerMode()) {
       displayCustomerResults(
-        createCustomerProfileData(userPreferences, qualitativeText, qualitativePreferences, standardRecommendations),
+        await createCustomerProfileData(userPreferences, qualitativeText, qualitativePreferences, standardRecommendations),
         qualitativeResult.notice
       );
       return;

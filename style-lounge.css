@@ -562,7 +562,7 @@ h2 {
 }
 
 .palate-wheel-bg {
-  fill: rgba(27, 20, 34, 0.42);
+  fill: rgba(27, 20, 34, 0.34);
 }
 
 .palate-slice {
@@ -571,19 +571,19 @@ h2 {
 
 .palate-slice.is-filled {
   fill: #d1b06d;
-}
-
-.palate-grid-line,
-.palate-outer-line {
-  fill: none;
-  stroke: rgba(27, 20, 34, 0.72);
-  stroke-width: 1.4;
+  stroke: #8f6b2f;
+  stroke-width: 2.6;
+  stroke-linejoin: round;
+  stroke-linecap: round;
   vector-effect: non-scaling-stroke;
 }
 
 .palate-outer-line {
-  stroke: rgba(232, 185, 94, 0.58);
-  stroke-width: 1.6;
+  fill: none;
+  stroke: rgba(143, 107, 47, 0.9);
+  stroke-width: 2.2;
+  stroke-linejoin: round;
+  vector-effect: non-scaling-stroke;
 }
 
 .palate-label {
@@ -677,6 +677,11 @@ h2 {
   box-shadow: none;
 }
 
+.customer-intro-card .customer-email-form > p {
+  font-size: 17px;
+  line-height: 1.55;
+}
+
 .customer-email-row {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
@@ -700,6 +705,26 @@ h2 {
 .customer-feedback-form .rating-field {
   display: grid;
   gap: 10px;
+}
+
+.customer-name-birthday-group {
+  display: grid;
+  gap: 10px;
+}
+
+.customer-name-birthday-group > p {
+  margin: 0;
+}
+
+.customer-name-birthday-row {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.customer-name-birthday-row label {
+  display: grid;
+  gap: 6px;
 }
 
 .customer-feedback-form #customer-drink-rating {
@@ -780,11 +805,6 @@ h2 {
   cursor: pointer;
 }
 
-.customer-unlocked-results {
-  display: grid;
-  gap: 18px;
-}
-
 .customer-drink-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -796,6 +816,15 @@ h2 {
   border: 1px solid var(--line);
   border-radius: 8px;
   background: rgba(27, 20, 34, 0.42);
+}
+
+.customer-results .customer-classics-note {
+  margin: 18px auto 0;
+  color: #fff7df;
+  font-size: 18px;
+  font-weight: 800;
+  line-height: 1.35;
+  text-align: center;
 }
 
 #customer-save-status {
@@ -908,7 +937,8 @@ h2 {
   }
 
   .customer-email-row,
-  .customer-drink-grid {
+  .customer-drink-grid,
+  .customer-name-birthday-row {
     grid-template-columns: 1fr;
   }
 }

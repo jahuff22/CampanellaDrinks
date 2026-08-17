@@ -45,9 +45,14 @@ async function handleDashboardLogin(event) {
 
 function getRestaurantSlugFromPath() {
   const parts = window.location.pathname.split("/").filter(Boolean);
-  if (parts[0] === "dashboard" && parts[1]) return sanitizeSlug(parts[1]);
-  if (parts[1] === "dashboard" && parts[0]) return sanitizeSlug(parts[0]);
+  if (parts[0] === "dashboard" && parts[1]) return normalizeDashboardSlug(parts[1]);
+  if (parts[1] === "dashboard" && parts[0]) return normalizeDashboardSlug(parts[0]);
   return "unassigned";
+}
+
+function normalizeDashboardSlug(value) {
+  const slug = sanitizeSlug(value);
+  return slug === "consumer" ? "customer" : slug;
 }
 
 function sanitizeSlug(value) {
