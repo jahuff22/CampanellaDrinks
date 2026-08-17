@@ -71,6 +71,44 @@ body::after {
   mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.72), transparent 78%);
 }
 
+.survey-loader {
+  position: fixed;
+  inset: 0;
+  z-index: 20;
+  display: grid;
+  place-items: center;
+  gap: 14px;
+  align-content: center;
+  background: var(--deep);
+  color: var(--gold-bright);
+  font-size: 0.86rem;
+  font-weight: 800;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  transition: opacity 180ms ease, visibility 180ms ease;
+}
+
+.survey-loader[hidden] {
+  display: grid;
+  opacity: 0;
+  visibility: hidden;
+}
+
+.loading-circle {
+  width: 48px;
+  height: 48px;
+  border: 3px solid rgba(232, 185, 94, 0.24);
+  border-top-color: var(--gold-bright);
+  border-radius: 50%;
+  animation: proof-spin 760ms linear infinite;
+}
+
+@keyframes proof-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
 .site-nav {
   position: relative;
   z-index: 1;
@@ -459,6 +497,24 @@ button[type="submit"] {
 
 button[type="submit"]:hover {
   filter: brightness(1.06);
+}
+
+button[type="submit"][aria-busy="true"] {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  cursor: wait;
+  filter: saturate(0.92);
+}
+
+button[type="submit"][aria-busy="true"]::before {
+  content: "";
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(27, 20, 34, 0.24);
+  border-top-color: var(--deep);
+  border-radius: 50%;
+  animation: proof-spin 720ms linear infinite;
 }
 
 h2 {

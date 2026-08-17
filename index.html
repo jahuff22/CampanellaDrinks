@@ -15,6 +15,11 @@
 </head>
 
 <body>
+  <div id="survey-loader" class="survey-loader" role="status" aria-live="polite">
+    <div class="loading-circle" aria-hidden="true"></div>
+    <span>Loading survey</span>
+  </div>
+
   <main id="quiz-screen">
     <h1>PROOF.</h1>
     <section class="quiz-intro" aria-labelledby="quiz-title">
@@ -48,9 +53,9 @@
     </section>
   </main>
 
-  <script src="/custom-cocktails.js?v=1"></script>
-  <script src="/drinks.js?v=5"></script>
-  <script src="/questions.js?v=1"></script>
-  <script src="/script.js?v=5"></script>
+  <script src="/custom-cocktails.js?v=1" defer></script>
+  <script src="/drinks.js?v=5" defer></script>
+  <script src="/questions.js?v=1" defer></script>
+  <script src="/script.js?v=5" defer></script>
 </body>
 </html>

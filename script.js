@@ -1256,19 +1256,19 @@ function displayNotice(message) {
   noticeElement.hidden = !message;
 }
 
+let activeDrinkSetPromise = Promise.resolve(drinks);
+
 initializeQuiz();
 
 async function initializeQuiz() {
-  if (typeof loadSavedDrinkSetForActiveRestaurant === "function") {
-    await loadSavedDrinkSetForActiveRestaurant();
-  }
-
   if (isCustomerMode()) {
     document.body.classList.add("customer-mode");
     document.querySelector("button[type='submit']").textContent = "Read my palate";
   }
 
   createSliders();
+  hideSurveyLoader();
+  activeDrinkSetPromise = loadActiveDrinkSet();
 
   const quizForm = document.getElementById("quiz-form");
   const retakeButton = document.getElementById("retake-button");
@@ -1282,32 +1282,71 @@ async function initializeQuiz() {
   quizForm.addEventListener("submit", async function(event) {
     event.preventDefault();
 
-    const userPreferences = getUserPreferencesFromForm();
-    const importantTraits = getImportantTraitsFromForm();
-    const qualitativeText = getQualitativeInputFromForm();
-    const qualitativeResult = await parseQualitativeInput(qualitativeText);
-    const qualitativePreferences = qualitativeResult.preferences;
+    setSurveySubmitting(true);
 
-    const standardRecommendations = recommendDrinks(userPreferences, importantTraits, drinks, qualitativePreferences, 3);
-    displayNotice(qualitativeResult.notice);
+    try {
+      await activeDrinkSetPromise;
 
-    if (isCustomerMode()) {
-      displayCustomerResults(
-        await createCustomerProfileData(userPreferences, qualitativeText, qualitativePreferences, standardRecommendations),
-        qualitativeResult.notice
+      const userPreferences = getUserPreferencesFromForm();
+      const importantTraits = getImportantTraitsFromForm();
+      const qualitativeText = getQualitativeInputFromForm();
+      const qualitativeResult = await parseQualitativeInput(qualitativeText);
+      const qualitativePreferences = qualitativeResult.preferences;
+
+      const standardRecommendations = recommendDrinks(userPreferences, importantTraits, drinks, qualitativePreferences, 3);
+      displayNotice(qualitativeResult.notice);
+
+      if (isCustomerMode()) {
+        displayCustomerResults(
+          await createCustomerProfileData(userPreferences, qualitativeText, qualitativePreferences, standardRecommendations),
+          qualitativeResult.notice
+        );
+        return;
+      }
+
+      const recommendationEventPayload = createRecommendationEventPayload(
+        userPreferences,
+        importantTraits,
+        qualitativeText,
+        qualitativePreferences,
+        standardRecommendations
       );
-      return;
+
+      displayResults(standardRecommendations, userPreferences);
+      saveRecommendationEvent(recommendationEventPayload);
+    } finally {
+      setSurveySubmitting(false);
     }
-
-    const recommendationEventPayload = createRecommendationEventPayload(
-      userPreferences,
-      importantTraits,
-      qualitativeText,
-      qualitativePreferences,
-      standardRecommendations
-    );
-
-    displayResults(standardRecommendations, userPreferences);
-    saveRecommendationEvent(recommendationEventPayload);
   });
+}
+
+async function loadActiveDrinkSet() {
+  if (typeof loadSavedDrinkSetForActiveRestaurant !== "function" || !shouldLoadSavedRestaurantMenu()) {
+    return drinks;
+  }
+
+  return loadSavedDrinkSetForActiveRestaurant();
+}
+
+function shouldLoadSavedRestaurantMenu() {
+  const context = getServiceContextFromPath();
+  return context.restaurantSlug && context.restaurantSlug !== "unassigned" && !isCustomerMode();
+}
+
+function hideSurveyLoader() {
+  const loader = document.getElementById("survey-loader");
+  if (loader) loader.hidden = true;
+}
+
+function setSurveySubmitting(isSubmitting) {
+  const submitButton = document.querySelector("#quiz-form button[type='submit']");
+  if (!submitButton) return;
+
+  if (!submitButton.dataset.readyLabel) {
+    submitButton.dataset.readyLabel = submitButton.textContent;
+  }
+
+  submitButton.disabled = isSubmitting;
+  submitButton.setAttribute("aria-busy", String(isSubmitting));
+  submitButton.textContent = isSubmitting ? "Loading..." : submitButton.dataset.readyLabel;
 }
