@@ -919,6 +919,7 @@ function createCustomerConfirmationHtml(profileData) {
     <section class="customer-card">
       <h2>Thank you for subscribing to PROOF!</h2>
       <p>Your results have been emailed to you.</p>
+      <p>If you don't see it, check your spam and promotions folders.</p>
     </section>
     <section class="customer-card">
       <h2>Your Perfect Classics</h2>
@@ -983,7 +984,7 @@ function createCustomerConfirmationHtml(profileData) {
     <section class="customer-card">
       <h2>What is PROOF?</h2>
       <p>A simple fix for a familiar problem: I don't know which drink on this menu is for me. We read your palate, then point you to the right one. We partner with restaurants and bars across America.</p>
-      <p>Know a bar that needs us? Make the introduction. If it works out, we'll send you $1,000. -> outreach@joinproof.bar</p>
+      <p>Know a bar that needs us? Make the introduction. If it works out, we'll send you $1,000. -> hello@joinproof.bar</p>
       <p>Ideas, thoughts, or looking to collaborate? The door's always open.</p>
       <p>Cheers,<br>Michael and Jake</p>
     </section>
