@@ -898,12 +898,12 @@ function displayCustomerResults(profileData, notice) {
 async function showCustomerSubscriptionConfirmation(profileData, email) {
   document.getElementById("persona-profile").hidden = true;
   displayNotice("");
+  await saveCustomerEvent(profileData, email, {}, {}, "email");
 
   const resultsDiv = document.getElementById("results");
   resultsDiv.className = "customer-results";
   resultsDiv.innerHTML = createCustomerConfirmationHtml(profileData);
   populateInterestingDrinkOptions(profileData.recommendations);
-  await saveCustomerEvent(profileData, email, {}, {}, "email");
 
   document.getElementById("customer-feedback-form").addEventListener("submit", async event => {
     event.preventDefault();

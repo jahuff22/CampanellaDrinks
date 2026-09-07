@@ -12,6 +12,8 @@ const CUSTOMER_EVENTS_FILE = path.join(ROOT_DIR, ".customer-events.jsonl");
 const RESTAURANT_MENUS_FILE = path.join(ROOT_DIR, ".restaurant-menus.json");
 const RECOMMENDATION_EVENTS_WEBHOOK_URL = process.env.RECOMMENDATION_EVENTS_WEBHOOK_URL || "";
 const RECOMMENDATION_EVENTS_READ_URL = process.env.RECOMMENDATION_EVENTS_READ_URL || RECOMMENDATION_EVENTS_WEBHOOK_URL;
+const RESEND_API_KEY = process.env.RESEND_API_KEY || "";
+const CUSTOMER_EMAIL_FROM = process.env.CUSTOMER_EMAIL_FROM || "PROOF <hello@joinproof.bar>";
 const PORT = Number(process.env.PORT || 3000);
 const MODEL = process.env.OPENAI_MODEL || "gpt-5.4-nano";
 const ADMIN_DASHBOARD_PASSWORD = process.env.ADMIN_DASHBOARD_PASSWORD || "";
@@ -578,10 +580,15 @@ async function handleCustomerEvent(request, response) {
   const body = await readJsonBody(request, 50_000);
   const event = createCustomerEvent(body);
   const storageResult = await persistCustomerEvent(event);
+  const emailResult = event.saveAction === "email" ? await sendCustomerProfileEmail(event) : { sent: false, skipped: true };
+  const statusCode = event.saveAction === "email" && !emailResult.sent
+    ? 502
+    : storageResult.persisted ? 201 : 202;
 
-  sendJson(response, storageResult.persisted ? 201 : 202, {
+  sendJson(response, statusCode, {
     eventId: event.id,
-    storage: storageResult
+    storage: storageResult,
+    email: emailResult
   });
 }
 
@@ -1164,6 +1171,160 @@ async function persistCustomerEventToLocalFile(event) {
       warning: "No production customer storage is configured."
     };
   }
+}
+
+async function sendCustomerProfileEmail(event) {
+  if (!RESEND_API_KEY) {
+    return {
+      sent: false,
+      skipped: true,
+      warning: "RESEND_API_KEY is not configured."
+    };
+  }
+
+  if (!event.email) {
+    return {
+      sent: false,
+      skipped: true,
+      warning: "Customer email is missing."
+    };
+  }
+
+  const emailPayload = buildCustomerProfileEmail(event);
+
+  try {
+    const resendResponse = await fetch("https://api.resend.com/emails", {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${RESEND_API_KEY}`,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        from: CUSTOMER_EMAIL_FROM,
+        to: event.email,
+        subject: emailPayload.subject,
+        text: emailPayload.text,
+        html: emailPayload.html,
+        reply_to: "hello@joinproof.bar"
+      })
+    });
+    const data = await resendResponse.json().catch(() => ({}));
+
+    if (!resendResponse.ok) {
+      console.error("Resend customer email failed:", resendResponse.status, data);
+      return {
+        sent: false,
+        provider: "resend",
+        warning: "Customer email could not be sent."
+      };
+    }
+
+    return {
+      sent: true,
+      provider: "resend",
+      id: sanitizeFreeText(data.id, 120)
+    };
+  } catch (error) {
+    console.error("Resend customer email error:", error);
+    return {
+      sent: false,
+      provider: "resend",
+      warning: "Customer email could not be sent."
+    };
+  }
+}
+
+function buildCustomerProfileEmail(event) {
+  const subject = "Your PROOF cocktail profile";
+  const recommendations = event.recommendations || [];
+  const spiritsAndModifiers = event.spiritsAndModifiers || [];
+  const recipe = event.recipe || {};
+  const previewName = event.firstName ? ` ${event.firstName}` : "";
+
+  const text = [
+    `Hi${previewName},`,
+    "",
+    `Cocktail Persona: You're a ${event.persona || "PROOF guest"}.`,
+    event.aboutYou ? `About you: ${event.aboutYou}` : "",
+    "",
+    "Your Perfect Classics:",
+    ...recommendations.map((drink, index) => `${index + 1}. ${drink.name}`),
+    "",
+    "Any decent bar in America can make these. Just ask!",
+    "",
+    "Your Bartender Script:",
+    event.bartenderScript || "",
+    "",
+    "Try these spirits and modifiers:",
+    ...spiritsAndModifiers.map(item => `- ${item}`),
+    "",
+    "A recipe for your palate:",
+    recipe.name || "",
+    recipe.description || "",
+    ...(recipe.ingredients || []).map(item => `- ${item}`),
+    recipe.method || "",
+    "",
+    "Thanks for letting us read your palate. We'll keep you up to date with PROOF bars near you, plus the occasional thought on why people like what they like.",
+    "",
+    "Know a bar that needs us? Make the introduction. If it works out, we'll send you $1,000. -> outreach@joinproof.bar",
+    "",
+    "Cheers!",
+    "Michael and Jake"
+  ].filter(line => line !== "").join("\n");
+
+  const html = `
+    <!doctype html>
+    <html>
+      <body style="margin:0;background:#0b0d14;color:#f5eddf;font-family:Arial,Helvetica,sans-serif;">
+        <div style="max-width:640px;margin:0 auto;padding:32px 22px;">
+          <h1 style="margin:0 0 24px;font-family:Georgia,serif;font-size:42px;letter-spacing:0;">PROOF.</h1>
+          <p style="margin:0 0 20px;color:#d7c9b3;">Hi${escapeEmailHtml(previewName)}, here is your cocktail profile.</p>
+
+          <h2 style="margin:28px 0 8px;font-family:Georgia,serif;font-size:28px;">Cocktail Persona: You're a ${escapeEmailHtml(event.persona || "PROOF guest")}</h2>
+          ${event.aboutYou ? `<p style="margin:0 0 18px;line-height:1.5;color:#d7c9b3;">${escapeEmailHtml(event.aboutYou)}</p>` : ""}
+
+          <h2 style="margin:28px 0 12px;font-family:Georgia,serif;font-size:28px;">Your Perfect Classics</h2>
+          ${recommendations.map(drink => `
+            <div style="border:1px solid #2a3040;padding:14px 16px;margin:0 0 10px;background:#111520;">
+              <strong style="display:block;color:#f2d48a;font-size:18px;">${escapeEmailHtml(drink.name)}</strong>
+              ${drink.matchPercentage ? `<span style="color:#d7c9b3;font-size:13px;">${escapeEmailHtml(drink.matchPercentage)} match</span>` : ""}
+            </div>
+          `).join("")}
+          <p style="margin:12px 0 0;color:#d7c9b3;">Any decent bar in America can make these. Just ask!</p>
+
+          <h2 style="margin:28px 0 8px;font-family:Georgia,serif;font-size:28px;">Your Bartender Script</h2>
+          <p style="margin:0;line-height:1.5;color:#f5eddf;">${escapeEmailHtml(event.bartenderScript || "")}</p>
+
+          <h2 style="margin:28px 0 8px;font-family:Georgia,serif;font-size:28px;">Try these spirits and modifiers</h2>
+          <ul style="margin:0;padding-left:20px;color:#d7c9b3;line-height:1.6;">
+            ${spiritsAndModifiers.map(item => `<li>${escapeEmailHtml(item)}</li>`).join("")}
+          </ul>
+
+          <h2 style="margin:28px 0 8px;font-family:Georgia,serif;font-size:28px;">A recipe for your palate</h2>
+          <h3 style="margin:0 0 8px;color:#f2d48a;font-size:20px;">${escapeEmailHtml(recipe.name || "")}</h3>
+          ${recipe.description ? `<p style="margin:0 0 12px;line-height:1.5;color:#d7c9b3;">${escapeEmailHtml(recipe.description)}</p>` : ""}
+          <ul style="margin:0 0 12px;padding-left:20px;color:#d7c9b3;line-height:1.6;">
+            ${(recipe.ingredients || []).map(item => `<li>${escapeEmailHtml(item)}</li>`).join("")}
+          </ul>
+          ${recipe.method ? `<p style="margin:0;line-height:1.5;color:#f5eddf;">${escapeEmailHtml(recipe.method)}</p>` : ""}
+
+          <p style="margin:32px 0 0;color:#d7c9b3;line-height:1.5;">Thanks for letting us read your palate. We'll keep you up to date with PROOF bars near you, plus the occasional thought on why people like what they like.</p>
+          <p style="margin:24px 0 0;color:#d7c9b3;line-height:1.5;">Know a bar that needs us? Make the introduction. If it works out, we'll send you $1,000. -> outreach@joinproof.bar</p>
+          <p style="margin:24px 0 0;color:#f5eddf;">Cheers,<br>Michael and Jake</p>
+        </div>
+      </body>
+    </html>
+  `;
+
+  return { subject, text, html };
+}
+
+function escapeEmailHtml(value) {
+  return String(value || "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
 }
 
 async function persistRecommendationEventToWebhook(event) {
