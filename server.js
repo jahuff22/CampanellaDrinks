@@ -1235,7 +1235,7 @@ async function sendCustomerProfileEmail(event) {
 }
 
 function buildCustomerProfileEmail(event) {
-  const subject = "Your PROOF cocktail profile";
+  const subject = "Your PROOF cocktail results";
   const recommendations = event.recommendations || [];
   const spiritsAndModifiers = event.spiritsAndModifiers || [];
   const recipe = event.recipe || {};
@@ -1264,9 +1264,7 @@ function buildCustomerProfileEmail(event) {
     ...(recipe.ingredients || []).map(item => `- ${item}`),
     recipe.method || "",
     "",
-    "Thanks for letting us read your palate. We'll keep you up to date with PROOF bars near you, plus the occasional thought on why people like what they like.",
-    "",
-    "Know a bar that needs us? Make the introduction. If it works out, we'll send you $1,000. -> outreach@joinproof.bar",
+    "Thanks for letting us read your palate. Save this email for the next time you're deciding what to order.",
     "",
     "Cheers!",
     "Michael and Jake"
@@ -1308,8 +1306,7 @@ function buildCustomerProfileEmail(event) {
           </ul>
           ${recipe.method ? `<p style="margin:0;line-height:1.5;color:#f5eddf;">${escapeEmailHtml(recipe.method)}</p>` : ""}
 
-          <p style="margin:32px 0 0;color:#d7c9b3;line-height:1.5;">Thanks for letting us read your palate. We'll keep you up to date with PROOF bars near you, plus the occasional thought on why people like what they like.</p>
-          <p style="margin:24px 0 0;color:#d7c9b3;line-height:1.5;">Know a bar that needs us? Make the introduction. If it works out, we'll send you $1,000. -> outreach@joinproof.bar</p>
+          <p style="margin:32px 0 0;color:#d7c9b3;line-height:1.5;">Thanks for letting us read your palate. Save this email for the next time you're deciding what to order.</p>
           <p style="margin:24px 0 0;color:#f5eddf;">Cheers,<br>Michael and Jake</p>
         </div>
       </body>
