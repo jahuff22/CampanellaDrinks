@@ -1,0 +1,771 @@
+/* Brand Bible theme. Loaded last so the original page layouts stay intact. */
+@font-face {
+  font-family: "Cormorant Garamond";
+  src: url("/shared/brand/fonts/cormorant-garamond.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 300 700;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Cormorant Garamond";
+  src: url("/shared/brand/fonts/cormorant-garamond-italic.woff2") format("woff2");
+  font-style: italic;
+  font-weight: 300 700;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: Jost;
+  src: url("/shared/brand/fonts/jost.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: Jost;
+  src: url("/shared/brand/fonts/jost-italic.woff2") format("woff2");
+  font-style: italic;
+  font-weight: 100 900;
+  font-display: swap;
+}
+
+:root {
+  --brand-ground: #19102c;
+  --brand-ink: #110a21;
+  --brand-card: #342556;
+  --brand-line: #4a3670;
+  --brand-muted: #aaa0bf;
+  --brand-parchment: #f3ecdf;
+  --brand-cream: #ebe4ce;
+  --brand-chip: #e4d9b7;
+  --brand-taupe: #665a44;
+  --brand-gold: #d3b05e;
+  --brand-gilt: #bf9741;
+  --brand-burnt: #765c25;
+  --brand-sage: #a7b58d;
+  --brand-rose: #d69aa0;
+  --brand-rust: #ce7048;
+  --brand-sage-light: #5e6b4a;
+  --brand-rose-light: #8e4c5c;
+  --brand-rust-light: #9e4c26;
+  --brand-display: "Cormorant Garamond", Georgia, serif;
+  --brand-body: Jost, "Segoe UI", sans-serif;
+}
+
+body {
+  font-family: var(--brand-body);
+  -webkit-font-smoothing: antialiased;
+}
+
+button,
+input,
+select,
+textarea {
+  font-family: var(--brand-body);
+}
+
+::selection {
+  background: var(--brand-gold);
+  color: var(--brand-ink);
+}
+
+/* Survey and both results experiences. */
+html[data-brand-page="survey"] {
+  --ink: var(--brand-parchment);
+  --muted: var(--brand-muted);
+  --soft: var(--brand-parchment);
+  --paper: var(--brand-ground);
+  --panel: var(--brand-card);
+  --panel-solid: var(--brand-card);
+  --line: var(--brand-line);
+  --line-strong: var(--brand-gilt);
+  --gold: var(--brand-gold);
+  --gold-bright: var(--brand-gold);
+  --deep: var(--brand-ground);
+  --rose: var(--brand-rose);
+  --sage: var(--brand-sage);
+  --lavender: var(--brand-muted);
+  --slider-low: var(--brand-sage);
+  --slider-high: var(--brand-gold);
+  --shadow: none;
+}
+
+[data-brand-page="survey"] body::after {
+  background: none;
+}
+
+[data-brand-page="survey"] h1 {
+  color: var(--brand-gilt);
+  font-family: var(--brand-display);
+  font-weight: 300;
+  letter-spacing: 0.2em;
+  transform: none;
+  -webkit-text-stroke: 0;
+  text-shadow: none;
+}
+
+[data-brand-page="survey"] h1::after {
+  color: var(--brand-parchment);
+  border-color: var(--brand-gilt);
+  font-family: var(--brand-body);
+  font-weight: 500;
+  letter-spacing: 0;
+  -webkit-text-stroke: 0;
+  text-shadow: none;
+}
+
+[data-brand-page="survey"] h2,
+[data-brand-page="survey"] .quiz-intro h2,
+[data-brand-page="survey"] .persona-summary h2 {
+  color: var(--brand-parchment);
+  font-family: var(--brand-display);
+  font-weight: 500;
+}
+
+[data-brand-page="survey"] form,
+[data-brand-page="survey"] .slider-block,
+[data-brand-page="survey"] .persona-summary,
+[data-brand-page="survey"] .taste-profile-card,
+[data-brand-page="survey"] .customer-results .customer-card,
+[data-brand-page="survey"] #results > div {
+  background: var(--paper);
+  border-color: var(--brand-line);
+  border-radius: 6px;
+  box-shadow: none;
+}
+
+[data-brand-page="survey"] .slider-block,
+[data-brand-page="survey"] .persona-summary,
+[data-brand-page="survey"] .taste-profile-card,
+[data-brand-page="survey"] .customer-results .customer-card,
+[data-brand-page="survey"] #results > div {
+  background: var(--brand-card);
+}
+
+[data-brand-page="survey"] .question-prompt,
+[data-brand-page="survey"] .qualitative-section label,
+[data-brand-page="survey"] .persona-intro,
+[data-brand-page="survey"] .persona-avoidance {
+  font-weight: 500;
+}
+
+[data-brand-page="survey"] .number-labels,
+[data-brand-page="survey"] .customer-feedback-form .rating-scale,
+[data-brand-page="survey"] .customer-feedback-form .rating-scale small {
+  color: var(--brand-parchment);
+  font-family: var(--brand-body);
+  text-shadow: none;
+}
+
+[data-brand-page="survey"] input[type="range"],
+[data-brand-page="survey"] input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+[data-brand-page="survey"] input[type="range"] {
+  background: transparent;
+}
+
+[data-brand-page="survey"] input[type="range"]::-webkit-slider-runnable-track {
+  background: linear-gradient(90deg, var(--brand-sage), var(--brand-gold));
+  box-shadow: none;
+}
+
+[data-brand-page="survey"] input[type="range"]::-moz-range-track {
+  background: linear-gradient(90deg, var(--brand-sage), var(--brand-gold));
+  box-shadow: none;
+}
+
+[data-brand-page="survey"] input[type="range"]::-webkit-slider-thumb {
+  border-color: var(--brand-parchment);
+  background: var(--brand-gold);
+  box-shadow: 0 0 0 4px rgb(211 176 94 / 15%);
+}
+
+[data-brand-page="survey"] input[type="range"]::-moz-range-thumb {
+  border-color: var(--brand-parchment);
+  background: var(--brand-gold);
+  box-shadow: 0 0 0 4px rgb(211 176 94 / 15%);
+}
+
+[data-brand-page="survey"] .importance-label,
+[data-brand-page="survey"] .secondary-button,
+[data-brand-page="survey"] .palate-label {
+  font-family: var(--brand-body);
+  font-weight: 600;
+}
+
+[data-brand-page="survey"] .importance-button,
+[data-brand-page="survey"] .qualitative-section textarea,
+[data-brand-page="survey"] .secondary-button,
+[data-brand-page="survey"] .customer-email-form input,
+[data-brand-page="survey"] .customer-feedback-form input,
+[data-brand-page="survey"] .customer-feedback-form select,
+[data-brand-page="survey"] .customer-feedback-form textarea,
+[data-brand-page="survey"] .customer-drink-grid article {
+  background: var(--brand-ground);
+  border-color: var(--brand-line);
+}
+
+[data-brand-page="survey"] .importance-button:hover,
+[data-brand-page="survey"] .importance-button[aria-pressed="true"] {
+  border-color: var(--brand-gilt);
+  background: var(--brand-ground);
+  box-shadow: none;
+}
+
+[data-brand-page="survey"] .importance-button[aria-pressed="true"]::before {
+  background: var(--brand-gold);
+}
+
+[data-brand-page="survey"] button[type="submit"],
+[data-brand-page="survey"] .customer-email-form button,
+[data-brand-page="survey"] .customer-feedback-form button {
+  background: var(--brand-gold);
+  border-color: var(--brand-gold);
+  border-radius: 4px;
+  color: var(--brand-ink);
+  font-family: var(--brand-body);
+  font-weight: 600;
+  box-shadow: none;
+}
+
+[data-brand-page="survey"] .secondary-button {
+  border-radius: 4px;
+  border-color: var(--brand-gilt);
+}
+
+[data-brand-page="survey"] .secondary-button:hover {
+  background: var(--brand-card);
+}
+
+[data-brand-page="survey"] .eyebrow {
+  font-weight: 600;
+}
+
+[data-brand-page="survey"] .persona-intro,
+[data-brand-page="survey"] .customer-results .customer-classics-note {
+  color: var(--brand-parchment);
+}
+
+[data-brand-page="survey"] .customer-results h3,
+[data-brand-page="survey"] #results h3 {
+  color: var(--brand-parchment);
+  font-family: var(--brand-body);
+  font-weight: 500;
+}
+
+[data-brand-page="survey"] .customer-email-form,
+[data-brand-page="survey"] .customer-feedback-form {
+  background: transparent;
+}
+
+[data-brand-page="survey"] .palate-wheel-bg {
+  fill: var(--brand-ground);
+}
+
+[data-brand-page="survey"] .palate-blob {
+  fill: var(--brand-gold);
+  stroke: var(--brand-gold);
+}
+
+[data-brand-page="survey"] .palate-outer-line {
+  stroke: var(--brand-gold);
+}
+
+[data-brand-page="survey"] .palate-label {
+  fill: var(--brand-parchment);
+}
+
+[data-brand-page="survey"] .ai-notice,
+[data-brand-page="survey"] #results:empty {
+  background: var(--brand-ground);
+  border-color: var(--brand-rust);
+  color: var(--brand-rust);
+}
+
+[data-brand-page="survey"] #results:empty::before {
+  color: var(--brand-rust);
+}
+
+[data-brand-page="survey"] .loading-circle {
+  border-color: var(--brand-line);
+  border-top-color: var(--brand-gold);
+}
+
+/* Landing page: cream wordmark over the existing monochrome photograph. */
+html[data-brand-page="landing"] {
+  color-scheme: dark;
+  --proof-gold: var(--brand-gilt);
+  --proof-gold-light: var(--brand-gold);
+  --proof-cream: var(--brand-parchment);
+}
+
+[data-brand-page="landing"] .landing-page {
+  background-image:
+    linear-gradient(180deg, rgb(17 10 33 / 12%), rgb(25 16 44 / 30%) 38%, var(--brand-ground)),
+    url("/landing/assets/proof-background.png");
+}
+
+[data-brand-page="landing"] .landing-page::before {
+  border-color: var(--brand-gilt);
+}
+
+[data-brand-page="landing"] .landing-page::after {
+  background: none;
+}
+
+[data-brand-page="landing"] .landing-copy h1 {
+  color: var(--brand-parchment);
+  font-family: var(--brand-display);
+  font-weight: 300;
+  letter-spacing: 0.2em;
+  text-shadow: none;
+}
+
+[data-brand-page="landing"] .landing-lead,
+[data-brand-page="landing"] .landing-accent {
+  color: var(--brand-parchment);
+  font-family: var(--brand-display);
+  font-weight: 500;
+}
+
+[data-brand-page="landing"] .landing-detail {
+  color: var(--brand-parchment);
+}
+
+[data-brand-page="landing"] .landing-button {
+  background: var(--brand-gold);
+  border-color: var(--brand-gold);
+  color: var(--brand-ink);
+  font-family: var(--brand-body);
+  font-weight: 600;
+  box-shadow: none;
+}
+
+/* Business page: the same dark ground, with the two approved light surfaces. */
+html[data-brand-page="business"] {
+  --ink: var(--brand-ink);
+  --ink2: var(--brand-ground);
+  --ink3: var(--brand-card);
+  --paper: var(--brand-parchment);
+  --paper2: var(--brand-cream);
+  --gold: var(--brand-gilt);
+  --gold2: var(--brand-gold);
+  --gold-deep: var(--brand-burnt);
+  --cream: var(--brand-parchment);
+  --mauve: var(--brand-rose);
+  --ash: var(--brand-muted);
+  --ashlt: var(--brand-taupe);
+  --line: rgb(118 92 37 / 28%);
+  --linedk: var(--brand-line);
+}
+
+[data-brand-page="business"] body,
+[data-brand-page="business"] .page * {
+  font-family: var(--brand-body);
+  letter-spacing: 0;
+}
+
+[data-brand-page="business"] .hero h1,
+[data-brand-page="business"] .problem h2,
+[data-brand-page="business"] .section-grid h2,
+[data-brand-page="business"] .pilot h2,
+[data-brand-page="business"] .founder-grid h2 {
+  font-family: var(--brand-display);
+  font-weight: 500;
+  text-shadow: none;
+}
+
+[data-brand-page="business"] .hero h1 em {
+  font-family: inherit;
+  background: none;
+  color: var(--brand-gold);
+}
+
+[data-brand-page="business"] .nav-shell {
+  background: var(--brand-ink);
+  border-bottom: 1px solid var(--brand-gilt);
+}
+
+[data-brand-page="business"] .logo {
+  background: none;
+  color: var(--brand-gilt);
+  font-family: var(--brand-display);
+  font-weight: 300;
+  letter-spacing: 0.2em;
+}
+
+[data-brand-page="business"] .logo sup {
+  color: var(--brand-gilt);
+}
+
+[data-brand-page="business"] .nav-links a {
+  color: var(--brand-parchment);
+}
+
+[data-brand-page="business"] .hero,
+[data-brand-page="business"] .dark-section {
+  background: var(--brand-ground);
+}
+
+[data-brand-page="business"] .hero-pattern,
+[data-brand-page="business"] .pilot-fan {
+  background: var(--brand-gilt);
+  mask: url("/shared/brand/logos/Mark%20Logo.svg") center / contain no-repeat;
+  opacity: 0.045;
+}
+
+[data-brand-page="business"] .hero-line,
+[data-brand-page="business"] .est span {
+  background: var(--brand-gilt);
+}
+
+[data-brand-page="business"] .hero-lede,
+[data-brand-page="business"] .columns span,
+[data-brand-page="business"] .dashboard-copy,
+[data-brand-page="business"] .pilot-inner > p:not(.kicker),
+[data-brand-page="business"] .dark-section .section-grid h2,
+[data-brand-page="business"] .pilot h2 {
+  color: var(--brand-parchment);
+}
+
+[data-brand-page="business"] .kicker,
+[data-brand-page="business"] .est,
+[data-brand-page="business"] .pilot .kicker {
+  color: var(--brand-muted);
+}
+
+[data-brand-page="business"] .kicker.dark,
+[data-brand-page="business"] .two-cards p,
+[data-brand-page="business"] .benefit-group > p,
+[data-brand-page="business"] .founder-grid p {
+  color: var(--brand-burnt);
+}
+
+[data-brand-page="business"] .kicker span,
+[data-brand-page="business"] .dark-section .kicker span {
+  background: var(--brand-gilt);
+}
+
+[data-brand-page="business"] .kicker.dark span {
+  background: var(--brand-burnt);
+}
+
+[data-brand-page="business"] .nav-links .nav-pilot,
+[data-brand-page="business"] .button-gold {
+  background: var(--brand-gold);
+  border-color: var(--brand-gold);
+  color: var(--brand-ink);
+  box-shadow: none;
+}
+
+[data-brand-page="business"] .button-outline,
+[data-brand-page="business"] .hero-image {
+  border-color: var(--brand-gilt);
+}
+
+[data-brand-page="business"] .hero-image img {
+  filter: grayscale(1);
+}
+
+[data-brand-page="business"] .hero-image div {
+  background: none;
+}
+
+[data-brand-page="business"] .problem h2,
+[data-brand-page="business"] .light-section h2,
+[data-brand-page="business"] .paper-section h2,
+[data-brand-page="business"] .steps h3,
+[data-brand-page="business"] .two-cards h3,
+[data-brand-page="business"] .benefit-row h3,
+[data-brand-page="business"] .founder-grid h2 {
+  color: var(--brand-ink);
+}
+
+[data-brand-page="business"] .steps p,
+[data-brand-page="business"] .two-cards span,
+[data-brand-page="business"] .benefit-row span,
+[data-brand-page="business"] .founder-grid span,
+[data-brand-page="business"] .problem-copy p {
+  color: var(--brand-taupe);
+}
+
+[data-brand-page="business"] .steps span {
+  color: var(--brand-burnt);
+  -webkit-text-stroke: 0;
+}
+
+[data-brand-page="business"] .how,
+[data-brand-page="business"] .benefits {
+  border-top-color: var(--brand-burnt);
+}
+
+[data-brand-page="business"] mark {
+  background: var(--brand-chip);
+}
+
+[data-brand-page="business"] .columns article {
+  border-color: var(--brand-line);
+}
+
+[data-brand-page="business"] .founder-grid article {
+  border-color: rgb(118 92 37 / 28%);
+}
+
+[data-brand-page="business"] .two-cards article {
+  background: var(--brand-cream);
+}
+
+[data-brand-page="business"] .report-panel {
+  background: var(--brand-card);
+  border-style: solid;
+}
+
+[data-brand-page="business"] .report-pattern {
+  background: none;
+}
+
+[data-brand-page="business"] .report-column {
+  background: var(--brand-card);
+}
+
+[data-brand-page="business"] .report-column > span {
+  color: var(--brand-muted);
+}
+
+[data-brand-page="business"] .meter-row div,
+[data-brand-page="business"] .unmet p {
+  color: var(--brand-parchment);
+}
+
+[data-brand-page="business"] .meter-row i {
+  background: var(--brand-line);
+}
+
+[data-brand-page="business"] .meter-row em {
+  background: var(--brand-rose);
+}
+
+[data-brand-page="business"] .report-column:first-child .meter-row:nth-of-type(2) em {
+  background: var(--brand-sage);
+}
+
+[data-brand-page="business"] .unmet {
+  border-color: var(--brand-rust);
+}
+
+[data-brand-page="business"] .unmet span {
+  color: var(--brand-rust);
+}
+
+[data-brand-page="business"] .pilot .email {
+  border-color: var(--brand-gilt);
+  color: var(--brand-parchment);
+}
+
+[data-brand-page="business"] .footer {
+  background: var(--brand-ink);
+  color: var(--brand-muted);
+}
+
+[data-brand-page="business"] .footer-inner > span:first-child {
+  color: var(--brand-gilt);
+  font-family: var(--brand-display);
+  font-size: 28px;
+  font-weight: 300;
+  letter-spacing: 0.2em;
+  line-height: 1;
+}
+
+/* Login and all Console tabs, including dynamically generated content. */
+html[data-brand-page="dashboard"] {
+  --bg: var(--brand-ground);
+  --panel: var(--brand-ground);
+  --panel-2: var(--brand-card);
+  --line: var(--brand-line);
+  --muted: var(--brand-muted);
+  --cream: var(--brand-parchment);
+  --gold: var(--brand-gold);
+  --rust: var(--brand-rust);
+  --blue: var(--brand-rose);
+  --green: var(--brand-sage);
+  --shadow: none;
+}
+
+[data-brand-page="dashboard"] body {
+  font-family: var(--brand-body);
+}
+
+[data-brand-page="dashboard"] .console-frame,
+[data-brand-page="dashboard"] .dashboard-login-panel {
+  border-color: var(--brand-gilt);
+}
+
+[data-brand-page="dashboard"] .dashboard-login-panel {
+  background: var(--brand-card);
+}
+
+[data-brand-page="dashboard"] .brand {
+  color: var(--brand-gilt);
+  font-family: var(--brand-display);
+  font-weight: 300;
+  letter-spacing: 0.2em;
+}
+
+[data-brand-page="dashboard"] h1,
+[data-brand-page="dashboard"] h2 {
+  font-family: var(--brand-display);
+}
+
+[data-brand-page="dashboard"] .summary-strip strong,
+[data-brand-page="dashboard"] .spend-metric strong {
+  color: var(--brand-gold);
+  font-family: var(--brand-body);
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+}
+
+[data-brand-page="dashboard"] .persona-name,
+[data-brand-page="dashboard"] .drink-name,
+[data-brand-page="dashboard"] .lab-title,
+[data-brand-page="dashboard"] .callout strong {
+  font-family: var(--brand-body);
+  font-weight: 500;
+}
+
+[data-brand-page="dashboard"] .summary-strip article,
+[data-brand-page="dashboard"] .spend-panel,
+[data-brand-page="dashboard"] .spend-metric,
+[data-brand-page="dashboard"] .callout,
+[data-brand-page="dashboard"] .action-explainer,
+[data-brand-page="dashboard"] .lab-card,
+[data-brand-page="dashboard"] .drink-detail-row td,
+[data-brand-page="dashboard"] th {
+  background: var(--brand-card);
+}
+
+[data-brand-page="dashboard"] .dashboard-login-form input,
+[data-brand-page="dashboard"] .map-controls select,
+[data-brand-page="dashboard"] .coordinate-actions button,
+[data-brand-page="dashboard"] .drink-info-button,
+[data-brand-page="dashboard"] .remove-drink-button,
+[data-brand-page="dashboard"] .coordinate-text-input,
+[data-brand-page="dashboard"] .coordinate-score-input,
+[data-brand-page="dashboard"] .drink-detail-editor input,
+[data-brand-page="dashboard"] .drink-detail-editor select,
+[data-brand-page="dashboard"] .drink-detail-editor textarea,
+[data-brand-page="dashboard"] .lab-inventory-control textarea {
+  background: var(--brand-ground);
+}
+
+[data-brand-page="dashboard"] .persona-row,
+[data-brand-page="dashboard"] th,
+[data-brand-page="dashboard"] td {
+  border-color: var(--brand-line);
+}
+
+[data-brand-page="dashboard"] .rule {
+  background: var(--brand-gilt);
+}
+
+[data-brand-page="dashboard"] .persona-track,
+[data-brand-page="dashboard"] .score-bar {
+  background: var(--brand-line);
+}
+
+[data-brand-page="dashboard"] .persona-row:has(.gap-text) .persona-fill {
+  background: var(--brand-rust);
+}
+
+[data-brand-page="dashboard"] .persona-row:not(:has(.gap-text)) .persona-note {
+  color: var(--brand-sage);
+}
+
+[data-brand-page="dashboard"] .no-data {
+  border-color: var(--brand-rust);
+}
+
+[data-brand-page="dashboard"] .empty-note {
+  color: var(--brand-rust);
+}
+
+[data-brand-page="dashboard"] .pill.keep {
+  border-color: var(--brand-sage);
+  color: var(--brand-sage);
+}
+
+[data-brand-page="dashboard"] .pill.watch {
+  border-color: var(--brand-rose);
+  color: var(--brand-rose);
+}
+
+[data-brand-page="dashboard"] .dashboard-login-form button,
+[data-brand-page="dashboard"] .drink-info-button[aria-expanded="true"] {
+  color: var(--brand-ink);
+}
+
+[data-brand-page="dashboard"] .menu-map-plot {
+  background:
+    linear-gradient(var(--brand-line) 1px, transparent 1px),
+    linear-gradient(90deg, var(--brand-line) 1px, transparent 1px),
+    var(--brand-ground);
+  background-size: 25% 25%;
+}
+
+[data-brand-page="dashboard"] .map-cluster.guest {
+  border-color: var(--brand-rose);
+  background: rgb(214 154 160 / 6%);
+  box-shadow: none;
+}
+
+[data-brand-page="dashboard"] .map-cluster.drink {
+  border-color: var(--brand-gold);
+  background: rgb(211 176 94 / 6%);
+  box-shadow: none;
+}
+
+[data-brand-page="dashboard"] .map-point.guest,
+[data-brand-page="dashboard"] .guest-dot {
+  background: var(--brand-parchment);
+  box-shadow: none;
+}
+
+[data-brand-page="dashboard"] .map-point.drink,
+[data-brand-page="dashboard"] .drink-dot {
+  border-color: var(--brand-gold);
+}
+
+html[data-brand-page] :where(a, button, input, select, textarea):focus-visible {
+  outline: 2px solid var(--brand-gilt);
+  outline-offset: 3px;
+}
+
+[data-brand-page="survey"] .qualitative-section textarea:focus {
+  box-shadow: 0 0 0 4px rgb(211 176 94 / 12%);
+}
+
+@media (max-width: 1166px) {
+  [data-brand-page="business"] .founder-grid h2 {
+    font-family: var(--brand-body);
+  }
+}
+
+@media (max-width: 699px) {
+  [data-brand-page="survey"] .quiz-intro h2 {
+    font-family: var(--brand-body);
+  }
+}
+
+@media (max-width: 380px) {
+  [data-brand-page="survey"] h1 {
+    font-size: 56px;
+  }
+
+  [data-brand-page="landing"] .landing-copy h1 {
+    font-size: 60px;
+  }
+}
