@@ -1470,6 +1470,7 @@ function sanitizeRecommendations(recommendations) {
 
   return recommendations.slice(0, 5).map(drink => ({
     name: sanitizeFreeText(drink?.name, 120),
+    description: sanitizeFreeText(drink?.description, 500),
     liquor: sanitizeFreeText(drink?.liquor, 80),
     category: Array.isArray(drink?.category)
       ? drink.category.map(category => sanitizeFreeText(category, 80)).filter(Boolean).slice(0, 5)

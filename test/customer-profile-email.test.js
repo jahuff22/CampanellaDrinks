@@ -12,7 +12,7 @@ const sample = {
   firstName: "Alex",
   persona: "Sunseeker",
   aboutYou: "Bright citrus and a refreshing finish.",
-  recommendations: [{ name: "Daiquiri", matchPercentage: "95%" }],
+  recommendations: [{ name: "Daiquiri", description: "Light rum, fresh lime, and sugar. Crisp and refreshing.", matchPercentage: "95%" }],
   bartenderScript: "Something bright with fresh lime, please.",
   spiritsAndModifiers: ["Light rum", "Fresh lime"],
   recipe: {
@@ -23,7 +23,7 @@ const sample = {
   }
 };
 
-test("keeps the existing subject and plain-text email", () => {
+test("keeps the subject and includes drink descriptions in the plain-text email", () => {
   const email = buildCustomerProfileEmail(sample);
   assert.equal(email.subject, "Your PROOF cocktail results");
   assert.equal(email.text, [
@@ -32,12 +32,10 @@ test("keeps the existing subject and plain-text email", () => {
     "About you: Bright citrus and a refreshing finish.",
     "Your Perfect Classics:",
     "1. Daiquiri",
+    "Light rum, fresh lime, and sugar. Crisp and refreshing.",
     "Any decent bar in America can make these. Just ask!",
     "Your Bartender Script:",
     "Something bright with fresh lime, please.",
-    "Try these spirits and modifiers:",
-    "- Light rum",
-    "- Fresh lime",
     "A recipe for your palate:",
     "Golden Hour",
     "A crisp citrus cocktail.",
@@ -58,13 +56,27 @@ test("escapes every customer-controlled HTML field", () => {
     persona: unsafe,
     aboutYou: unsafe,
     bartenderScript: unsafe,
-    recommendations: [{ name: unsafe, matchPercentage: unsafe }],
+    recommendations: [{ name: unsafe, description: unsafe, matchPercentage: unsafe }],
     spiritsAndModifiers: [unsafe],
     recipe: { name: unsafe, description: unsafe, ingredients: [unsafe], method: unsafe }
   });
   assert.ok(!html.includes(unsafe));
-  assert.equal(html.split(safe).length - 1, 11);
+  assert.equal(html.split(safe).length - 1, 10);
   assert.ok(!html.includes("<script"));
+});
+
+test("uses the results-page surfaces and omits the spirits-and-modifiers section", () => {
+  const { html, text } = buildCustomerProfileEmail({
+    ...sample,
+    spiritsAndModifiers: ["Hidden modifier"]
+  });
+  const backgrounds = new Set([...html.matchAll(/bgcolor="(#[A-F0-9]+)"/g)].map(match => match[1]));
+  assert.deepEqual([...backgrounds].sort(), ["#19102C", "#342556"]);
+  assert.ok(html.includes(sample.recommendations[0].description));
+  assert.ok(!html.includes("Try these spirits and modifiers"));
+  assert.ok(!text.includes("Try these spirits and modifiers"));
+  assert.ok(!html.includes("Hidden modifier"));
+  assert.ok(!text.includes("Hidden modifier"));
 });
 
 test("handles omitted optional profile fields", () => {
@@ -94,12 +106,14 @@ function loadSender({ apiKey = "test-key", responseOk = true } = {}) {
     }
   });
   vm.runInContext(fs.readFileSync(path.join(root, "server.js"), "utf8"), context);
-  return { send: context.sendCustomerProfileEmail, requests };
+  return { send: context.sendCustomerProfileEmail, createEvent: context.createCustomerEvent, requests };
 }
 
-test("sends the original content with a matching inline PNG attachment", async () => {
-  const { send, requests } = loadSender();
-  const result = await send(sample);
+test("preserves descriptions from the results-page payload through email delivery", async () => {
+  const { send, createEvent, requests } = loadSender();
+  const event = createEvent(sample);
+  assert.equal(event.recommendations[0].description, sample.recommendations[0].description);
+  const result = await send(event);
   assert.equal(result.sent, true);
   assert.equal(requests.length, 1);
   const { url, payload } = requests[0];
@@ -109,6 +123,7 @@ test("sends the original content with a matching inline PNG attachment", async (
   assert.equal(payload.reply_to, "hello@joinproof.bar");
   assert.equal(payload.subject, buildCustomerProfileEmail(sample).subject);
   assert.equal(payload.text, buildCustomerProfileEmail(sample).text);
+  assert.ok(payload.html.includes(sample.recommendations[0].description));
   assert.equal(payload.attachments.length, 1);
   const logo = payload.attachments[0];
   assert.equal(logo.content_type, "image/png");
@@ -116,6 +131,21 @@ test("sends the original content with a matching inline PNG attachment", async (
   const png = Buffer.from(logo.content, "base64");
   assert.deepEqual(png.subarray(0, 8), Buffer.from([137, 80, 78, 71, 13, 10, 26, 10]));
   assert.deepEqual(png, fs.readFileSync(path.join(root, "shared/brand/web/proof-horizontal-email.png")));
+});
+
+test("bounds and normalizes descriptions when preparing a customer email", () => {
+  const { createEvent } = loadSender();
+  const event = createEvent({
+    ...sample,
+    recommendations: [
+      { name: "Daiquiri", description: "  Fresh\n lime  and rum.  " },
+      { name: "Margarita", description: "x".repeat(600) },
+      { name: "Paloma" }
+    ]
+  });
+  assert.equal(event.recommendations[0].description, "Fresh lime and rum.");
+  assert.equal(event.recommendations[1].description.length, 500);
+  assert.equal(event.recommendations[2].description, "");
 });
 
 test("keeps the existing skip and delivery-failure behavior", async () => {

@@ -1073,6 +1073,7 @@ async function saveCustomerEvent(profileData, email, feedback = {}, details = {}
         feedback,
         recommendations: profileData.recommendations.map(drink => ({
           name: drink.name,
+          description: drink.description,
           liquor: drink.liquor,
           category: drink.category,
           distance: drink.distance,
