@@ -1119,6 +1119,8 @@ function getStrongPreferencePhrases(preferences, direction) {
 async function createBartenderScript(preferences, likes, avoids) {
   const nearestSamples = getNearestBartenderScriptSamples(preferences);
   const nearestSample = nearestSamples[0];
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 12000);
 
   try {
     const response = await fetch("/api/bartender-script", {
@@ -1126,7 +1128,8 @@ async function createBartenderScript(preferences, likes, avoids) {
       headers: {
         "Content-Type": "application/json"
       },
-      body: JSON.stringify({ preferences })
+      body: JSON.stringify({ preferences }),
+      signal: controller.signal
     });
     const data = await response.json();
 
@@ -1135,13 +1138,18 @@ async function createBartenderScript(preferences, likes, avoids) {
     }
   } catch (error) {
     console.warn("Could not generate bartender script.", error);
+  } finally {
+    clearTimeout(timeout);
   }
 
   return createFallbackBartenderScript(likes, avoids, nearestSample);
 }
 
 function getNearestBartenderScriptSamples(preferences) {
-  return bartenderScriptSamples
+  const samples = typeof bartenderScriptSamples !== "undefined" && Array.isArray(bartenderScriptSamples)
+    ? bartenderScriptSamples
+    : [];
+  return samples
     .map(sample => ({
       ...sample,
       distance: calculateBartenderScriptDistance(preferences, sample.preferences)

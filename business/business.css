@@ -114,7 +114,7 @@ body {
 .hero {
   position: relative;
   overflow: hidden;
-  padding: 40px 0 clamp(96px, 12vw, 140px);
+  padding: 40px 0 48px;
   background: radial-gradient(120% 90% at 82% 8%, #3a2a5e 0%, #1b0f2e 46%), var(--ink);
   color: var(--cream);
 }
@@ -283,7 +283,7 @@ body {
 
 .light-section,
 .paper-section {
-  padding: clamp(76px, 10vw, 142px) 0;
+  padding: 48px 0;
 }
 
 .light-section {
@@ -346,6 +346,7 @@ body {
 
 .problem-content h2 {
   margin-top: 0;
+  margin-bottom: 1.5rem;
 }
 
 .problem-image {
@@ -375,6 +376,10 @@ body {
   line-height: 1.55;
 }
 
+.problem-copy p:last-child {
+  margin-bottom: 0;
+}
+
 mark {
   background: rgba(203, 161, 53, 0.18);
   color: inherit;
@@ -388,11 +393,11 @@ mark {
   grid-template-columns: 1fr 1.35fr;
   align-items: start;
   gap: clamp(2rem, 4vw, 4.5rem);
-  margin-bottom: clamp(2.6rem, 4vw, 4rem);
+  margin-bottom: 2rem;
 }
 
 .section-grid h2 {
-  margin-top: 0.8rem;
+  margin: 0;
 }
 
 .steps {
@@ -442,7 +447,7 @@ mark {
 }
 
 .dark-section {
-  padding: clamp(76px, 10vw, 142px) 0;
+  padding: 48px 0;
   background: var(--ink);
   color: var(--cream);
 }
@@ -535,12 +540,12 @@ mark {
 }
 
 .benefit-group {
-  margin-top: clamp(2.4rem, 4vw, 3.4rem);
+  margin-top: 2rem;
 }
 
 .benefit-group > p {
   display: block;
-  margin-bottom: 1.9rem;
+  margin-bottom: 1.2rem;
   border-bottom: 1px solid var(--line);
   padding-bottom: 0.85rem;
   color: var(--ashlt);
@@ -561,7 +566,7 @@ mark {
 
 .dashboard-copy {
   max-width: 60ch;
-  margin: 0 0 clamp(2rem, 3.5vw, 3rem);
+  margin: 0 0 1.5rem;
   color: rgba(244, 237, 221, 0.72);
   font-size: clamp(1.06rem, 1.5vw, 1.24rem);
   line-height: 1.55;
@@ -756,12 +761,12 @@ mark {
 }
 
 .pilot h2 {
-  margin: 1.2rem 0 1rem;
+  margin: 0 0 1rem;
 }
 
 .pilot-inner > p:not(.kicker) {
   max-width: 54ch;
-  margin: 0 0 2rem;
+  margin: 0 0 1.5rem;
   color: rgba(244, 237, 221, 0.62);
   font-size: 1.14rem;
 }
@@ -769,7 +774,7 @@ mark {
 .pilot .email {
   display: block;
   width: fit-content;
-  margin: 2rem auto 0;
+  margin: 1rem auto 0;
   border-bottom: 1px solid rgba(178, 159, 199, 0.35);
   padding-bottom: 2px;
   color: var(--mauve);
@@ -901,6 +906,16 @@ mark {
 }
 
 @media (max-width: 900px) {
+  .light-section,
+  .paper-section,
+  .dark-section {
+    padding: 36px 0;
+  }
+
+  .problem-grid {
+    row-gap: 2rem;
+  }
+
   .pilot {
     scroll-margin-top: 0;
   }
@@ -1054,7 +1069,7 @@ mark {
 @media (max-width: 560px) {
   .hero {
     padding-top: 24px;
-    padding-bottom: 64px;
+    padding-bottom: 36px;
   }
 
   .hero h1 {
