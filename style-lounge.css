@@ -996,6 +996,51 @@ h2 {
 }
 
 @media (max-width: 620px) {
+  #results-screen:not([hidden]) > .persona-profile {
+    margin-bottom: 20px;
+  }
+
+  body:not(.customer-mode) #persona-profile .persona-summary {
+    padding: 18px 20px;
+  }
+
+  body:not(.customer-mode) #persona-profile .eyebrow {
+    margin-bottom: 8px;
+  }
+
+  body:not(.customer-mode) #persona-profile .persona-summary h2 {
+    margin-bottom: 10px;
+    font-size: 36px;
+  }
+
+  body:not(.customer-mode) #persona-profile .persona-intro {
+    margin-bottom: 0;
+    font-size: 16px;
+    line-height: 1.35;
+  }
+
+  body:not(.customer-mode) .recommendations-heading {
+    flex-direction: row;
+    align-items: center;
+    gap: 12px;
+  }
+
+  body:not(.customer-mode) #retake-button {
+    width: auto;
+    flex-shrink: 0;
+  }
+
+  #mobile-results-analysis {
+    display: grid;
+    gap: 20px;
+    margin-top: 28px;
+  }
+
+  #mobile-results-analysis .persona-avoidance {
+    margin: 0;
+    font-size: 16px;
+  }
+
   html::before {
     display: none;
   }

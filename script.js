@@ -608,7 +608,7 @@ const personaProfiles = {
   },
   Bittersweet: {
     title: "Bittersweet",
-    intro: "Most people are naturally wired to avoid bitterness. You’re drawn to it, especially when a touch of sweetness turns its sharp edges into something rich and compelling.",
+    intro: "Bitterness is the most complex and divisive of the five basic tastes. You’re drawn to it, especially when a touch of sweetness turns its sharp edges into something rich and compelling.",
     avoidance: "You want a drink with tension, depth, and a finish that gives you something new to notice with every sip."
   },
   Adventurer: {
@@ -618,7 +618,7 @@ const personaProfiles = {
   },
   Harmonist: {
     title: "Harmonist",
-    intro: "You want your cocktails like we all want our people: even-keeled and dependable. If a cocktail is balanced - not drifting too far in any singular direction - that’s the drink for you.",
+    intro: "Picture Abraham Lincoln reincarnated as a cocktail: honest and dependable. If a cocktail is balanced – not drifting too far in any singular direction – that’s the one for you.",
     avoidance: "You steer clear of cocktails with bold and overwhelming profiles, opting for something classic and easy drinking."
   }
 };
@@ -746,6 +746,38 @@ function displayPersonaProfile(personaCategory, userPreferences) {
       </div>
     </div>
   `;
+  arrangeMobileResults();
+}
+
+const mobileResultsQuery = window.matchMedia("(max-width: 620px)");
+mobileResultsQuery.addEventListener("change", arrangeMobileResults);
+
+function arrangeMobileResults() {
+  const profile = document.getElementById("persona-profile");
+  const summary = profile.querySelector(".persona-summary");
+  const recommendations = document.querySelector(".recommendations-section");
+  if (!summary || !recommendations) return;
+
+  let analysis = document.getElementById("mobile-results-analysis");
+  if (mobileResultsQuery.matches && !isCustomerMode()) {
+    if (!analysis) {
+      analysis = document.createElement("section");
+      analysis.id = "mobile-results-analysis";
+      analysis.setAttribute("aria-label", "Your taste analysis");
+    }
+    // Rendering a new profile replaces the summary and chart nodes.
+    const chart = profile.querySelector(".taste-profile-card");
+    if (chart) {
+      analysis.replaceChildren(summary.querySelector(".persona-avoidance"), chart);
+    }
+    recommendations.after(analysis);
+  } else if (analysis) {
+    const avoidance = analysis.querySelector(".persona-avoidance");
+    const chart = analysis.querySelector(".taste-profile-card");
+    if (avoidance) summary.appendChild(avoidance);
+    if (chart) profile.appendChild(chart);
+    analysis.remove();
+  }
 }
 
 function getPersonaArticle(persona) {

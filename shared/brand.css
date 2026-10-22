@@ -54,6 +54,85 @@
   --brand-body: Jost, "Segoe UI", sans-serif;
 }
 
+/* Supplied logo artwork. Sizing lives here so each page uses the same lockup. */
+.proof-logo {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  height: auto;
+}
+
+.brand-lockup {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  width: 176px;
+  max-width: 100%;
+  line-height: 0;
+  text-decoration: none;
+}
+
+[data-brand-page="business"] .logo.brand-lockup {
+  align-items: center;
+}
+
+[data-brand-page="business"] .footer-logo {
+  display: block;
+  width: 120px;
+}
+
+[data-brand-page="dashboard"] .dashboard-login-panel .brand-lockup {
+  display: inline-flex;
+  width: 192px;
+}
+
+[data-brand-page="survey"] .survey-wordmark {
+  width: 224px;
+  max-width: 100%;
+  font-size: 0;
+  line-height: 0;
+  letter-spacing: 0;
+}
+
+[data-brand-page="survey"] .results-brand {
+  width: 176px;
+  max-width: 100%;
+  margin-bottom: 28px;
+}
+
+.survey-loader-symbol {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+}
+
+.survey-loader-symbol .loading-circle {
+  position: absolute;
+  inset: 0;
+}
+
+.loading-logo {
+  display: block;
+  width: 18px;
+  height: 24px;
+}
+
+[data-brand-page="landing"] .landing-copy .landing-brand {
+  width: 210px;
+  max-width: 100%;
+  margin-right: auto;
+  margin-left: auto;
+  font-size: 0;
+  line-height: 0;
+  letter-spacing: 0;
+}
+
+[data-brand-page="landing"] .landing-brand .proof-logo {
+  filter: drop-shadow(0 2px 6px rgb(17 10 33 / 70%));
+}
+
 body {
   font-family: var(--brand-body);
   -webkit-font-smoothing: antialiased;
@@ -415,7 +494,7 @@ html[data-brand-page="business"] {
 [data-brand-page="business"] .hero-pattern,
 [data-brand-page="business"] .pilot-fan {
   background: var(--brand-gilt);
-  mask: url("/shared/brand/logos/Mark%20Logo.svg") center / contain no-repeat;
+  mask: url("/shared/brand/web/proof-mark.svg") center / contain no-repeat;
   opacity: 0.045;
 }
 
@@ -757,6 +836,22 @@ html[data-brand-page] :where(a, button, input, select, textarea):focus-visible {
 @media (max-width: 699px) {
   [data-brand-page="survey"] .quiz-intro h2 {
     font-family: var(--brand-body);
+  }
+}
+
+@media (max-width: 900px) {
+  [data-brand-page="business"] .logo.brand-lockup {
+    width: 128px;
+  }
+}
+
+@media (max-width: 620px) {
+  [data-brand-page="survey"] .survey-wordmark {
+    width: 196px;
+  }
+
+  [data-brand-page="landing"] .landing-copy .landing-brand {
+    width: 164px;
   }
 }
 

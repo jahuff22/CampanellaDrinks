@@ -2,6 +2,7 @@ const http = require("http");
 const fs = require("fs");
 const path = require("path");
 const crypto = require("crypto");
+const { buildCustomerProfileEmail } = require("./shared/email/customer-profile");
 
 const ROOT_DIR = __dirname;
 loadEnvFile();
@@ -39,7 +40,9 @@ const MIME_TYPES = {
   ".txt": "text/plain; charset=utf-8",
   ".xml": "application/xml; charset=utf-8",
   ".svg": "image/svg+xml",
-  ".woff2": "font/woff2"
+  ".woff2": "font/woff2",
+  ".png": "image/png",
+  ".ico": "image/x-icon"
 };
 
 const ROUTE_ALIASES = new Map([
@@ -1195,6 +1198,7 @@ async function sendCustomerProfileEmail(event) {
   const emailPayload = buildCustomerProfileEmail(event);
 
   try {
+    const logoContent = await fs.promises.readFile(path.join(ROOT_DIR, "shared/brand/web/proof-horizontal-email.png"));
     const resendResponse = await fetch("https://api.resend.com/emails", {
       method: "POST",
       headers: {
@@ -1207,6 +1211,12 @@ async function sendCustomerProfileEmail(event) {
         subject: emailPayload.subject,
         text: emailPayload.text,
         html: emailPayload.html,
+        attachments: [{
+          filename: "proof-logo.png",
+          content: logoContent.toString("base64"),
+          content_type: "image/png",
+          content_id: "proof-logo"
+        }],
         reply_to: "hello@joinproof.bar"
       })
     });
@@ -1234,96 +1244,6 @@ async function sendCustomerProfileEmail(event) {
       warning: "Customer email could not be sent."
     };
   }
-}
-
-function buildCustomerProfileEmail(event) {
-  const subject = "Your PROOF cocktail results";
-  const recommendations = event.recommendations || [];
-  const spiritsAndModifiers = event.spiritsAndModifiers || [];
-  const recipe = event.recipe || {};
-  const previewName = event.firstName ? ` ${event.firstName}` : "";
-
-  const text = [
-    `Hi${previewName},`,
-    "",
-    `Cocktail Persona: You're a ${event.persona || "PROOF guest"}.`,
-    event.aboutYou ? `About you: ${event.aboutYou}` : "",
-    "",
-    "Your Perfect Classics:",
-    ...recommendations.map((drink, index) => `${index + 1}. ${drink.name}`),
-    "",
-    "Any decent bar in America can make these. Just ask!",
-    "",
-    "Your Bartender Script:",
-    event.bartenderScript || "",
-    "",
-    "Try these spirits and modifiers:",
-    ...spiritsAndModifiers.map(item => `- ${item}`),
-    "",
-    "A recipe for your palate:",
-    recipe.name || "",
-    recipe.description || "",
-    ...(recipe.ingredients || []).map(item => `- ${item}`),
-    recipe.method || "",
-    "",
-    "Thanks for letting us read your palate. Save this email for the next time you're deciding what to order.",
-    "",
-    "Cheers!",
-    "Michael and Jake"
-  ].filter(line => line !== "").join("\n");
-
-  const html = `
-    <!doctype html>
-    <html>
-      <body style="margin:0;background:#0b0d14;color:#f5eddf;font-family:Arial,Helvetica,sans-serif;">
-        <div style="max-width:640px;margin:0 auto;padding:32px 22px;">
-          <h1 style="margin:0 0 24px;font-family:Georgia,serif;font-size:42px;letter-spacing:0;">PROOF.</h1>
-          <p style="margin:0 0 20px;color:#d7c9b3;">Hi${escapeEmailHtml(previewName)}, here is your cocktail profile.</p>
-
-          <h2 style="margin:28px 0 8px;font-family:Georgia,serif;font-size:28px;">Cocktail Persona: You're a ${escapeEmailHtml(event.persona || "PROOF guest")}</h2>
-          ${event.aboutYou ? `<p style="margin:0 0 18px;line-height:1.5;color:#d7c9b3;">${escapeEmailHtml(event.aboutYou)}</p>` : ""}
-
-          <h2 style="margin:28px 0 12px;font-family:Georgia,serif;font-size:28px;">Your Perfect Classics</h2>
-          ${recommendations.map(drink => `
-            <div style="border:1px solid #2a3040;padding:14px 16px;margin:0 0 10px;background:#111520;">
-              <strong style="display:block;color:#f2d48a;font-size:18px;">${escapeEmailHtml(drink.name)}</strong>
-              ${drink.matchPercentage ? `<span style="color:#d7c9b3;font-size:13px;">${escapeEmailHtml(drink.matchPercentage)} match</span>` : ""}
-            </div>
-          `).join("")}
-          <p style="margin:12px 0 0;color:#d7c9b3;">Any decent bar in America can make these. Just ask!</p>
-
-          <h2 style="margin:28px 0 8px;font-family:Georgia,serif;font-size:28px;">Your Bartender Script</h2>
-          <p style="margin:0;line-height:1.5;color:#f5eddf;">${escapeEmailHtml(event.bartenderScript || "")}</p>
-
-          <h2 style="margin:28px 0 8px;font-family:Georgia,serif;font-size:28px;">Try these spirits and modifiers</h2>
-          <ul style="margin:0;padding-left:20px;color:#d7c9b3;line-height:1.6;">
-            ${spiritsAndModifiers.map(item => `<li>${escapeEmailHtml(item)}</li>`).join("")}
-          </ul>
-
-          <h2 style="margin:28px 0 8px;font-family:Georgia,serif;font-size:28px;">A recipe for your palate</h2>
-          <h3 style="margin:0 0 8px;color:#f2d48a;font-size:20px;">${escapeEmailHtml(recipe.name || "")}</h3>
-          ${recipe.description ? `<p style="margin:0 0 12px;line-height:1.5;color:#d7c9b3;">${escapeEmailHtml(recipe.description)}</p>` : ""}
-          <ul style="margin:0 0 12px;padding-left:20px;color:#d7c9b3;line-height:1.6;">
-            ${(recipe.ingredients || []).map(item => `<li>${escapeEmailHtml(item)}</li>`).join("")}
-          </ul>
-          ${recipe.method ? `<p style="margin:0;line-height:1.5;color:#f5eddf;">${escapeEmailHtml(recipe.method)}</p>` : ""}
-
-          <p style="margin:32px 0 0;color:#d7c9b3;line-height:1.5;">Thanks for letting us read your palate. Save this email for the next time you're deciding what to order.</p>
-          <p style="margin:24px 0 0;color:#f5eddf;">Cheers,<br>Michael and Jake</p>
-        </div>
-      </body>
-    </html>
-  `;
-
-  return { subject, text, html };
-}
-
-function escapeEmailHtml(value) {
-  return String(value || "")
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;");
 }
 
 async function persistRecommendationEventToWebhook(event) {
