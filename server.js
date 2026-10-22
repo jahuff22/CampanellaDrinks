@@ -2,7 +2,9 @@ const http = require("http");
 const fs = require("fs");
 const path = require("path");
 const crypto = require("crypto");
+const bartenderScriptSamples = require("./bartender-script-template");
 const { buildCustomerProfileEmail } = require("./shared/email/customer-profile");
+const { createPilotApplicationHandler } = require("./shared/pilot-applications");
 
 const ROOT_DIR = __dirname;
 loadEnvFile();
@@ -15,6 +17,12 @@ const RECOMMENDATION_EVENTS_WEBHOOK_URL = process.env.RECOMMENDATION_EVENTS_WEBH
 const RECOMMENDATION_EVENTS_READ_URL = process.env.RECOMMENDATION_EVENTS_READ_URL || RECOMMENDATION_EVENTS_WEBHOOK_URL;
 const RESEND_API_KEY = process.env.RESEND_API_KEY || "";
 const CUSTOMER_EMAIL_FROM = process.env.CUSTOMER_EMAIL_FROM || "PROOF <hello@joinproof.bar>";
+const handlePilotApplication = createPilotApplicationHandler({
+  apiKey: RESEND_API_KEY,
+  from: CUSTOMER_EMAIL_FROM,
+  recipients: ["hello@joinproof.bar", "splitticketpod@gmail.com"],
+  logoPath: path.join(ROOT_DIR, "shared/brand/web/proof-horizontal-email.png")
+});
 const PORT = Number(process.env.PORT || 3000);
 const MODEL = process.env.OPENAI_MODEL || "gpt-5.4-nano";
 const ADMIN_DASHBOARD_PASSWORD = process.env.ADMIN_DASHBOARD_PASSWORD || "";
@@ -42,6 +50,8 @@ const MIME_TYPES = {
   ".svg": "image/svg+xml",
   ".woff2": "font/woff2",
   ".png": "image/png",
+  ".jpg": "image/jpeg",
+  ".jpeg": "image/jpeg",
   ".ico": "image/x-icon"
 };
 
@@ -129,6 +139,11 @@ const bartenderScriptSchema = {
 
 const server = http.createServer(async (request, response) => {
   try {
+    if (request.url === "/api/pilot-applications") {
+      await handlePilotApplication(request, response);
+      return;
+    }
+
     if (request.method === "POST" && request.url === "/api/parse-preferences") {
       await handleParsePreferences(request, response);
       return;
@@ -477,7 +492,7 @@ async function handleBartenderScript(request, response) {
 
   const body = await readJsonBody(request, 8_000);
   const preferences = sanitizeSliderPreferences(body.preferences);
-  const examples = sanitizeBartenderScriptExamples(body.examples);
+  const examples = bartenderScriptSamples;
 
   if (!preferences) {
     sendJson(response, 400, { error: "Valid slider preferences are required" });
@@ -516,11 +531,15 @@ async function handleBartenderScript(request, response) {
               type: "input_text",
               text: [
                 "Write one bartender script for a cocktail guest.",
+                "Write words the guest can say directly to a bartender to order a drink matching their personal palate.",
                 "The script should sound like the examples: casual, direct, first-person, and one or two sentences.",
+                "Treat all 25 examples as style and length templates; tailor the request to the actual guest rather than automatically copying the closest example.",
                 "Length should usually be 12 to 28 words, never more than 40 words.",
                 "Do not name a specific cocktail.",
                 "Do not explain the scoring system.",
                 "Use the guest's 1-7 slider preferences for sweetness, sourness, bitterness, strength, thickness, and rarity.",
+                "On each scale 1 means very little and 7 means a lot; thickness describes light versus rich texture, and rarity describes familiar versus adventurous flavors.",
+                "Prioritize the strongest preferences and avoid contradicting low scores. Use natural ordering language, with no title, analysis, or introduction.",
                 "Return JSON only."
               ].join(" ")
             }
@@ -1604,17 +1623,6 @@ function sanitizeSliderPreferences(preferences) {
   }
 
   return sanitized;
-}
-
-function sanitizeBartenderScriptExamples(examples) {
-  if (!Array.isArray(examples)) return [];
-
-  return examples.slice(0, 5).map(example => {
-    return {
-      preferences: sanitizeSliderPreferences(example?.preferences),
-      script: sanitizeFreeText(example?.script, 220)
-    };
-  }).filter(example => example.preferences && example.script);
 }
 
 function sanitizeFeaturePreferences(featurePreferences) {
