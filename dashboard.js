@@ -7,7 +7,7 @@ const traitLabels = {
   rarity: "Rarity"
 };
 
-const segmentNames = ["Purist", "Sunseeker", "Hedonist", "Bittersweet", "Adventurer", "Harmonist"];
+const segmentNames = ["Purist", "Sunseeker", "Epicurean", "Bittersweet", "Adventurer", "Harmonist"];
 let menuDrinks = Array.isArray(window.drinks) ? window.drinks : [];
 
 const state = {
@@ -409,7 +409,7 @@ function getPersonaNote(segment) {
   const examples = {
     Purist: "Usually shown: Old Fashioned",
     Sunseeker: "Usually shown: Margarita",
-    Hedonist: "Usually shown: Espresso Martini",
+    Epicurean: "Usually shown: Espresso Martini",
     Bittersweet: "Usually shown: Negroni",
     Adventurer: "Usually shown: Last Word",
     Harmonist: "Usually shown: Vodka Soda"
@@ -847,7 +847,7 @@ function getCategoryText(drink) {
 }
 
 function parseCategoryInput(value) {
-  const allowed = ["Purist", "Sunseeker", "Hedonist", "Bittersweet", "Adventurer", "Harmonist"];
+  const allowed = ["Purist", "Sunseeker", "Epicurean", "Bittersweet", "Adventurer", "Harmonist"];
   const normalizedParts = String(value || "")
     .split(/[,/]/g)
     .map(part => part.trim().toLowerCase())
@@ -1114,7 +1114,7 @@ function segmentCoordinate(segment) {
   const coordinates = {
     Purist: { x: 24, y: 24 },
     Sunseeker: { x: 67, y: 32 },
-    Hedonist: { x: 34, y: 54 },
+    Epicurean: { x: 34, y: 54 },
     Bittersweet: { x: 20, y: 48 },
     Adventurer: { x: 64, y: 82 },
     Harmonist: { x: 18, y: 14 }

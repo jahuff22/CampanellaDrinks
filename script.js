@@ -601,8 +601,8 @@ const personaProfiles = {
     intro: "You gravitate toward bright, refreshing drinks where citrus and freshness take center stage. If it tastes like summer in a glass, you’ll take it!",
     avoidance: "You steer clear of cocktails that feel heavy, flat, or dominated by the harshness of alcohol."
   },
-  Hedonist: {
-    title: "Hedonist",
+  Epicurean: {
+    title: "Epicurean",
     intro: "You love lush, sweet, creamy cocktails with texture and a little drama.",
     avoidance: "You steer clear of dry, sharp, spirit-forward drinks that ask you to work too hard."
   },
@@ -781,7 +781,7 @@ function arrangeMobileResults() {
 }
 
 function getPersonaArticle(persona) {
-  return persona === "Adventurer" ? "an" : "a";
+  return persona === "Adventurer" || persona === "Epicurean" ? "an" : "a";
 }
 
 function createDrinkResultElement(drink) {
@@ -790,7 +790,7 @@ function createDrinkResultElement(drink) {
   drinkElement.innerHTML = `
     <h3>${drink.name}</h3>
     <p><strong>Match:</strong> ${formatMatchPercentage(drink.distance)}</p>
-    <p><strong>Description:</strong> ${drink.description}</p>
+    ${/* `<p><strong>Description:</strong> ${drink.description}</p>` */ ""}
     <p><strong>Ingredients:</strong> ${drink.ingredients}</p>
     <hr>
   `;
@@ -967,7 +967,7 @@ function createCustomerConfirmationHtml(profileData) {
     <section class="customer-card">
       <h2>A recipe for your palate</h2>
       <h3>${escapeHtml(profileData.recipe.name)}</h3>
-      <p>${escapeHtml(profileData.recipe.description)}</p>
+      ${/* `<p>${escapeHtml(profileData.recipe.description)}</p>` */ ""}
       <ul>${profileData.recipe.ingredients.map(item => `<li>${escapeHtml(item)}</li>`).join("")}</ul>
       <p>${escapeHtml(profileData.recipe.method)}</p>
     </section>
@@ -1027,7 +1027,7 @@ function createCustomerDrinkCard(drink) {
   return `
     <article>
       <h3>${escapeHtml(drink.name)}</h3>
-      <p>${escapeHtml(drink.description)}</p>
+      ${/* `<p>${escapeHtml(drink.description)}</p>` */ ""}
     </article>
   `;
 }

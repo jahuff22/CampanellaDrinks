@@ -41,7 +41,7 @@ const customCocktailRows = [
     "thickness": 4,
     "rarity": 4,
     "masculinity": 0,
-    "persona": "Hedonist",
+    "persona": "Epicurean",
     "complexity": "Craft"
   },
   {
@@ -71,7 +71,7 @@ const customCocktailRows = [
     "thickness": 6,
     "rarity": 4,
     "masculinity": 1,
-    "persona": "Hedonist",
+    "persona": "Epicurean",
     "complexity": "Craft"
   },
   {
@@ -116,7 +116,7 @@ const customCocktailRows = [
     "thickness": 5,
     "rarity": 3,
     "masculinity": 0,
-    "persona": "Hedonist",
+    "persona": "Epicurean",
     "complexity": "Accessible"
   },
   {
@@ -176,7 +176,7 @@ const customCocktailRows = [
     "thickness": 4,
     "rarity": 3,
     "masculinity": 0,
-    "persona": "Hedonist",
+    "persona": "Epicurean",
     "complexity": "Craft"
   },
   {
@@ -191,7 +191,7 @@ const customCocktailRows = [
     "thickness": 4,
     "rarity": 3,
     "masculinity": 0,
-    "persona": "Hedonist",
+    "persona": "Epicurean",
     "complexity": "Craft"
   },
   {
@@ -236,7 +236,7 @@ const customCocktailRows = [
     "thickness": 4,
     "rarity": 3,
     "masculinity": 0,
-    "persona": "Hedonist",
+    "persona": "Epicurean",
     "complexity": "Accessible"
   },
   {
@@ -326,7 +326,7 @@ const customCocktailRows = [
     "thickness": 5,
     "rarity": 3,
     "masculinity": 0,
-    "persona": "Hedonist",
+    "persona": "Epicurean",
     "complexity": "Accessible"
   },
   {
@@ -416,7 +416,7 @@ const customCocktailRows = [
     "thickness": 6,
     "rarity": 5,
     "masculinity": 0,
-    "persona": "Hedonist",
+    "persona": "Epicurean",
     "complexity": "Expert"
   },
   {
@@ -506,7 +506,7 @@ const customCocktailRows = [
     "thickness": 6,
     "rarity": 4,
     "masculinity": 0,
-    "persona": "Hedonist",
+    "persona": "Epicurean",
     "complexity": "Craft"
   },
   {
@@ -641,7 +641,7 @@ const customCocktailRows = [
     "thickness": 5,
     "rarity": 4,
     "masculinity": 0,
-    "persona": "Hedonist",
+    "persona": "Epicurean",
     "complexity": "Craft"
   },
   {
@@ -746,7 +746,7 @@ const customCocktailRows = [
     "thickness": 4,
     "rarity": 5,
     "masculinity": 0,
-    "persona": "Hedonist",
+    "persona": "Epicurean",
     "complexity": "Expert"
   },
   {
@@ -821,7 +821,7 @@ const customCocktailRows = [
     "thickness": 4,
     "rarity": 5,
     "masculinity": 0,
-    "persona": "Hedonist",
+    "persona": "Epicurean",
     "complexity": "Craft"
   },
   {
@@ -851,7 +851,7 @@ const customCocktailRows = [
     "thickness": 5,
     "rarity": 3,
     "masculinity": 0,
-    "persona": "Hedonist",
+    "persona": "Epicurean",
     "complexity": "Craft"
   },
   {
@@ -866,7 +866,7 @@ const customCocktailRows = [
     "thickness": 6,
     "rarity": 4,
     "masculinity": 0,
-    "persona": "Hedonist",
+    "persona": "Epicurean",
     "complexity": "Craft"
   },
   {
@@ -881,7 +881,7 @@ const customCocktailRows = [
     "thickness": 4,
     "rarity": 3,
     "masculinity": 0,
-    "persona": "Hedonist",
+    "persona": "Epicurean",
     "complexity": "Craft"
   },
   {
@@ -911,7 +911,7 @@ const customCocktailRows = [
     "thickness": 3,
     "rarity": 4,
     "masculinity": 0,
-    "persona": "Hedonist",
+    "persona": "Epicurean",
     "complexity": "Accessible"
   },
   {
@@ -956,7 +956,7 @@ const customCocktailRows = [
     "thickness": 4,
     "rarity": 4,
     "masculinity": 0,
-    "persona": "Hedonist",
+    "persona": "Epicurean",
     "complexity": "Craft"
   },
   {
@@ -971,7 +971,7 @@ const customCocktailRows = [
     "thickness": 4,
     "rarity": 4,
     "masculinity": 0,
-    "persona": "Hedonist",
+    "persona": "Epicurean",
     "complexity": "Craft"
   },
   {
@@ -1016,7 +1016,7 @@ const customCocktailRows = [
     "thickness": 4,
     "rarity": 3,
     "masculinity": 0,
-    "persona": "Hedonist",
+    "persona": "Epicurean",
     "complexity": "Accessible"
   },
   {
@@ -1196,7 +1196,7 @@ const customCocktailRows = [
     "thickness": 5,
     "rarity": 4,
     "masculinity": 1,
-    "persona": "Hedonist",
+    "persona": "Epicurean",
     "complexity": "Craft"
   },
   {
@@ -1376,7 +1376,7 @@ const customCocktailRows = [
     "thickness": 4,
     "rarity": 4,
     "masculinity": 0,
-    "persona": "Hedonist",
+    "persona": "Epicurean",
     "complexity": "Craft"
   },
   {
@@ -1406,7 +1406,7 @@ const customCocktailRows = [
     "thickness": 4,
     "rarity": 4,
     "masculinity": 0,
-    "persona": "Hedonist",
+    "persona": "Epicurean",
     "complexity": "Craft"
   },
   {
@@ -1421,7 +1421,7 @@ const customCocktailRows = [
     "thickness": 5,
     "rarity": 3,
     "masculinity": 0,
-    "persona": "Hedonist",
+    "persona": "Epicurean",
     "complexity": "Accessible"
   },
   {
@@ -1436,7 +1436,7 @@ const customCocktailRows = [
     "thickness": 6,
     "rarity": 3,
     "masculinity": 0,
-    "persona": "Hedonist",
+    "persona": "Epicurean",
     "complexity": "Craft"
   },
   {
@@ -1496,7 +1496,7 @@ const customCocktailRows = [
     "thickness": 4,
     "rarity": 5,
     "masculinity": 0,
-    "persona": "Hedonist",
+    "persona": "Epicurean",
     "complexity": "Expert"
   },
   {
@@ -1511,7 +1511,7 @@ const customCocktailRows = [
     "thickness": 4,
     "rarity": 4,
     "masculinity": 0,
-    "persona": "Hedonist",
+    "persona": "Epicurean",
     "complexity": "Craft"
   },
   {
@@ -1526,7 +1526,7 @@ const customCocktailRows = [
     "thickness": 4,
     "rarity": 4,
     "masculinity": 0,
-    "persona": "Hedonist",
+    "persona": "Epicurean",
     "complexity": "Craft"
   },
   {
@@ -1541,7 +1541,7 @@ const customCocktailRows = [
     "thickness": 3,
     "rarity": 3,
     "masculinity": 0,
-    "persona": "Hedonist",
+    "persona": "Epicurean",
     "complexity": "Accessible"
   },
   {
@@ -1601,7 +1601,7 @@ const customCocktailRows = [
     "thickness": 6,
     "rarity": 5,
     "masculinity": 0,
-    "persona": "Hedonist",
+    "persona": "Epicurean",
     "complexity": "Craft"
   },
   {
@@ -1676,7 +1676,7 @@ const customCocktailRows = [
     "thickness": 6,
     "rarity": 4,
     "masculinity": 1,
-    "persona": "Hedonist",
+    "persona": "Epicurean",
     "complexity": "Craft"
   },
   {
@@ -1691,7 +1691,7 @@ const customCocktailRows = [
     "thickness": 6,
     "rarity": 4,
     "masculinity": 1,
-    "persona": "Hedonist",
+    "persona": "Epicurean",
     "complexity": "Craft"
   },
   {
@@ -1706,7 +1706,7 @@ const customCocktailRows = [
     "thickness": 4,
     "rarity": 4,
     "masculinity": 0,
-    "persona": "Hedonist",
+    "persona": "Epicurean",
     "complexity": "Accessible"
   },
   {
@@ -1751,7 +1751,7 @@ const customCocktailRows = [
     "thickness": 5,
     "rarity": 3,
     "masculinity": 0,
-    "persona": "Hedonist",
+    "persona": "Epicurean",
     "complexity": "Accessible"
   },
   {
@@ -1856,7 +1856,7 @@ const customCocktailRows = [
     "thickness": 5,
     "rarity": 4,
     "masculinity": 0,
-    "persona": "Hedonist",
+    "persona": "Epicurean",
     "complexity": "Craft"
   },
   {
@@ -1886,7 +1886,7 @@ const customCocktailRows = [
     "thickness": 4,
     "rarity": 4,
     "masculinity": 0,
-    "persona": "Hedonist",
+    "persona": "Epicurean",
     "complexity": "Craft"
   },
   {
@@ -1901,7 +1901,7 @@ const customCocktailRows = [
     "thickness": 5,
     "rarity": 3,
     "masculinity": 0,
-    "persona": "Hedonist",
+    "persona": "Epicurean",
     "complexity": "Craft"
   },
   {

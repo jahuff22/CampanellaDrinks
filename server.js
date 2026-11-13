@@ -1062,7 +1062,7 @@ function sanitizeCustomerDashboardEvent(event) {
       birthday: sanitizeFreeText(event.birthday, 40),
       firstName: sanitizeFreeText(event.firstName, 80),
       lastName: sanitizeFreeText(event.lastName, 80),
-      persona: sanitizeFreeText(event.persona, 60),
+      persona: normalizePersonaName(sanitizeFreeText(event.persona, 60)),
       aboutYou: sanitizeFreeText(event.aboutYou, 500),
       feedback: sanitizeCustomerFeedback(event.feedback)
     },
@@ -1371,7 +1371,7 @@ function createCustomerEvent(body) {
     firstName: sanitizeFreeText(body.firstName, 80),
     lastName: sanitizeFreeText(body.lastName, 80),
     sourcePath: sanitizePath(body.sourcePath) || "/customer",
-    persona: sanitizeFreeText(body.persona, 60),
+    persona: normalizePersonaName(sanitizeFreeText(body.persona, 60)),
     aboutYou: sanitizeFreeText(body.aboutYou, 500),
     bartenderScript: sanitizeFreeText(body.bartenderScript, 500),
     recipe: sanitizeCustomerRecipe(body.recipe),
@@ -1492,8 +1492,8 @@ function sanitizeRecommendations(recommendations) {
     description: sanitizeFreeText(drink?.description, 500),
     liquor: sanitizeFreeText(drink?.liquor, 80),
     category: Array.isArray(drink?.category)
-      ? drink.category.map(category => sanitizeFreeText(category, 80)).filter(Boolean).slice(0, 5)
-      : sanitizeFreeText(drink?.category, 80),
+      ? drink.category.map(category => normalizePersonaName(sanitizeFreeText(category, 80))).filter(Boolean).slice(0, 5)
+      : normalizePersonaName(sanitizeFreeText(drink?.category, 80)),
     matchPercentage: sanitizeFreeText(drink?.matchPercentage, 10),
     distance: Number.isFinite(Number(drink?.distance)) ? Number(drink.distance) : null
   })).filter(drink => drink.name);
@@ -1556,11 +1556,16 @@ function sanitizeBarIngredients(ingredients) {
   return sanitized.sort((a, b) => a.localeCompare(b));
 }
 
+function normalizePersonaName(persona) {
+  // Saved menus and historical results can still use the original label.
+  return /^hedonist$/i.test(persona) ? "Epicurean" : persona;
+}
+
 function sanitizeMenuCategories(categories) {
   const rawCategories = Array.isArray(categories) ? categories : String(categories || "").split(/[,/]/g);
-  const allowed = new Set(["Purist", "Sunseeker", "Hedonist", "Bittersweet", "Adventurer", "Harmonist"]);
+  const allowed = new Set(["Purist", "Sunseeker", "Epicurean", "Bittersweet", "Adventurer", "Harmonist"]);
   const sanitized = rawCategories
-    .map(category => sanitizeFreeText(category, 40))
+    .map(category => normalizePersonaName(sanitizeFreeText(category, 40)))
     .map(category => [...allowed].find(allowedCategory => allowedCategory.toLowerCase() === category.toLowerCase()))
     .filter(Boolean);
 

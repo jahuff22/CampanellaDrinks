@@ -3,19 +3,21 @@ function buildCustomerProfileEmail(event) {
   const recommendations = event.recommendations || [];
   const recipe = event.recipe || {};
   const previewName = event.firstName ? ` ${event.firstName}` : "";
+  const persona = event.persona || "PROOF guest";
+  const article = persona === "Adventurer" || persona === "Epicurean" ? "an" : "a";
   const bodyFont = "'Jost', 'Segoe UI', Arial, sans-serif";
   const headingFont = "'Cormorant Garamond', Georgia, 'Times New Roman', serif";
 
   const text = [
     `Hi${previewName},`,
     "",
-    `Cocktail Persona: You're a ${event.persona || "PROOF guest"}.`,
+    `Cocktail Persona: You're ${article} ${persona}.`,
     event.aboutYou ? `About you: ${event.aboutYou}` : "",
     "",
     "Your Perfect Classics:",
     ...recommendations.flatMap((drink, index) => [
       `${index + 1}. ${drink.name}`,
-      drink.description || ""
+      // drink.description || ""
     ]),
     "",
     "Any decent bar in America can make these. Just ask!",
@@ -25,7 +27,7 @@ function buildCustomerProfileEmail(event) {
     "",
     "A recipe for your palate:",
     recipe.name || "",
-    recipe.description || "",
+    // recipe.description || "",
     ...(recipe.ingredients || []).map(item => `- ${item}`),
     recipe.method || "",
     "",
@@ -98,7 +100,7 @@ function buildCustomerProfileEmail(event) {
             <tr>
               <td class="email-pad" bgcolor="#342556" style="padding:24px 22px;background-color:#342556;border:1px solid #4A3670;border-radius:6px;word-wrap:break-word;word-break:break-word;">
                 <p style="margin:0 0 10px;color:#D3B05E;font-family:${bodyFont};font-size:12px;line-height:18px;font-weight:600;text-transform:uppercase;">Cocktail Persona:</p>
-                <h1 class="persona-title" style="margin:0 0 16px;color:#F3ECDF;font-family:${headingFont};font-size:42px;line-height:46px;font-weight:500;">You're a ${escapeEmailHtml(event.persona || "PROOF guest")}</h1>
+                <h1 class="persona-title" style="margin:0 0 16px;color:#F3ECDF;font-family:${headingFont};font-size:42px;line-height:46px;font-weight:500;">You're ${article} ${escapeEmailHtml(persona)}</h1>
                 ${event.aboutYou ? `<p style="margin:0;color:#F3ECDF;font-family:${bodyFont};font-size:16px;line-height:26px;">${escapeEmailHtml(event.aboutYou)}</p>` : ""}
               </td>
             </tr>
@@ -112,7 +114,7 @@ function buildCustomerProfileEmail(event) {
                   <tr>
                     <td class="email-drink-card" bgcolor="#19102C" style="padding:16px;background-color:#19102C;border:1px solid #4A3670;border-radius:6px;word-wrap:break-word;word-break:break-word;">
                       <h3 style="margin:0 0 10px;color:#F3ECDF;font-family:${bodyFont};font-size:24px;line-height:29px;font-weight:500;">${escapeEmailHtml(drink.name)}</h3>
-                      ${drink.description ? `<p style="margin:0;color:#F3ECDF;font-family:${bodyFont};font-size:15px;line-height:23px;">${escapeEmailHtml(drink.description)}</p>` : ""}
+                      ${/* drink.description ? `<p style="margin:0;color:#F3ECDF;font-family:${bodyFont};font-size:15px;line-height:23px;">${escapeEmailHtml(drink.description)}</p>` : "" */ ""}
                     </td>
                   </tr>`).join("")}
                 </table>
@@ -131,7 +133,7 @@ function buildCustomerProfileEmail(event) {
               <td class="email-pad" bgcolor="#342556" style="padding:22px;background-color:#342556;border:1px solid #4A3670;border-radius:6px;word-wrap:break-word;word-break:break-word;">
                 <h2 class="section-title" style="margin:0 0 14px;color:#F3ECDF;font-family:${headingFont};font-size:30px;line-height:34px;font-weight:500;">A recipe for your palate</h2>
                 <h3 style="margin:0 0 10px;color:#F3ECDF;font-family:${bodyFont};font-size:24px;line-height:29px;font-weight:500;">${escapeEmailHtml(recipe.name || "")}</h3>
-                ${recipe.description ? `<p style="margin:0 0 16px;color:#F3ECDF;font-family:${bodyFont};font-size:15px;line-height:23px;">${escapeEmailHtml(recipe.description)}</p>` : ""}
+                ${/* recipe.description ? `<p style="margin:0 0 16px;color:#F3ECDF;font-family:${bodyFont};font-size:15px;line-height:23px;">${escapeEmailHtml(recipe.description)}</p>` : "" */ ""}
                 <ul style="margin:0 0 16px;padding:0 0 0 20px;color:#F3ECDF;font-family:${bodyFont};font-size:15px;line-height:24px;">
                   ${(recipe.ingredients || []).map(item => `<li style="margin:0 0 4px;padding-left:4px;">${escapeEmailHtml(item)}</li>`).join("")}
                 </ul>

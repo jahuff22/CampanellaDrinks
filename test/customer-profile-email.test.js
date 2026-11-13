@@ -23,7 +23,7 @@ const sample = {
   }
 };
 
-test("keeps the subject and includes drink descriptions in the plain-text email", () => {
+test("keeps the subject and hides descriptions in the plain-text email", () => {
   const email = buildCustomerProfileEmail(sample);
   assert.equal(email.subject, "Your PROOF cocktail results");
   assert.equal(email.text, [
@@ -32,13 +32,11 @@ test("keeps the subject and includes drink descriptions in the plain-text email"
     "About you: Bright citrus and a refreshing finish.",
     "Your Perfect Classics:",
     "1. Daiquiri",
-    "Light rum, fresh lime, and sugar. Crisp and refreshing.",
     "Any decent bar in America can make these. Just ask!",
     "Your Bartender Script:",
     "Something bright with fresh lime, please.",
     "A recipe for your palate:",
     "Golden Hour",
-    "A crisp citrus cocktail.",
     "- 2 oz light rum",
     "- 0.75 oz fresh lime",
     "Shake with ice, then strain.",
@@ -61,7 +59,7 @@ test("escapes every customer-controlled HTML field", () => {
     recipe: { name: unsafe, description: unsafe, ingredients: [unsafe], method: unsafe }
   });
   assert.ok(!html.includes(unsafe));
-  assert.equal(html.split(safe).length - 1, 10);
+  assert.equal(html.split(safe).length - 1, 8);
   assert.ok(!html.includes("<script"));
 });
 
@@ -72,7 +70,8 @@ test("uses the results-page surfaces and omits the spirits-and-modifiers section
   });
   const backgrounds = new Set([...html.matchAll(/bgcolor="(#[A-F0-9]+)"/g)].map(match => match[1]));
   assert.deepEqual([...backgrounds].sort(), ["#19102C", "#342556"]);
-  assert.ok(html.includes(sample.recommendations[0].description));
+  assert.ok(!html.includes(sample.recommendations[0].description));
+  assert.ok(!html.includes(sample.recipe.description));
   assert.ok(!html.includes("Try these spirits and modifiers"));
   assert.ok(!text.includes("Try these spirits and modifiers"));
   assert.ok(!html.includes("Hidden modifier"));
@@ -109,7 +108,7 @@ function loadSender({ apiKey = "test-key", responseOk = true } = {}) {
   return { send: context.sendCustomerProfileEmail, createEvent: context.createCustomerEvent, requests };
 }
 
-test("preserves descriptions from the results-page payload through email delivery", async () => {
+test("preserves descriptions in the event but hides them in the delivered email", async () => {
   const { send, createEvent, requests } = loadSender();
   const event = createEvent(sample);
   assert.equal(event.recommendations[0].description, sample.recommendations[0].description);
@@ -123,7 +122,8 @@ test("preserves descriptions from the results-page payload through email deliver
   assert.equal(payload.reply_to, "hello@joinproof.bar");
   assert.equal(payload.subject, buildCustomerProfileEmail(sample).subject);
   assert.equal(payload.text, buildCustomerProfileEmail(sample).text);
-  assert.ok(payload.html.includes(sample.recommendations[0].description));
+  assert.ok(!payload.html.includes(sample.recommendations[0].description));
+  assert.ok(!payload.html.includes(sample.recipe.description));
   assert.equal(payload.attachments.length, 1);
   const logo = payload.attachments[0];
   assert.equal(logo.content_type, "image/png");

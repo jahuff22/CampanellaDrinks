@@ -14,7 +14,7 @@ const defaultDrinks = [
         "type": "Classic",
         "category": [
             "Sunseeker",
-            "Hedonist"
+            "Epicurean"
         ],
         "scores": {
             "strength": 3,
@@ -137,7 +137,7 @@ const defaultDrinks = [
         "liquor": "Classic",
         "type": "Classic",
         "category": [
-            "Hedonist"
+            "Epicurean"
         ],
         "scores": {
             "strength": 3,
@@ -258,7 +258,7 @@ const defaultDrinks = [
         "liquor": "Classic",
         "type": "Classic",
         "category": [
-            "Hedonist",
+            "Epicurean",
             "Bittersweet",
             "Harmonist"
         ],
@@ -301,7 +301,7 @@ const defaultDrinks = [
         "type": "Classic",
         "category": [
             "Sunseeker",
-            "Hedonist"
+            "Epicurean"
         ],
         "scores": {
             "strength": 3,
@@ -363,7 +363,7 @@ const defaultDrinks = [
         "liquor": "Classic",
         "type": "Classic",
         "category": [
-            "Hedonist"
+            "Epicurean"
         ],
         "scores": {
             "strength": 2,
@@ -608,7 +608,7 @@ const defaultDrinks = [
         "liquor": "Classic",
         "type": "Classic",
         "category": [
-            "Hedonist"
+            "Epicurean"
         ],
         "scores": {
             "strength": 3,
@@ -841,7 +841,7 @@ const restaurantDrinkRows = {
         ["Gin & Tonic", "Classic", 2, 2, 1, 2, 1, 1, 1, 1, 1, "Harmonist/Bittersweet flex"],
         ["Whiskey Sour", "Classic", 3, 3, 4, 1, 4, 1, 1, 1, 1, "Sunseeker"],
         ["Sidecar", "Classic", 5, 3, 4, 1, 2, 1, 1, 2, 1, "Sunseeker/Purist flex"],
-        ["Pina Colada", "Classic", 2, 7, 1, 1, 7, 1, 1, 1, 0, "Hedonist"],
+        ["Pina Colada", "Classic", 2, 7, 1, 1, 7, 1, 1, 1, 0, "Epicurean"],
         ["White Sangria", "Classic", 2, 3, 3, 1, 2, 1, 1, 1, 0, "Sunseeker/harmonist flex"],
         ["Red Sangria", "Classic", 2, 3, 2, 1, 2, 1, 1, 1, 0, "Sunseeker/harmonist flex"],
         ["Martini", "Classic", 7, 1, 1, 1, 2, 1, 1, 1, 1, "Purist"],
@@ -854,11 +854,11 @@ const restaurantDrinkRows = {
         ["Sazerac", "Classic", 7, 2, 1, 3, 3, 3, 3, 3, 1, "Purist/bittersweet"],
         ["Mint Julep", "Classic", 7, 3, 1, 1, 3, 1, 1, 1, 1, "Purist"],
         ["Daiquiri", "Classic", 3, 3, 4, 1, 2, 1, 1, 1, 0, "Sunseeker"],
-        ["Coffee Flip", "Classic", 3, 5, 1, 1, 7, 2, 3, 3, 0, "Hedonist"],
-        ["Ramos Gin Fizz", "Classic", 2, 3, 3, 1, 6, 3, 4, 4, 0, "Hedonist (harmonist adjacent)"],
-        ["Brandy Alexander", "Classic", 3, 6, 1, 1, 7, 1, 1, 1, 0, "Hedonist"],
-        ["Espresso Martini", "Classic", 3, 5, 1, 2, 4, 1, 1, 1, 0, "Harmonist/Bittersweet (hedonist adjacent)"],
-        ["Irish Coffee", "Classic", 2, 3, 1, 3, 5, 1, 1, 1, 0, "Bittersweet/Hedonist"],
+        ["Coffee Flip", "Classic", 3, 5, 1, 1, 7, 2, 3, 3, 0, "Epicurean"],
+        ["Ramos Gin Fizz", "Classic", 2, 3, 3, 1, 6, 3, 4, 4, 0, "Epicurean (harmonist adjacent)"],
+        ["Brandy Alexander", "Classic", 3, 6, 1, 1, 7, 1, 1, 1, 0, "Epicurean"],
+        ["Espresso Martini", "Classic", 3, 5, 1, 2, 4, 1, 1, 1, 0, "Harmonist/Bittersweet (epicurean adjacent)"],
+        ["Irish Coffee", "Classic", 2, 3, 1, 3, 5, 1, 1, 1, 0, "Bittersweet/Epicurean"],
         ["Tom Collins", "Classic", 2, 3, 4, 1, 2, 1, 1, 1, 0, "Sunseeker (harmonist adjacent)"],
         ["French 75", "Classic", 3, 3, 3, 1, 2, 1, 1, 1, 0, "Sunseeker"],
         ["Mimosa", "Classic", 1, 3, 2, 1, 2, 1, 1, 1, 0, "Harmonist"],
@@ -871,12 +871,12 @@ const restaurantDrinkRows = {
         ["Corpse Reviver #2", "Classic", 4, 4, 5, 1, 3, 3, 3, 3, 0, "Sunseeker"],
         ["Vodka Soda", "Classic", 2, 1, 1, 1, 1, 1, 1, 1, 0, "Harmonist"],
         ["Bamboo", "Classic", 2, 1, 1, 3, 3, 3, 4, 4, 0, "Bittersweet, harmonist flex"],
-        ["Cocoa Puff", "Bespoke", 5, 6, 1, 3, 3, 7, 6, 7, 1, "Adventurer (bittwesweet, hedonist adjacent)"],
+        ["Cocoa Puff", "Bespoke", 5, 6, 1, 3, 3, 7, 6, 7, 1, "Adventurer (bittwesweet, epicurean adjacent)"],
         ["Lemon Meringue Pie", "Bespoke", 3, 5, 3, 1, 4, 5, 6, 6, 0, "Sunseeker (harmonist/indulgent adjacent)"],
         ["Purple", "Bespoke", 3, 4, 4, 1, 4, 5, 4, 5, 0, "Sunseeker"],
         ["The Conference", "Bespoke", 6, 3, 1, 2, 3, 5, 6, 6, 1, "Adventurer, purist flex"],
-        ["Creamy Tiki", "Bespoke", 4, 6, 3, 1, 5, 3, 3, 3, 0, "Hedonist, Adventurer"],
-        ["Rum Flip", "Bespoke", 5, 2, 1, 1, 6, 2, 3, 3, 0, "Hedonist, Adventurer"],
+        ["Creamy Tiki", "Bespoke", 4, 6, 3, 1, 5, 3, 3, 3, 0, "Epicurean, Adventurer"],
+        ["Rum Flip", "Bespoke", 5, 2, 1, 1, 6, 2, 3, 3, 0, "Epicurean, Adventurer"],
         ["Cinnamon Girl", "Bespoke", 3, 3, 4, 1, 3, 4, 4, 4, 1, "Sunseeker, Adventurer"],
         ["Cucumber Thai", "Bespoke", 3, 3, 4, 1, 4, 4, 5, 5, 0, "Sunseeker, Adventurer"],
         ["Le CouCou", "Bespoke", 3, 3, 2, 1, 3, 6, 7, 7, 1, "Adventurer (harmonsist flex)"],
@@ -888,10 +888,10 @@ const restaurantDrinkRows = {
         ["Tomato-Tini", "Signature", 4, 1, 3, 1, 3, 4, 4, 4, 1, "Adventurer (bittersweet flex)", "ALB Vodka, tomato, white balsamic, lemon, black pepper"],
         ["POM.com", "Signature", 4, 4, 3, 2, 3, 2, 2, 2, 0, "Adventurer / bittersweet flex", "Highwest, St. Germain, pomegranate, Peychaud's"],
         ["Scorpio Season", "Signature", 4, 4, 3, 1, 3, 3, 3, 3, 1, "Adventurer", "Tanteo Jalapeno, Grand Marnier, blood orange"],
-        ["Incompearable", "Signature", 3, 5, 3, 1, 3, 2, 2, 2, 0, "Harmonist (hedonist adjacent)", "Grey Goose Pear, St. Germain, pear, lemon"],
+        ["Incompearable", "Signature", 3, 5, 3, 1, 3, 2, 2, 2, 0, "Harmonist (epicurean adjacent)", "Grey Goose Pear, St. Germain, pear, lemon"],
         ["Mia Margarita", "Signature", 3, 4, 4, 1, 3, 1, 1, 1, 0, "Sunseeker", "Patron Silver, passionfruit, agave, fresh lime"],
         ["Where's the Beach?!", "Signature", 3, 4, 3, 2, 2, 2, 2, 2, 0, "Sunseeker (bittersweet adjacent)", "Ketel One, Cointreau, Aperol, orange, lime"],
-        ["Class Act", "Signature", 2, 5, 2, 1, 2, 3, 3, 3, 0, "Harmonist / hedonist flex", "Prosecco, St. Germain, fig, plum, thyme, honey"],
+        ["Class Act", "Signature", 2, 5, 2, 1, 2, 3, 3, 3, 0, "Harmonist / epicurean flex", "Prosecco, St. Germain, fig, plum, thyme, honey"],
         ["Gondola Ride", "Signature", 3, 3, 3, 1, 2, 2, 2, 2, 0, "Sunseeker", "Hendrick's, watermelon, mint, lime"],
         ["White Lotus", "Signature", 4, 4, 3, 1, 3, 3, 3, 3, 1, "Adventurer (purist adjacent)", "Mi Campo, Mezcal Union, pear, honey, lemon"],
         ["Bad Berry", "Signature", 4, 4, 3, 1, 3, 2, 2, 2, 1, "Sunseeker / adventurer flex", "Don Julio Reposado, Grand Marnier, blackberry"],
@@ -1027,7 +1027,7 @@ function toMasculinityFlag(value) {
 }
 
 function parsePersonaCategories(personas) {
-    const validPersonas = ["Purist", "Sunseeker", "Hedonist", "Bittersweet", "Adventurer", "Harmonist"];
+    const validPersonas = ["Purist", "Sunseeker", "Epicurean", "Bittersweet", "Adventurer", "Harmonist"];
     const normalized = String(personas || "").toLowerCase();
     const categories = validPersonas.filter(persona => normalized.includes(persona.toLowerCase()));
     return categories.length ? categories : ["Harmonist"];
