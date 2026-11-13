@@ -1,6 +1,6 @@
 const questionText = {
   strength: {
-    prompt: "When considering the strength of my cocktail right now",
+    prompt: "When considering how strong I want my cocktail to taste right now",
     low: "I do not want to taste the alcohol at all",
     high: "I want my drink to taste very strong"
   },
